@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">ActRecognition</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_section1">Accelerometer Monitoring</string>
+    <string name="title_section2">Activity Recording</string>
+    <string name="title_section3">Activity Recognition</string>
+
+</resources>

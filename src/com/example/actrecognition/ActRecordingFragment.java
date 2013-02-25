@@ -32,14 +32,22 @@ public class ActRecordingFragment extends Fragment {
 	static ArrayList<Float> yDataRecording = new ArrayList<Float>();
 	static ArrayList<Float> zDataRecording = new ArrayList<Float>();
 	XYPlot xyzPlot;
+	boolean doneRecording=false;
 
 
 	public void passValues(float x,float y, float z){
+		if(doneRecording==true){
+			xDataRecording.clear();
+			yDataRecording.clear();
+			zDataRecording.clear();		
+			doneRecording=false;
+		}
 		if(xDataRecording.size()==480){
 			Toast.makeText(getActivity(),
 					"480 records done",
 					Toast.LENGTH_LONG).show();			
 			drawData();
+			doneRecording=true;
 		}else{
 			xDataRecording.add(x);
 			yDataRecording.add(y);
@@ -58,8 +66,18 @@ public class ActRecordingFragment extends Fragment {
 
 		xyzPlot.redraw();
 		
+
 	}
 
+	public SimpleXYSeries getXSeries(){
+		return xPlotSeries;
+	}
+	public SimpleXYSeries getYSeries(){
+		return yPlotSeries;
+	}
+	public SimpleXYSeries getZSeries(){
+		return zPlotSeries;
+	}
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.act_recording, container,

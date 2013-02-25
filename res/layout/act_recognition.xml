@@ -1,8 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
     
+        <Button
+        android:id="@+id/recordForRecognitionButton"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Record and Compare activity"
+        android:textColor="@android:color/black" 
+        android:onClick="startActivityRecording"/>
 
-</LinearLayout>
+        <TextView
+        android:id="@+id/xyzActivityPlotLabel"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Activity data:"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@android:color/black" 
+        android:layout_below="@id/recordForRecognitionButton" />
+        
+        
+        <com.androidplot.xy.XYPlot
+        android:id="@+id/xyzActivityPlot"
+        android:layout_width="fill_parent"
+        android:layout_height="240dp"
+        android:layout_below="@id/recordForRecognitionButton" />
+        
+        <TextView
+        android:id="@+id/xyzActivityPlotLabel"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Saved data:"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@android:color/black" 
+        android:layout_below="@id/xyzActivityPlot" />
+        
+        <com.androidplot.xy.XYPlot
+        android:id="@+id/xyzSavedPlot"
+        android:layout_width="fill_parent"
+        android:layout_height="240dp"
+        android:layout_below="@id/xyzActivityPlotLabel" />
+        
+        <TextView
+        android:id="@+id/comparisonResultLabel"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Similarity: x%"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@android:color/black" 
+        android:layout_below="@id/xyzSavedPlot" />
+        
+        
+</RelativeLayout>

@@ -57,6 +57,8 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 	
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -76,6 +78,7 @@ public class MainActivity extends FragmentActivity implements
 		// Set up the ViewPager with the sections adapter.
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSectionsPagerAdapter);
+		mViewPager.setOffscreenPageLimit(3);
 
 		// When swiping between different sections, select the corresponding
 		// tab. We can also use ActionBar.Tab#select() to do this if we have
@@ -216,4 +219,12 @@ public class MainActivity extends FragmentActivity implements
 					Toast.LENGTH_LONG).show();
 		 }
 
+	 public void startActivityRecording(View view) {
+			AccMonitorFragment accMonitorFragment = (AccMonitorFragment) getSupportFragmentManager().findFragmentByTag(tagFragment1);
+			accMonitorFragment.enableActivityRecording();
+
+			Toast.makeText(this,
+					"Recording Activity will start in 5 sec",
+					Toast.LENGTH_LONG).show();
+		 }
 }

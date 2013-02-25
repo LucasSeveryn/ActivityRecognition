@@ -39,6 +39,7 @@ public class AccMonitorFragment  extends Fragment {
 	private boolean mInitialised;
 	
 	private boolean recordingEnabled=false;
+	private boolean activityRecordingEnabled=false;
 
 	private float mAccelLast; // last acceleration including gravity
 	private final SensorEventListener mSensorListener = new SensorEventListener() {
@@ -61,8 +62,14 @@ public class AccMonitorFragment  extends Fragment {
 		    	  ActRecordingFragment actRecordingFragment = (ActRecordingFragment) getActivity()
 		  				.getSupportFragmentManager().findFragmentByTag(((MainActivity)getActivity()).tagFragment2);
 		    	  actRecordingFragment.passValues(x, y, z);
-		  		  
 		      }
+		      
+		      if(activityRecordingEnabled){
+		    	  ActRecognitionFragment actRecognitionFragment = (ActRecognitionFragment) getActivity()
+		  				.getSupportFragmentManager().findFragmentByTag(((MainActivity)getActivity()).tagFragment3);
+		    	  actRecognitionFragment.passValues(x, y, z);
+		      }
+		      
 		      updatePlot(xDataHistory,xPlotSeries,xPlot,x);
 		      updatePlot(yDataHistory,yPlotSeries,yPlot,y);
 		      updatePlot(zDataHistory,zPlotSeries,zPlot,z);    
@@ -166,4 +173,41 @@ public class AccMonitorFragment  extends Fragment {
 		Runnable r = new dataRecording();
 		new Thread(r).start();
 	}
+	
+	public class activityRecording implements Runnable {
+		public activityRecording() {
+
+		}
+
+		public void run() {
+
+			long t = System.currentTimeMillis();
+			long end = t + 5000;
+			while (System.currentTimeMillis() < end) {
+				//wait for 5 sec to allow putting phone into pocket
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			activityRecordingEnabled = true;
+			t = System.currentTimeMillis();
+			end = t + 10000;
+			while (System.currentTimeMillis() < end) {
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			activityRecordingEnabled = false;
+		}
+	}
+
+	void enableActivityRecording() {
+		Runnable r = new activityRecording();
+		new Thread(r).start();
+	}
+	
 }

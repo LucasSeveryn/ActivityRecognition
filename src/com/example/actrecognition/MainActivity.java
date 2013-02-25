@@ -19,9 +19,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends FragmentActivity implements
 		ActionBar.TabListener {
+	String tagFragment1;
+	String tagFragment2;
+	String tagFragment3;
+
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -38,6 +43,20 @@ public class MainActivity extends FragmentActivity implements
 	 */
 	ViewPager mViewPager;
 
+	public void setTabFragment(int index, String tag){
+		switch(index){
+		case 1:
+			tagFragment1 = tag;
+			break;
+		case 2:
+			tagFragment2 = tag;
+			break;
+		case 3:
+			tagFragment3 = tag;
+			break;
+		}
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -79,6 +98,32 @@ public class MainActivity extends FragmentActivity implements
 					.setText(mSectionsPagerAdapter.getPageTitle(i))
 					.setTabListener(this));
 		}
+		
+//	    AccMonitorFragment accMonitorFragment;
+//	    if (savedInstanceState != null) {
+//	    	accMonitorFragment = (AccMonitorFragment) getSupportFragmentManager().findFragmentByTag("accMonitorFragment");
+//	    } else {
+//	    	accMonitorFragment = new AccMonitorFragment();
+//	        getSupportFragmentManager().beginTransaction().add(R.id.pager, accMonitorFragment, "accMonitorFragment").commit(); 
+//	    }
+//	    
+//	    ActRecognitionFragment actRecognitionFragment;
+//	    if (savedInstanceState != null) {
+//	    	actRecognitionFragment = (ActRecognitionFragment) getSupportFragmentManager().findFragmentByTag("actRecognitionFragment");
+//	    } else {
+//	    	actRecognitionFragment = new ActRecognitionFragment();
+//	        getSupportFragmentManager().beginTransaction().add(R.id.pager, actRecognitionFragment, "actRecognitionFragment").commit(); 
+//	    }
+//	    
+//	    ActRecordingFragment actRecordingFragment;
+//	    if (savedInstanceState != null) {
+//	    	actRecordingFragment = (ActRecordingFragment) getSupportFragmentManager().findFragmentByTag("actRecordingFragment");
+//	    } else {
+//	    	actRecordingFragment = new ActRecordingFragment();
+//	        getSupportFragmentManager().beginTransaction().add(R.id.pager, actRecordingFragment, "actRecordingFragment").commit(); 
+//	    }
+	    
+	    
 	}
 
 	@Override
@@ -122,15 +167,23 @@ public class MainActivity extends FragmentActivity implements
 //			args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, position + 1);
 //			fragment.setArguments(args);
 //			return fragment;
+			
+	
 			switch(position){
 			case 0:
-				return new AccMonitorFragment();
+				AccMonitorFragment accMonitorFragment = new AccMonitorFragment();
+//			    getSupportFragmentManager().beginTransaction().add(R.id.pager, accMonitorFragment, "accMonitorFragment").commit(); 				
+				return accMonitorFragment;
 			case 1:
-				return new ActRecordingFragment();
+				ActRecordingFragment actRecordingFragment = new ActRecordingFragment();
+//			    getSupportFragmentManager().beginTransaction().add(R.id.pager, actRecordingFragment, "actRecordingFragment").commit(); 				
+				return actRecordingFragment;
 			case 2:
-				return new ActRecognitionFragment();
+				ActRecognitionFragment actRecognitionFragment= new ActRecognitionFragment();
+//			    getSupportFragmentManager().beginTransaction().add(R.id.pager, actRecognitionFragment, "actRecognitionFragment").commit(); 				
+				return actRecognitionFragment;
 			}
-			return new AccMonitorFragment();
+			return null;
 		}
 
 		@Override
@@ -154,42 +207,13 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 	
+	 public void startRecording(View view) {
+			AccMonitorFragment accMonitorFragment = (AccMonitorFragment) getSupportFragmentManager().findFragmentByTag(tagFragment1);
+			accMonitorFragment.enableRecording();
 
-	public static class A  extends Fragment {
-
-	    public View onCreateView(LayoutInflater inflater, ViewGroup container, 
-	            Bundle savedInstanceState) {
-	            // Inflate the layout for this fragment
-	            return inflater.inflate(R.layout.act_recognition, container, false);
-	        }
-	    
-	}
-
-	/**
-	 * A dummy fragment representing a section of the app, but that simply
-	 * displays dummy text.
-	 */
-	public static class DummySectionFragment extends Fragment {
-		/**
-		 * The fragment argument representing the section number for this
-		 * fragment.
-		 */
-		public static final String ARG_SECTION_NUMBER = "section_number";
-
-		public DummySectionFragment() {
-		}
-
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_main_dummy,
-					container, false);
-			TextView dummyTextView = (TextView) rootView
-					.findViewById(R.id.section_label);
-			dummyTextView.setText(Integer.toString(getArguments().getInt(
-					ARG_SECTION_NUMBER)));
-			return rootView;
-		}
-	}
+			Toast.makeText(this,
+					"Recording will start in 5 sec",
+					Toast.LENGTH_LONG).show();
+		 }
 
 }

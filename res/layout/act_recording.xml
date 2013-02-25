@@ -1,8 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingLeft="5dp"
+    android:paddingRight="5dp"
+    android:paddingTop="5dp"
     android:orientation="vertical" >
     
+    <TextView
+        android:id="@+id/xyzPlotLabel"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Recorded Data:"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@android:color/black" />
 
-</LinearLayout>
+    <com.androidplot.xy.XYPlot
+        android:id="@+id/xyzPlot"
+        android:layout_width="fill_parent"
+        android:layout_height="340dp"
+        android:layout_below="@id/xAccPlotLabel" />
+
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/xyzPlot"
+        android:text="Start Recording" 
+        android:onClick="startRecording"/>
+
+
+</RelativeLayout>

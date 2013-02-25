@@ -37,6 +37,8 @@ public class AccMonitorFragment  extends Fragment {
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
 	private boolean mInitialised;
+	
+	private boolean recordingEnabled=false;
 
 	private float mAccelLast; // last acceleration including gravity
 	private final SensorEventListener mSensorListener = new SensorEventListener() {
@@ -55,7 +57,12 @@ public class AccMonitorFragment  extends Fragment {
 		      float z = event.values[2];
 		      
 		      
-		      
+		      if(recordingEnabled){
+		    	  ActRecordingFragment actRecordingFragment = (ActRecordingFragment) getActivity()
+		  				.getSupportFragmentManager().findFragmentByTag(((MainActivity)getActivity()).tagFragment2);
+		    	  actRecordingFragment.passValues(x, y, z);
+		  		  
+		      }
 		      updatePlot(xDataHistory,xPlotSeries,xPlot,x);
 		      updatePlot(yDataHistory,yPlotSeries,yPlot,y);
 		      updatePlot(zDataHistory,zPlotSeries,zPlot,z);    
@@ -88,6 +95,7 @@ public class AccMonitorFragment  extends Fragment {
 		View rootView = inflater.inflate(R.layout.acc_monitor,
 				container, false);
 
+		((MainActivity)getActivity()).setTabFragment(1, getTag());
 		
 		xPlot = (XYPlot) rootView.findViewById(R.id.xAccPlot);
 		yPlot = (XYPlot) rootView.findViewById(R.id.yAccPlot);
@@ -102,7 +110,10 @@ public class AccMonitorFragment  extends Fragment {
 		mAccelerometer = mSensorManager
 				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		mSensorManager.registerListener(mSensorListener, mAccelerometer,
-				SensorManager.SENSOR_DELAY_GAME);	    
+				SensorManager.SENSOR_DELAY_GAME);
+		
+		
+		
 		return rootView;
         }
     
@@ -119,4 +130,40 @@ public class AccMonitorFragment  extends Fragment {
 		plot.getRangeLabelWidget().pack();
 		plot.setTitle(series.getTitle());
     }
+    
+	public class dataRecording implements Runnable {
+		public dataRecording() {
+
+		}
+
+		public void run() {
+
+			long t = System.currentTimeMillis();
+			long end = t + 5000;
+			while (System.currentTimeMillis() < end) {
+				//wait for 5 sec to allow putting phone into pocket
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			recordingEnabled = true;
+			t = System.currentTimeMillis();
+			end = t + 10000;
+			while (System.currentTimeMillis() < end) {
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			recordingEnabled = false;
+		}
+	}
+
+	void enableRecording() {
+		Runnable r = new dataRecording();
+		new Thread(r).start();
+	}
 }

@@ -55,20 +55,23 @@ public class MainActivity extends FragmentActivity implements
 	float yError;
 	float zError;
 	float xError;
-	
-	ArrayList<Float> xDataHistory = new ArrayList<Float>();
-	ArrayList<Float> yDataHistory = new ArrayList<Float>();
-	ArrayList<Float> zDataHistory = new ArrayList<Float>();
-	
+
 	private SimpleXYSeries xPlotSeries = new SimpleXYSeries("x acceleration");
 	private SimpleXYSeries yPlotSeries = new SimpleXYSeries("y acceleration");
 	private SimpleXYSeries zPlotSeries = new SimpleXYSeries("z acceleration");
 	
+	ArrayList<Float> xMonitorPlotData = new ArrayList<Float>();
+	ArrayList<Float> yMonitorPlotData = new ArrayList<Float>();
+	ArrayList<Float> zMonitorPlotData = new ArrayList<Float>();
+
+	static ArrayList<Float> xRecordingData = new ArrayList<Float>();
+	static ArrayList<Float> yRecordingData = new ArrayList<Float>();
+	static ArrayList<Float> zRecordingData = new ArrayList<Float>();
+
 	AccMonitorFragment monitorTab;
 	ActRecognitionFragment recognitionTab;
 	ActRecordingFragment recordingTab;
-	
-	
+
 	private final SensorEventListener mSensorListener = new SensorEventListener() {
 		private int counter = 0;
 
@@ -80,74 +83,157 @@ public class MainActivity extends FragmentActivity implements
 
 		@Override
 		public void onSensorChanged(SensorEvent event) {
-			float x = event.values[0];
-			float y = event.values[1];
-			float z = event.values[2];
 
+			if (monitorTab != null) {
+				float x = event.values[0];
+				float y = event.values[1];
+				float z = event.values[2];
 
-
-			if (recordingEnabled) {
-				ActRecordingFragment actRecordingFragment = (ActRecordingFragment) getSupportFragmentManager().findFragmentByTag(tagFragment2);
-				actRecordingFragment.passValues(x, y, z);
-			}
-
-			if (activityRecordingEnabled) {
-				ActRecognitionFragment actRecognitionFragment = (ActRecognitionFragment) getSupportFragmentManager().findFragmentByTag(tagFragment3);
-				actRecognitionFragment.passValues(x, y, z);
-			}
-
-			updatePlot(xDataHistory, xPlotSeries, xPlot, x);
-			updatePlot(yDataHistory, yPlotSeries, yPlot, y);
-			updatePlot(zDataHistory, zPlotSeries, zPlot, z);
-
-			if (xDataHistory.size() == 119) {
-				Float sumx = 0f;
-				Float sumy = 0f;
-				Float sumz = 0f;
-
-				for (Float number : xDataHistory) {
-					sumx += number;
-				}
-				for (Float number : yDataHistory) {
-					sumy += number;
-				}
-				for (Float number : zDataHistory) {
-					sumz += number;
+				if (recordingEnabled) {
+					if(xRecordingData.size()<480){
+						xRecordingData.add(x);
+						yRecordingData.add(y);
+						zRecordingData.add(z);
+					}else{
+						recordingTab.drawData(xRecordingData, yRecordingData, zRecordingData);
+					}
 				}
 
-				xError = sumx / xDataHistory.size();
-				yError = sumy / yDataHistory.size();
-				zError = sumz / zDataHistory.size();
-			}
+				if (activityRecordingEnabled) {
+					ActRecognitionFragment actRecognitionFragment = (ActRecognitionFragment) getSupportFragmentManager()
+							.findFragmentByTag(tagFragment3);
+					actRecognitionFragment.passValues(x, y, z);
+				}
 
-			if (counter % 50 == 0) {
-				((TextView) findViewById(R.id.xAccPlotLabel))
-						.setText("x-plane acc. Error: " + xError
-								+ " Current value: " + x);
-				((TextView) findViewById(R.id.yAccPlotLabel))
-						.setText("y-plane acc. Error: " + yError
-								+ " Current value: " + y);
-				((TextView) findViewById(R.id.zAccPlotLabel))
-						.setText("z-plane acc. Error: " + zError
-								+ " Current value: " + z);
-			}
+				monitorTab.updatePlot(xMonitorPlotData, xPlotSeries,
+						monitorTab.xPlot, x);
+				monitorTab.updatePlot(yMonitorPlotData, yPlotSeries,
+						monitorTab.yPlot, y);
+				monitorTab.updatePlot(zMonitorPlotData, zPlotSeries,
+						monitorTab.zPlot, z);
 
-			counter++;
+				if (xMonitorPlotData.size() == 119) {
+					Float sumx = 0f;
+					Float sumy = 0f;
+					Float sumz = 0f;
+
+					for (Float number : xMonitorPlotData) {
+						sumx += number;
+					}
+					for (Float number : yMonitorPlotData) {
+						sumy += number;
+					}
+					for (Float number : zMonitorPlotData) {
+						sumz += number;
+					}
+
+					xError = sumx / xMonitorPlotData.size();
+					yError = sumy / yMonitorPlotData.size();
+					zError = sumz / zMonitorPlotData.size();
+				}
+
+				if (counter % 25 == 0) {
+					((TextView) findViewById(R.id.xAccPlotLabel))
+							.setText("x-plane acc. Error: " + xError
+									+ " Current value: " + x);
+					((TextView) findViewById(R.id.yAccPlotLabel))
+							.setText("y-plane acc. Error: " + yError
+									+ " Current value: " + y);
+					((TextView) findViewById(R.id.zAccPlotLabel))
+							.setText("z-plane acc. Error: " + zError
+									+ " Current value: " + z);
+				}
+
+				counter++;
+			}
 		}
-
 	};
 
-	public void setTabFragment(int index, String tag) {
-		switch (index) {
-		case 1:
-			tagFragment1 = tag;
-			break;
-		case 2:
-			tagFragment2 = tag;
-			break;
-		case 3:
-			tagFragment3 = tag;
-			break;
+	/**
+	 * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
+	 * one of the sections/tabs/pages.
+	 */
+	public class SectionsPagerAdapter extends FragmentPagerAdapter {
+	
+		public SectionsPagerAdapter(FragmentManager fm) {
+			super(fm);
+		}
+	
+		@Override
+		public Fragment getItem(int position) {
+	
+			switch (position) {
+			case 0:
+				AccMonitorFragment accMonitorFragment = new AccMonitorFragment();
+				monitorTab = accMonitorFragment;
+				return accMonitorFragment;
+			case 1:
+				ActRecordingFragment actRecordingFragment = new ActRecordingFragment();
+				recordingTab = actRecordingFragment;
+				return actRecordingFragment;
+			case 2:
+				ActRecognitionFragment actRecognitionFragment = new ActRecognitionFragment();
+				recognitionTab = actRecognitionFragment;
+				return actRecognitionFragment;
+			}
+			return null;
+		}
+	
+		@Override
+		public int getCount() {
+			// Show 3 total pages.
+			return 3;
+		}
+	
+		@Override
+		public CharSequence getPageTitle(int position) {
+			Locale l = Locale.getDefault();
+			switch (position) {
+			case 0:
+				return getString(R.string.title_section1).toUpperCase(l);
+			case 1:
+				return getString(R.string.title_section2).toUpperCase(l);
+			case 2:
+				return getString(R.string.title_section3).toUpperCase(l);
+			}
+			return null;
+		}
+	}
+
+	// Data Recording - used in recording tab
+	public class dataRecording implements Runnable {
+		Vibrator v;
+	
+		public dataRecording() {
+			v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+		}
+		
+		public void pause(long n){
+			long t = System.currentTimeMillis();
+			long end = t + n;
+			while (System.currentTimeMillis() < end) {
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	
+		public void run() {
+			long t = System.currentTimeMillis();
+			pause(5000);
+			v.vibrate(100);
+			pause(200);
+			recalculateError();
+			pause(3500);
+			v.vibrate(100);
+			pause(200);
+			recordingEnabled = true;
+			t = System.currentTimeMillis();
+			pause(10000);
+			recordingEnabled = false;
+			v.vibrate(100);
 		}
 	}
 
@@ -155,23 +241,23 @@ public class MainActivity extends FragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
+	
 		// Set up the action bar.
 		final ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		actionBar.setDisplayShowTitleEnabled(false);
 		actionBar.setDisplayShowHomeEnabled(false);
-
+	
 		// Create the adapter that will return a fragment for each of the three
 		// primary sections of the app.
 		mSectionsPagerAdapter = new SectionsPagerAdapter(
 				getSupportFragmentManager());
-
+	
 		// Set up the ViewPager with the sections adapter.
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSectionsPagerAdapter);
 		mViewPager.setOffscreenPageLimit(3);
-
+	
 		// When swiping between different sections, select the corresponding
 		// tab. We can also use ActionBar.Tab#select() to do this if we have
 		// a reference to the Tab.
@@ -182,7 +268,7 @@ public class MainActivity extends FragmentActivity implements
 						actionBar.setSelectedNavigationItem(position);
 					}
 				});
-
+	
 		// For each of the sections in the app, add a tab to the action bar.
 		for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
 			// Create a tab with text corresponding to the page title defined by
@@ -193,10 +279,8 @@ public class MainActivity extends FragmentActivity implements
 					.setText(mSectionsPagerAdapter.getPageTitle(i))
 					.setTabListener(this));
 		}
-
-		mInitialised = false;
-		mSensorManager = (SensorManager) getSystemService(
-				Context.SENSOR_SERVICE);
+	
+		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 		mAccelerometer = mSensorManager
 				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		mSensorManager.registerListener(mSensorListener, mAccelerometer,
@@ -208,6 +292,27 @@ public class MainActivity extends FragmentActivity implements
 		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
+	}
+
+	public void setTabFragment(int index, String tag) {
+		switch (index) {
+		case 1:
+			tagFragment1 = tag;
+			monitorTab = (AccMonitorFragment) getSupportFragmentManager()
+					.findFragmentByTag(tag);
+			break;
+		case 2:
+			tagFragment2 = tag;
+			recordingTab = (ActRecordingFragment) getSupportFragmentManager()
+					.findFragmentByTag(tag);
+			break;
+		case 3:
+			tagFragment3 = tag;
+			recognitionTab = (ActRecognitionFragment) getSupportFragmentManager()
+					.findFragmentByTag(tag);
+
+			break;
+		}
 	}
 
 	@Override
@@ -228,62 +333,8 @@ public class MainActivity extends FragmentActivity implements
 			FragmentTransaction fragmentTransaction) {
 	}
 
-	/**
-	 * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-	 * one of the sections/tabs/pages.
-	 */
-	public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-		public SectionsPagerAdapter(FragmentManager fm) {
-			super(fm);
-		}
-
-		@Override
-		public Fragment getItem(int position) {
-
-			switch (position) {
-			case 0:
-				AccMonitorFragment accMonitorFragment = new AccMonitorFragment();
-				return accMonitorFragment;
-			case 1:
-				ActRecordingFragment actRecordingFragment = new ActRecordingFragment();
-				return actRecordingFragment;
-			case 2:
-				ActRecognitionFragment actRecognitionFragment = new ActRecognitionFragment();
-				return actRecognitionFragment;
-			}
-			return null;
-		}
-
-		@Override
-		public int getCount() {
-			// Show 3 total pages.
-			return 3;
-		}
-
-		@Override
-		public CharSequence getPageTitle(int position) {
-			Locale l = Locale.getDefault();
-			switch (position) {
-			case 0:
-				return getString(R.string.title_section1).toUpperCase(l);
-			case 1:
-				return getString(R.string.title_section2).toUpperCase(l);
-			case 2:
-				return getString(R.string.title_section3).toUpperCase(l);
-			}
-			return null;
-		}
-	}
-
 	public void startRecording(View view) {
-		ActRecordingFragment actRecordingFragment = (ActRecordingFragment) getSupportFragmentManager()
-				.findFragmentByTag(tagFragment2);
-		actRecordingFragment.clearDataRecording();
-		AccMonitorFragment accMonitorFragment = (AccMonitorFragment) getSupportFragmentManager()
-				.findFragmentByTag(tagFragment1);
-		accMonitorFragment.enableRecording();
-
+		startRecording();
 		Toast.makeText(this, "Recording will start in 5 sec", Toast.LENGTH_LONG)
 				.show();
 	}
@@ -291,7 +342,7 @@ public class MainActivity extends FragmentActivity implements
 	public void startActivityRecording(View view) {
 		AccMonitorFragment accMonitorFragment = (AccMonitorFragment) getSupportFragmentManager()
 				.findFragmentByTag(tagFragment1);
-		accMonitorFragment.enableActivityRecording();
+		// monitorTab.enableActivityRecording();
 
 		Toast.makeText(this, "Recording Activity will start in 5 sec",
 				Toast.LENGTH_LONG).show();
@@ -300,30 +351,26 @@ public class MainActivity extends FragmentActivity implements
 	public void recalculateError(View view) {
 		AccMonitorFragment accMonitorFragment = (AccMonitorFragment) getSupportFragmentManager()
 				.findFragmentByTag(tagFragment1);
-		accMonitorFragment.recalculateError();
+		recalculateError();
 	}
 
-	public int[] getZeroCrossingCountsRecording(View view) {
-		ActRecordingFragment actRecordingFragment = (ActRecordingFragment) getSupportFragmentManager()
-				.findFragmentByTag(tagFragment2);
-		AccMonitorFragment accMonitorFragment = (AccMonitorFragment) getSupportFragmentManager()
-				.findFragmentByTag(tagFragment1);
+	public int[] getZeroCrossingCounts() {
+		 int xZeroCrossingCount = getZeroCrossingCount(xRecordingData,
+		 xError, 0.30f, 2);
+		 int yZeroCrossingCount = getZeroCrossingCount(yRecordingData,
+		 yError, 0.30f, 2);
+		 int zZeroCrossingCount = getZeroCrossingCount(zRecordingData,
+		 zError, 0.30f, 2);
+		
+		 int[] counts = { xZeroCrossingCount, yZeroCrossingCount,
+		 zZeroCrossingCount };
+			recordingTab.drawData(xRecordingData, yRecordingData, zRecordingData);
 
-		int xZeroCrossingCount = getZeroCrossingCount(xActRecording,
-				xError, 0.30f, 2);
-		int yZeroCrossingCount = getZeroCrossingCount(yActRecording,
-				yError, 0.30f, 2);
-		int zZeroCrossingCount = getZeroCrossingCount(zActRecording,
-				zError, 0.30f, 2);
-
-		int[] counts = { xZeroCrossingCount, yZeroCrossingCount,
-				zZeroCrossingCount };
-
-		return counts;
+		 return counts;
 	}
 
-	public int getZeroCrossingCountsRecording(ArrayList<Float> data, float zero,
-			float spread, int rate) {
+	public int getZeroCrossingCount(ArrayList<Float> data,
+			float zero, float spread, int rate) {
 
 		int count = 0;
 
@@ -339,113 +386,45 @@ public class MainActivity extends FragmentActivity implements
 		for (int i = rate; i + rate <= data.size(); i = i + rate) {
 			x = data.get(i);
 			if (Math.signum(previous - zero) != Math.signum(x - zero)) {
-
 				count++;
 			}
 			previous = x;
 		}
+		
 		return count;
 
 	}
 
 	public void featureExtraction(View view) {
-		ActRecordingFragment actRecordingFragment = (ActRecordingFragment) getSupportFragmentManager()
-				.findFragmentByTag(tagFragment2);
-		actRecordingFragment
-				.updateZeroCrossingRateText(getZeroCrossingCountsRecording(view));
-		actRecordingFragment
-				.updateMaximumDisplacementText(getMaximumDisplacements(view));
+		recordingTab.updateZeroCrossingRateText(getZeroCrossingCounts());
+		recordingTab.updateMaximumDisplacementText(getMaximumDisplacements());
+		recordingTab.drawData(xRecordingData, yRecordingData, zRecordingData);
 
 	}
 
-	private float[] getMaximumDisplacements(View view) {
-		ActRecordingFragment actRecordingFragment = (ActRecordingFragment) getSupportFragmentManager()
-				.findFragmentByTag(tagFragment2);
-		AccMonitorFragment accMonitorFragment = (AccMonitorFragment) getSupportFragmentManager()
-				.findFragmentByTag(tagFragment1);
-
-		ArrayList<Float> xActRecording = actRecordingFragment.xDataRecording;
-		ArrayList<Float> yActRecording = actRecordingFragment.yDataRecording;
-		ArrayList<Float> zActRecording = actRecordingFragment.zDataRecording;
-
-		float[] result = { Collections.max(xActRecording),
-				Collections.min(xActRecording), Collections.max(yActRecording),
-				Collections.min(yActRecording), Collections.max(zActRecording),
-				Collections.min(zActRecording), xError,
-				yError, zError };
-
-		return result;
+	private float[] getMaximumDisplacements() {
+		 float[] result = { Collections.max(xRecordingData),
+		 Collections.min(xRecordingData), Collections.max(yRecordingData),
+		 Collections.min(yRecordingData), Collections.max(zRecordingData),
+		 Collections.min(zRecordingData), xError,
+		 yError, zError };
+		 return result;
 	}
-	
+
 	void recalculateError() {
-		xDataHistory.clear();
-		yDataHistory.clear();
-		zDataHistory.clear();
-	}
-	
-	
-	//Data Recording - used in recording tab
-	public class dataRecording implements Runnable {
-		Vibrator v;
-		public dataRecording() {
-			v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-		}
-
-		public void run() {
-			long t = System.currentTimeMillis();
-			long end = t + 5000;
-			while (System.currentTimeMillis() < end) {
-				//wait for 5 sec to allow putting phone into pocket
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			recalculateError();
-			t = System.currentTimeMillis();
-			end = t + 3500;
-			while (System.currentTimeMillis() < end) {
-				//wait for 5 sec to allow putting phone into pocket
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			v.vibrate(100);	
-			t = System.currentTimeMillis();
-			end = t + 1000;
-			while (System.currentTimeMillis() < end) {
-				//wait for 5 sec to allow putting phone into pocket
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			recordingEnabled = true;
-			t = System.currentTimeMillis();
-			end = t + 10000;
-			while (System.currentTimeMillis() < end) {
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			recordingEnabled = false;
-			v.vibrate(100);	
-		}
+		xMonitorPlotData.clear();
+		yMonitorPlotData.clear();
+		zMonitorPlotData.clear();
 	}
 
-	void enableRecording() {
+	void startRecording() {
+		clearDataRecording();
 		Runnable r = new dataRecording();
 		new Thread(r).start();
 	}
 
 	public SimpleXYSeries getPlotSeries(int axis) {
-		switch(axis){
+		switch (axis) {
 		case 0:
 			return xPlotSeries;
 		case 1:
@@ -454,7 +433,12 @@ public class MainActivity extends FragmentActivity implements
 			return zPlotSeries;
 		}
 		return null;
-		
+
 	}
-	
+
+	public void clearDataRecording() {
+		xRecordingData.clear();
+		yRecordingData.clear();
+		zRecordingData.clear();
+	}
 }

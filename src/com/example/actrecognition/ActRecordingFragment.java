@@ -14,6 +14,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.provider.Contacts.Intents;
@@ -35,33 +36,10 @@ public class ActRecordingFragment extends Fragment{
 	private SimpleXYSeries xPlotSeries = new SimpleXYSeries("x acceleration");
 	private SimpleXYSeries yPlotSeries = new SimpleXYSeries("y acceleration");
 	private SimpleXYSeries zPlotSeries = new SimpleXYSeries("z acceleration");
-	static ArrayList<Float> xDataRecording = new ArrayList<Float>();
-	static ArrayList<Float> yDataRecording = new ArrayList<Float>();
-	static ArrayList<Float> zDataRecording = new ArrayList<Float>();
 	XYPlot xyzPlot;
-	boolean doneRecording = false;
-	private PointF minXY;
-	private PointF maxXY;
 
-	public void clearDataRecording(){
-		xDataRecording.clear();
-		yDataRecording.clear();
-		zDataRecording.clear();
-
-	}
-	
-	public void passValues(float x, float y, float z) {
-		if (xDataRecording.size() == 480) {
-			drawData();
-			doneRecording = true;
-		} else {
-			xDataRecording.add(x);
-			yDataRecording.add(y);
-			zDataRecording.add(z);
-		}
-	}
-
-	private void drawData() {
+	@SuppressWarnings("deprecation")
+	public void drawData(ArrayList<Float> xDataRecording, ArrayList<Float> yDataRecording, ArrayList<Float> zDataRecording) {
 		xPlotSeries.setModel(xDataRecording,
 				SimpleXYSeries.ArrayFormat.Y_VALS_ONLY);
 		yPlotSeries.setModel(yDataRecording,
@@ -69,6 +47,9 @@ public class ActRecordingFragment extends Fragment{
 		zPlotSeries.setModel(zDataRecording,
 				SimpleXYSeries.ArrayFormat.Y_VALS_ONLY);
 
+		
+		Paint paint = new Paint();
+		paint.setStrokeWidth(1);
 		xyzPlot.addSeries(xPlotSeries, new LineAndPointFormatter(Color.RED,
 				Color.TRANSPARENT, Color.TRANSPARENT));
 		xyzPlot.addSeries(yPlotSeries, new LineAndPointFormatter(Color.GREEN,
@@ -76,25 +57,21 @@ public class ActRecordingFragment extends Fragment{
 		xyzPlot.addSeries(zPlotSeries, new LineAndPointFormatter(Color.BLUE,
 				Color.TRANSPARENT, Color.TRANSPARENT));
 
-		xyzPlot.calculateMinMaxVals();
-
-		minXY=new PointF(xyzPlot.getCalculatedMinX().floatValue(),xyzPlot.getCalculatedMinY().floatValue());
-		maxXY=new PointF(xyzPlot.getCalculatedMaxX().floatValue(),xyzPlot.getCalculatedMaxY().floatValue());
-
 		xyzPlot.redraw();
 
 	}
 
-	public SimpleXYSeries getXSeries() {
-		return xPlotSeries;
-	}
+	public SimpleXYSeries getPlotSeries(int axis) {
+		switch (axis) {
+		case 0:
+			return xPlotSeries;
+		case 1:
+			return yPlotSeries;
+		case 2:
+			return zPlotSeries;
+		}
+		return null;
 
-	public SimpleXYSeries getYSeries() {
-		return yPlotSeries;
-	}
-
-	public SimpleXYSeries getZSeries() {
-		return zPlotSeries;
 	}
 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -116,11 +93,6 @@ public class ActRecordingFragment extends Fragment{
 		xyzPlot.setTitle("Recording");
 
 		xyzPlot.redraw();
-		xyzPlot.calculateMinMaxVals();
-
-		minXY=new PointF(xyzPlot.getCalculatedMinX().floatValue(),xyzPlot.getCalculatedMinY().floatValue());
-		maxXY=new PointF(xyzPlot.getCalculatedMaxX().floatValue(),xyzPlot.getCalculatedMaxY().floatValue());
-		
 		return rootView;
 	}
 

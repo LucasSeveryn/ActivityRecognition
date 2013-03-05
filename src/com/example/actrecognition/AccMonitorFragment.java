@@ -72,6 +72,4 @@ public class AccMonitorFragment extends Fragment {
 		plot.setTitle(series.getTitle());
     }
     
-
-
 }

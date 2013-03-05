@@ -27,7 +27,7 @@ public class ActRecognitionFragment extends Fragment {
 	private SimpleXYSeries yActPlotSeries = new SimpleXYSeries("y acceleration");
 	private SimpleXYSeries zActPlotSeries = new SimpleXYSeries("z acceleration");
 	XYPlot xyzActivityPlot;
-	XYPlot xyzSavedPlot;
+	XYPlot xyzRecordingPlot;
 	boolean doneRecording=false;
 
 
@@ -70,16 +70,16 @@ public class ActRecognitionFragment extends Fragment {
 		 ActRecordingFragment actRecordingFragment = (ActRecordingFragment) getActivity().getSupportFragmentManager().findFragmentByTag(tag2);
 		 
 		
-		SimpleXYSeries xPlotSeries = actRecordingFragment.getXSeries();
-		SimpleXYSeries yPlotSeries = actRecordingFragment.getYSeries();
-		SimpleXYSeries zPlotSeries = actRecordingFragment.getZSeries();
+		SimpleXYSeries xPlotSeries = actRecordingFragment.getPlotSeries(0);
+		SimpleXYSeries yPlotSeries = actRecordingFragment.getPlotSeries(1);
+		SimpleXYSeries zPlotSeries = actRecordingFragment.getPlotSeries(2);
 								
 		
-		xyzSavedPlot.addSeries(xPlotSeries, new LineAndPointFormatter(Color.RED, Color.TRANSPARENT, Color.TRANSPARENT));
-		xyzSavedPlot.addSeries(yPlotSeries, new LineAndPointFormatter(Color.GREEN, Color.TRANSPARENT, Color.TRANSPARENT));
-		xyzSavedPlot.addSeries(zPlotSeries, new LineAndPointFormatter(Color.BLUE, Color.TRANSPARENT, Color.TRANSPARENT));
+		xyzRecordingPlot.addSeries(xPlotSeries, new LineAndPointFormatter(Color.RED, Color.TRANSPARENT, Color.TRANSPARENT));
+		xyzRecordingPlot.addSeries(yPlotSeries, new LineAndPointFormatter(Color.GREEN, Color.TRANSPARENT, Color.TRANSPARENT));
+		xyzRecordingPlot.addSeries(zPlotSeries, new LineAndPointFormatter(Color.BLUE, Color.TRANSPARENT, Color.TRANSPARENT));
 
-		xyzSavedPlot.redraw();
+		xyzRecordingPlot.redraw();
 	}
 	
     public View onCreateView(LayoutInflater inflater, ViewGroup container, 
@@ -101,17 +101,17 @@ public class ActRecognitionFragment extends Fragment {
 		xyzActivityPlot.setTitle("Activity Plot");
 		xyzActivityPlot.redraw();
 		
-		xyzSavedPlot = (XYPlot) rootView.findViewById(R.id.xyzSavedPlot);
-		xyzSavedPlot.setRangeBoundaries(-40, 40, BoundaryMode.FIXED);
-		xyzSavedPlot.setRangeStep(XYStepMode.INCREMENT_BY_VAL, 2);
-		xyzSavedPlot.setDomainBoundaries(0, 480, BoundaryMode.FIXED);
-		xyzSavedPlot.setTicksPerRangeLabel(1);
-		xyzSavedPlot.setDomainLabel("Time");
-		xyzSavedPlot.getDomainLabelWidget().pack();
-		xyzSavedPlot.setRangeLabel("Acceleration");
-		xyzSavedPlot.getRangeLabelWidget().pack();
-		xyzSavedPlot.setTitle("Saved Data Plot");
-		xyzSavedPlot.redraw();
+		xyzRecordingPlot = (XYPlot) rootView.findViewById(R.id.xyzSavedPlot);
+		xyzRecordingPlot.setRangeBoundaries(-40, 40, BoundaryMode.FIXED);
+		xyzRecordingPlot.setRangeStep(XYStepMode.INCREMENT_BY_VAL, 2);
+		xyzRecordingPlot.setDomainBoundaries(0, 480, BoundaryMode.FIXED);
+		xyzRecordingPlot.setTicksPerRangeLabel(1);
+		xyzRecordingPlot.setDomainLabel("Time");
+		xyzRecordingPlot.getDomainLabelWidget().pack();
+		xyzRecordingPlot.setRangeLabel("Acceleration");
+		xyzRecordingPlot.getRangeLabelWidget().pack();
+		xyzRecordingPlot.setTitle("Saved Data Plot");
+		xyzRecordingPlot.redraw();
 		
 		return rootView;
         }

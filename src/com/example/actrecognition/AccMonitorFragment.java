@@ -8,10 +8,12 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.androidplot.xy.BoundaryMode;
@@ -21,70 +23,11 @@ import com.androidplot.xy.XYPlot;
 import com.androidplot.xy.XYStepMode;
 
 
-public class AccMonitorFragment  extends Fragment {
+public class AccMonitorFragment extends Fragment {
 	Context context;
-	private SimpleXYSeries xPlotSeries = new SimpleXYSeries("x acceleration");
-	private SimpleXYSeries yPlotSeries = new SimpleXYSeries("y acceleration");
-	private SimpleXYSeries zPlotSeries = new SimpleXYSeries("z acceleration");
-	
 	XYPlot xPlot;
 	XYPlot yPlot;
 	XYPlot zPlot;
-	
-	ArrayList<Float> xDataHistory = new ArrayList<Float>();
-	ArrayList<Float> yDataHistory = new ArrayList<Float>();
-	ArrayList<Float> zDataHistory = new ArrayList<Float>();
-	private SensorManager mSensorManager;
-	private Sensor mAccelerometer;
-	private boolean mInitialised;
-	
-	private boolean recordingEnabled=false;
-	private boolean activityRecordingEnabled=false;
-
-	private float mAccelLast; // last acceleration including gravity
-	private final SensorEventListener mSensorListener = new SensorEventListener() {
-		private int counter=0;
-
-		@Override
-		public void onAccuracyChanged(Sensor sensor, int accuracy) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void onSensorChanged(SensorEvent event) {
-		      float x = event.values[0];
-		      float y = event.values[1];
-		      float z = event.values[2];
-		      
-		      
-		      if(recordingEnabled){
-		    	  ActRecordingFragment actRecordingFragment = (ActRecordingFragment) getActivity()
-		  				.getSupportFragmentManager().findFragmentByTag(((MainActivity)getActivity()).tagFragment2);
-		    	  actRecordingFragment.passValues(x, y, z);
-		      }
-		      
-		      if(activityRecordingEnabled){
-		    	  ActRecognitionFragment actRecognitionFragment = (ActRecognitionFragment) getActivity()
-		  				.getSupportFragmentManager().findFragmentByTag(((MainActivity)getActivity()).tagFragment3);
-		    	  actRecognitionFragment.passValues(x, y, z);
-		      }
-		      
-		      updatePlot(xDataHistory,xPlotSeries,xPlot,x);
-		      updatePlot(yDataHistory,yPlotSeries,yPlot,y);
-		      updatePlot(zDataHistory,zPlotSeries,zPlot,z);    
-		      
-		      if(counter % 50 == 0){
-			  ((TextView) getActivity().findViewById(R.id.xAccPlotLabel)).setText("x-plane Acceleration plot. Current value: " + x);
-			  ((TextView) getActivity().findViewById(R.id.yAccPlotLabel)).setText("y-plane Acceleration plot. Current value: " + y);
-			  ((TextView) getActivity().findViewById(R.id.zAccPlotLabel)).setText("z-plane Acceleration plot. Current value: " + z);
-		      }
-		      
-		      counter++;
-		}
-
-
-	  };
 
 	public void updatePlot(ArrayList<Float> dataHistory, SimpleXYSeries series, XYPlot plot, Float value){
 		if (dataHistory.size() < 120) {
@@ -108,18 +51,9 @@ public class AccMonitorFragment  extends Fragment {
 		yPlot = (XYPlot) rootView.findViewById(R.id.yAccPlot);
 		zPlot = (XYPlot) rootView.findViewById(R.id.zAccPlot);
 
-		initialisePlot(xPlot, xPlotSeries);
-		initialisePlot(yPlot, yPlotSeries);
-		initialisePlot(zPlot, zPlotSeries);
-
-		mInitialised = false;
-		mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
-		mAccelerometer = mSensorManager
-				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		mSensorManager.registerListener(mSensorListener, mAccelerometer,
-				SensorManager.SENSOR_DELAY_GAME);
-		
-		
+		initialisePlot(xPlot, ((MainActivity) getActivity()).getPlotSeries(0));
+		initialisePlot(yPlot, ((MainActivity) getActivity()).getPlotSeries(1));
+		initialisePlot(zPlot, ((MainActivity) getActivity()).getPlotSeries(2));		
 		
 		return rootView;
         }
@@ -138,76 +72,6 @@ public class AccMonitorFragment  extends Fragment {
 		plot.setTitle(series.getTitle());
     }
     
-	public class dataRecording implements Runnable {
-		public dataRecording() {
 
-		}
 
-		public void run() {
-
-			long t = System.currentTimeMillis();
-			long end = t + 5000;
-			while (System.currentTimeMillis() < end) {
-				//wait for 5 sec to allow putting phone into pocket
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			recordingEnabled = true;
-			t = System.currentTimeMillis();
-			end = t + 10000;
-			while (System.currentTimeMillis() < end) {
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			recordingEnabled = false;
-		}
-	}
-
-	void enableRecording() {
-		Runnable r = new dataRecording();
-		new Thread(r).start();
-	}
-	
-	public class activityRecording implements Runnable {
-		public activityRecording() {
-
-		}
-
-		public void run() {
-
-			long t = System.currentTimeMillis();
-			long end = t + 5000;
-			while (System.currentTimeMillis() < end) {
-				//wait for 5 sec to allow putting phone into pocket
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			activityRecordingEnabled = true;
-			t = System.currentTimeMillis();
-			end = t + 10000;
-			while (System.currentTimeMillis() < end) {
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-			activityRecordingEnabled = false;
-		}
-	}
-
-	void enableActivityRecording() {
-		Runnable r = new activityRecording();
-		new Thread(r).start();
-	}
-	
 }

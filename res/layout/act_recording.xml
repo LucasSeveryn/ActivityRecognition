@@ -22,13 +22,38 @@
         android:layout_below="@id/xAccPlotLabel" />
 
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/startRecordingButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/xyzPlot"
+        android:layout_below="@id/xyzPlot"     
         android:text="Start Recording" 
         android:onClick="startRecording"/>
+    
+    <Button
+        android:id="@+id/extractFeaturesButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/xyzPlot"
+        android:layout_toRightOf="@id/startRecordingButton"
+        android:text="Extract Features" 
+        android:onClick="featureExtraction"/>
 
+    <TextView
+        android:id="@+id/zeroCrossingRateText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/startRecordingButton"
+        android:layout_below="@+id/startRecordingButton"
+        android:text=""
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+    
+        <TextView
+        android:id="@+id/maximumDisplacementText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/zeroCrossingRateText"
+        android:layout_below="@+id/zeroCrossingRateText"
+        android:text=""
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </RelativeLayout>

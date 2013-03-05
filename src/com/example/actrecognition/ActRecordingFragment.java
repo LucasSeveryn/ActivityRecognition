@@ -47,15 +47,30 @@ public class ActRecordingFragment extends Fragment{
 		zPlotSeries.setModel(zDataRecording,
 				SimpleXYSeries.ArrayFormat.Y_VALS_ONLY);
 
+		LineAndPointFormatter lineAndPointFormatter = new LineAndPointFormatter(
+	            Color.RED, null, null);
+	    Paint paint = lineAndPointFormatter.getLinePaint();
+	    paint.setStrokeWidth(1);
+	    lineAndPointFormatter.setLinePaint(paint);
+	    
+		xyzPlot.addSeries(xPlotSeries, lineAndPointFormatter);
 		
-		Paint paint = new Paint();
-		paint.setStrokeWidth(1);
-		xyzPlot.addSeries(xPlotSeries, new LineAndPointFormatter(Color.RED,
-				Color.TRANSPARENT, Color.TRANSPARENT));
-		xyzPlot.addSeries(yPlotSeries, new LineAndPointFormatter(Color.GREEN,
-				Color.TRANSPARENT, Color.TRANSPARENT));
-		xyzPlot.addSeries(zPlotSeries, new LineAndPointFormatter(Color.BLUE,
-				Color.TRANSPARENT, Color.TRANSPARENT));
+		lineAndPointFormatter = new LineAndPointFormatter(
+	            Color.BLUE, null, null);
+	    paint = lineAndPointFormatter.getLinePaint();
+	    paint.setStrokeWidth(1);
+	    lineAndPointFormatter.setLinePaint(paint);
+	    
+	    
+		xyzPlot.addSeries(yPlotSeries, lineAndPointFormatter);
+		
+		lineAndPointFormatter = new LineAndPointFormatter(
+	            Color.GREEN, null, null);
+	    paint = lineAndPointFormatter.getLinePaint();
+	    paint.setStrokeWidth(1);
+	    lineAndPointFormatter.setLinePaint(paint);
+		
+		xyzPlot.addSeries(zPlotSeries, lineAndPointFormatter);
 
 		xyzPlot.redraw();
 

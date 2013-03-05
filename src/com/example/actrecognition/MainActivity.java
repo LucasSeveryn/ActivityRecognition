@@ -59,7 +59,7 @@ public class MainActivity extends FragmentActivity implements
 	private SimpleXYSeries xPlotSeries = new SimpleXYSeries("x acceleration");
 	private SimpleXYSeries yPlotSeries = new SimpleXYSeries("y acceleration");
 	private SimpleXYSeries zPlotSeries = new SimpleXYSeries("z acceleration");
-	
+
 	ArrayList<Float> xMonitorPlotData = new ArrayList<Float>();
 	ArrayList<Float> yMonitorPlotData = new ArrayList<Float>();
 	ArrayList<Float> zMonitorPlotData = new ArrayList<Float>();
@@ -90,12 +90,13 @@ public class MainActivity extends FragmentActivity implements
 				float z = event.values[2];
 
 				if (recordingEnabled) {
-					if(xRecordingData.size()<480){
+					if (xRecordingData.size() < 480) {
 						xRecordingData.add(x);
 						yRecordingData.add(y);
 						zRecordingData.add(z);
-					}else{
-						recordingTab.drawData(xRecordingData, yRecordingData, zRecordingData);
+					} else {
+						recordingTab.drawData(xRecordingData, yRecordingData,
+								zRecordingData);
 					}
 				}
 
@@ -154,14 +155,14 @@ public class MainActivity extends FragmentActivity implements
 	 * one of the sections/tabs/pages.
 	 */
 	public class SectionsPagerAdapter extends FragmentPagerAdapter {
-	
+
 		public SectionsPagerAdapter(FragmentManager fm) {
 			super(fm);
 		}
-	
+
 		@Override
 		public Fragment getItem(int position) {
-	
+
 			switch (position) {
 			case 0:
 				AccMonitorFragment accMonitorFragment = new AccMonitorFragment();
@@ -178,13 +179,13 @@ public class MainActivity extends FragmentActivity implements
 			}
 			return null;
 		}
-	
+
 		@Override
 		public int getCount() {
 			// Show 3 total pages.
 			return 3;
 		}
-	
+
 		@Override
 		public CharSequence getPageTitle(int position) {
 			Locale l = Locale.getDefault();
@@ -203,12 +204,12 @@ public class MainActivity extends FragmentActivity implements
 	// Data Recording - used in recording tab
 	public class dataRecording implements Runnable {
 		Vibrator v;
-	
+
 		public dataRecording() {
 			v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 		}
-		
-		public void pause(long n){
+
+		public void pause(long n) {
 			long t = System.currentTimeMillis();
 			long end = t + n;
 			while (System.currentTimeMillis() < end) {
@@ -219,7 +220,7 @@ public class MainActivity extends FragmentActivity implements
 				}
 			}
 		}
-	
+
 		public void run() {
 			long t = System.currentTimeMillis();
 			pause(5000);
@@ -241,23 +242,23 @@ public class MainActivity extends FragmentActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-	
+
 		// Set up the action bar.
 		final ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		actionBar.setDisplayShowTitleEnabled(false);
 		actionBar.setDisplayShowHomeEnabled(false);
-	
+
 		// Create the adapter that will return a fragment for each of the three
 		// primary sections of the app.
 		mSectionsPagerAdapter = new SectionsPagerAdapter(
 				getSupportFragmentManager());
-	
+
 		// Set up the ViewPager with the sections adapter.
 		mViewPager = (ViewPager) findViewById(R.id.pager);
 		mViewPager.setAdapter(mSectionsPagerAdapter);
 		mViewPager.setOffscreenPageLimit(3);
-	
+
 		// When swiping between different sections, select the corresponding
 		// tab. We can also use ActionBar.Tab#select() to do this if we have
 		// a reference to the Tab.
@@ -268,7 +269,7 @@ public class MainActivity extends FragmentActivity implements
 						actionBar.setSelectedNavigationItem(position);
 					}
 				});
-	
+
 		// For each of the sections in the app, add a tab to the action bar.
 		for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
 			// Create a tab with text corresponding to the page title defined by
@@ -279,7 +280,7 @@ public class MainActivity extends FragmentActivity implements
 					.setText(mSectionsPagerAdapter.getPageTitle(i))
 					.setTabListener(this));
 		}
-	
+
 		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 		mAccelerometer = mSensorManager
 				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -355,22 +356,22 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	public int[] getZeroCrossingCounts() {
-		 int xZeroCrossingCount = getZeroCrossingCount(xRecordingData,
-		 xError, 0.30f, 2);
-		 int yZeroCrossingCount = getZeroCrossingCount(yRecordingData,
-		 yError, 0.30f, 2);
-		 int zZeroCrossingCount = getZeroCrossingCount(zRecordingData,
-		 zError, 0.30f, 2);
-		
-		 int[] counts = { xZeroCrossingCount, yZeroCrossingCount,
-		 zZeroCrossingCount };
-			recordingTab.drawData(xRecordingData, yRecordingData, zRecordingData);
+		int xZeroCrossingCount = getZeroCrossingCount(xRecordingData, xError,
+				0.30f, 10);
+		int yZeroCrossingCount = getZeroCrossingCount(yRecordingData, yError,
+				0.30f, 10);
+		int zZeroCrossingCount = getZeroCrossingCount(zRecordingData, zError,
+				0.30f, 10);
 
-		 return counts;
+		int[] counts = { xZeroCrossingCount, yZeroCrossingCount,
+				zZeroCrossingCount };
+		recordingTab.drawData(xRecordingData, yRecordingData, zRecordingData);
+
+		return counts;
 	}
 
-	public int getZeroCrossingCount(ArrayList<Float> data,
-			float zero, float spread, int rate) {
+	public int getZeroCrossingCount(ArrayList<Float> data, float zero,
+			float spread, int rate) {
 
 		int count = 0;
 
@@ -381,16 +382,18 @@ public class MainActivity extends FragmentActivity implements
 			}
 		}
 
+		
+		
 		float x;
 		float previous = data.get(0);
 		for (int i = rate; i + rate <= data.size(); i = i + rate) {
 			x = data.get(i);
-			if (Math.signum(previous - zero) != Math.signum(x - zero)) {
+			if (previous < zero && x > zero || previous > zero && x < zero) {
 				count++;
 			}
 			previous = x;
 		}
-		
+
 		return count;
 
 	}
@@ -403,12 +406,13 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	private float[] getMaximumDisplacements() {
-		 float[] result = { Collections.max(xRecordingData),
-		 Collections.min(xRecordingData), Collections.max(yRecordingData),
-		 Collections.min(yRecordingData), Collections.max(zRecordingData),
-		 Collections.min(zRecordingData), xError,
-		 yError, zError };
-		 return result;
+		float[] result = { Collections.max(xRecordingData),
+				Collections.min(xRecordingData),
+				Collections.max(yRecordingData),
+				Collections.min(yRecordingData),
+				Collections.max(zRecordingData),
+				Collections.min(zRecordingData), xError, yError, zError };
+		return result;
 	}
 
 	void recalculateError() {

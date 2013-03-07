@@ -29,6 +29,7 @@ import android.view.View.OnTouchListener;
 import android.view.ViewDebug.IntToString;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,7 +40,8 @@ public class ActRecordingFragment extends Fragment{
 	XYPlot xyzPlot;
 
 	@SuppressWarnings("deprecation")
-	public void drawData(ArrayList<Float> xDataRecording, ArrayList<Float> yDataRecording, ArrayList<Float> zDataRecording) {
+	public void drawData(ArrayList<Float> xDataRecording, ArrayList<Float> yDataRecording, ArrayList<Float> zDataRecording, int lowerBound, int upperBound, int upperXBound) {
+		
 		xPlotSeries.setModel(xDataRecording,
 				SimpleXYSeries.ArrayFormat.Y_VALS_ONLY);
 		yPlotSeries.setModel(yDataRecording,
@@ -69,10 +71,18 @@ public class ActRecordingFragment extends Fragment{
 	    paint = lineAndPointFormatter.getLinePaint();
 	    paint.setStrokeWidth(1);
 	    lineAndPointFormatter.setLinePaint(paint);
-		
+		xyzPlot.setRangeBoundaries(lowerBound, upperBound, BoundaryMode.FIXED);
+		xyzPlot.setRangeStep(XYStepMode.INCREMENT_BY_VAL, 2);
+		xyzPlot.setDomainBoundaries(0, upperXBound, BoundaryMode.FIXED);
 		xyzPlot.addSeries(zPlotSeries, lineAndPointFormatter);
 
 		xyzPlot.redraw();
+		
+
+	}
+	
+	public String getEditTextText(){
+		return ((EditText) getView().findViewById(R.id.editText)).getText().toString();
 
 	}
 
@@ -99,7 +109,7 @@ public class ActRecordingFragment extends Fragment{
 
 		xyzPlot.setRangeBoundaries(-15, 15, BoundaryMode.FIXED);
 		xyzPlot.setRangeStep(XYStepMode.INCREMENT_BY_VAL, 2);
-		xyzPlot.setDomainBoundaries(0, 480, BoundaryMode.FIXED);
+		xyzPlot.setDomainBoundaries(0, 512, BoundaryMode.FIXED);
 		xyzPlot.setTicksPerRangeLabel(1);
 		xyzPlot.setDomainLabel("Time");
 		xyzPlot.getDomainLabelWidget().pack();
@@ -111,25 +121,30 @@ public class ActRecordingFragment extends Fragment{
 		return rootView;
 	}
 
-	public void updateZeroCrossingRateText(int[] zeroCrossingCountsRecording) {
+	public void updateActivityDetailText(String type, int[] zeroCrossingCountsRecording, float[] maximumDisplacements) {
 		TextView zeroCrossingRateText = (TextView) this.getView().findViewById(
-				R.id.zeroCrossingRateText);
-		zeroCrossingRateText.setText("Zero crossing rate. X: "
+				R.id.accActivityDetailText);
+		zeroCrossingRateText.setText("Type: " + type + "\nZero crossing rate. X: "
 				+ zeroCrossingCountsRecording[0] + " Y: "
 				+ zeroCrossingCountsRecording[1] + " Z: "
-				+ zeroCrossingCountsRecording[2]);
-	}
-
-	public void updateMaximumDisplacementText(float[] maximumDisplacements) {
-		TextView maximumDisplacementText = (TextView) this.getView()
-				.findViewById(R.id.maximumDisplacementText);
-		maximumDisplacementText.setText("Max/Min displacement \nX: "
+				+ zeroCrossingCountsRecording[2] + "\n" 
+				+ "Max/Min displacement \nX: "
 				+ maximumDisplacements[0] + "/" + maximumDisplacements[1] + " zero: " + maximumDisplacements[6]
 				+ "\nY: " + maximumDisplacements[2] + "/"
 				+ maximumDisplacements[3] + " zero: " + maximumDisplacements[7] +  "\nZ: " + maximumDisplacements[4]
 				+ "/" + maximumDisplacements[5]  + " zero: " + maximumDisplacements[8]);
-
 	}
+
+//	public void updateMaximumDisplacementText(float[] maximumDisplacements) {
+//		TextView maximumDisplacementText = (TextView) this.getView()
+//				.findViewById(R.id.maximumDisplacementText);
+//		maximumDisplacementText.setText("Max/Min displacement \nX: "
+//				+ maximumDisplacements[0] + "/" + maximumDisplacements[1] + " zero: " + maximumDisplacements[6]
+//				+ "\nY: " + maximumDisplacements[2] + "/"
+//				+ maximumDisplacements[3] + " zero: " + maximumDisplacements[7] +  "\nZ: " + maximumDisplacements[4]
+//				+ "/" + maximumDisplacements[5]  + " zero: " + maximumDisplacements[8]);
+//
+//	}
 
 
 }

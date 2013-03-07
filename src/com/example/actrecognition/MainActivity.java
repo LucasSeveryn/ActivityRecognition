@@ -1,5 +1,6 @@
 package com.example.actrecognition;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Locale;
@@ -7,6 +8,7 @@ import java.util.Locale;
 import com.androidplot.xy.SimpleXYSeries;
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
+import android.app.Application.ActivityLifecycleCallbacks;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -52,9 +54,16 @@ public class MainActivity extends FragmentActivity implements
 	ViewPager mViewPager;
 	private boolean recordingEnabled = false;
 	private boolean activityRecordingEnabled = false;
+
 	float yError;
 	float zError;
 	float xError;
+
+	int xCrossings;
+	int yCrossings;
+	int zCrossings;
+
+	private int index = 0;
 
 	private SimpleXYSeries xPlotSeries = new SimpleXYSeries("x acceleration");
 	private SimpleXYSeries yPlotSeries = new SimpleXYSeries("y acceleration");
@@ -67,6 +76,12 @@ public class MainActivity extends FragmentActivity implements
 	static ArrayList<Float> xRecordingData = new ArrayList<Float>();
 	static ArrayList<Float> yRecordingData = new ArrayList<Float>();
 	static ArrayList<Float> zRecordingData = new ArrayList<Float>();
+
+	static ArrayList<Float> xfRecordingData = new ArrayList<Float>();
+	static ArrayList<Float> yfRecordingData = new ArrayList<Float>();
+	static ArrayList<Float> zfRecordingData = new ArrayList<Float>();
+
+	static ArrayList<AccActivity> activityLibrary = new ArrayList<AccActivity>();
 
 	AccMonitorFragment monitorTab;
 	ActRecognitionFragment recognitionTab;
@@ -90,13 +105,13 @@ public class MainActivity extends FragmentActivity implements
 				float z = event.values[2];
 
 				if (recordingEnabled) {
-					if (xRecordingData.size() < 480) {
+					if (xRecordingData.size() <= 511) {
 						xRecordingData.add(x);
 						yRecordingData.add(y);
 						zRecordingData.add(z);
 					} else {
 						recordingTab.drawData(xRecordingData, yRecordingData,
-								zRecordingData);
+								zRecordingData, -15, 15, 512);
 					}
 				}
 
@@ -149,6 +164,7 @@ public class MainActivity extends FragmentActivity implements
 			}
 		}
 	};
+	private float[] minMax;
 
 	/**
 	 * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -232,7 +248,7 @@ public class MainActivity extends FragmentActivity implements
 			pause(200);
 			recordingEnabled = true;
 			t = System.currentTimeMillis();
-			pause(10000);
+			pause(12000);
 			recordingEnabled = false;
 			v.vibrate(100);
 		}
@@ -357,16 +373,16 @@ public class MainActivity extends FragmentActivity implements
 
 	public int[] getZeroCrossingCounts() {
 		int xZeroCrossingCount = getZeroCrossingCount(xRecordingData, xError,
-				0.30f, 10);
+				0.30f, 8);
 		int yZeroCrossingCount = getZeroCrossingCount(yRecordingData, yError,
-				0.30f, 10);
+				0.30f, 8);
 		int zZeroCrossingCount = getZeroCrossingCount(zRecordingData, zError,
-				0.30f, 10);
+				0.30f, 8);
 
 		int[] counts = { xZeroCrossingCount, yZeroCrossingCount,
 				zZeroCrossingCount };
-		recordingTab.drawData(xRecordingData, yRecordingData, zRecordingData);
-
+		recordingTab.drawData(xRecordingData, yRecordingData, zRecordingData,
+				-15, 15, 512);
 		return counts;
 	}
 
@@ -375,23 +391,25 @@ public class MainActivity extends FragmentActivity implements
 
 		int count = 0;
 
-		for (int j = 0; j < data.size(); j++) {
-			float n = data.get(j);
-			if (n < zero + spread && n > zero - spread) {
-				data.set(j, zero);
-			}
-		}
+		// for (int j = 0; j < data.size(); j++) {
+		// float n = data.get(j);
+		// if (n < zero + spread && n > zero - spread) {
+		// data.set(j, zero);
+		// }
+		// }
 
-		
-		
 		float x;
 		float previous = data.get(0);
 		for (int i = rate; i + rate <= data.size(); i = i + rate) {
 			x = data.get(i);
-			if (previous < zero && x > zero || previous > zero && x < zero) {
+			if (x < zero + spread && x > zero - spread) {
+				previous = zero;
+			} else if (previous < zero && x > zero || previous > zero
+					&& x < zero) {
 				count++;
+				previous = x;
 			}
-			previous = x;
+
 		}
 
 		return count;
@@ -399,10 +417,14 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	public void featureExtraction(View view) {
-		recordingTab.updateZeroCrossingRateText(getZeroCrossingCounts());
-		recordingTab.updateMaximumDisplacementText(getMaximumDisplacements());
-		recordingTab.drawData(xRecordingData, yRecordingData, zRecordingData);
-
+		int[] crossings = getZeroCrossingCounts();
+		xCrossings = crossings[0];
+		yCrossings = crossings[1];
+		zCrossings = crossings[2];
+		minMax = getMaximumDisplacements();
+		recordingTab.updateActivityDetailText("0", crossings, minMax);
+		recordingTab.drawData(xRecordingData, yRecordingData, zRecordingData,
+				-15, 15, 512);
 	}
 
 	private float[] getMaximumDisplacements() {
@@ -413,6 +435,31 @@ public class MainActivity extends FragmentActivity implements
 				Collections.max(zRecordingData),
 				Collections.min(zRecordingData), xError, yError, zError };
 		return result;
+	}
+
+	public ArrayList<Float> substractError(ArrayList<Float> data, Float error) {
+		for (int i = 0; i < data.size(); i++) {
+			data.set(i, data.get(i) - error);
+		}
+		return data;
+	}
+
+	public void applyFourier(View view) {
+		xfRecordingData = substractError(
+				(ArrayList<Float>) xRecordingData.clone(), xError);
+		yfRecordingData = substractError(
+				(ArrayList<Float>) yRecordingData.clone(), yError);
+		zfRecordingData = substractError(
+				(ArrayList<Float>) zRecordingData.clone(), zError);
+
+		FeatureExtractors f = new FeatureExtractors();
+		xfRecordingData = f.iterativeFFT(xfRecordingData, 1);
+		yfRecordingData = f.iterativeFFT(yfRecordingData, 1);
+		zfRecordingData = f.iterativeFFT(zfRecordingData, 1);
+
+		recordingTab.drawData(xfRecordingData, yfRecordingData,
+				zfRecordingData, -1, 100, 512);
+
 	}
 
 	void recalculateError() {
@@ -440,9 +487,57 @@ public class MainActivity extends FragmentActivity implements
 
 	}
 
+	public void nextAccActivity(View view) {
+		if (index + 1 < activityLibrary.size()) {
+			AccActivity activity = activityLibrary.get(index + 1);
+			recordingTab.updateActivityDetailText(activity.getType(),
+					activity.getCrossings(), activity.getMinMax());
+			recordingTab.drawData(activity.getxData(), activity.getyData(),
+					activity.getzData(), -15, 15, 512);
+			index++;
+		}
+
+	}
+
+	public void previousAccActivity(View view) {
+		if (index - 1 >= 0) {
+			AccActivity activity = activityLibrary.get(index - 1);
+			recordingTab.updateActivityDetailText(activity.getType(),
+					activity.getCrossings(), activity.getMinMax());
+			recordingTab.drawData(activity.getxData(), activity.getyData(),
+					activity.getzData(), -15, 15, 512);
+			index--;
+			Toast.makeText(this, "Activity #" + index + " selected", Toast.LENGTH_SHORT)
+			.show();
+		}
+
+	}
+
 	public void clearDataRecording() {
 		xRecordingData.clear();
 		yRecordingData.clear();
 		zRecordingData.clear();
+	}
+
+	public void saveActivity(View view) {
+		AccActivity newActivity = new AccActivity();
+		newActivity.setType(recordingTab.getEditTextText());
+		newActivity.setxCrossings(xCrossings);
+		newActivity.setyCrossings(yCrossings);
+		newActivity.setzCrossings(zCrossings);
+		newActivity.setMinMax(getMaximumDisplacements());
+		newActivity.setxError(xError);
+		newActivity.setzError(zError);
+		newActivity.setyError(yError);
+		newActivity.setxData((ArrayList<Float>) xRecordingData.clone());
+		newActivity.setzData((ArrayList<Float>) yRecordingData.clone());
+		newActivity.setyData((ArrayList<Float>) zRecordingData.clone());
+		newActivity.setfData((ArrayList<Float>) xfRecordingData.clone(),
+				(ArrayList<Float>) yfRecordingData.clone(),
+				(ArrayList<Float>) zfRecordingData.clone());
+		activityLibrary.add(newActivity);
+		index = activityLibrary.size();
+		Toast.makeText(this, "Activity saved. Current index:" + index, Toast.LENGTH_SHORT)
+		.show();
 	}
 }

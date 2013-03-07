@@ -24,15 +24,22 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int action_settings=0x7f080014;
+        public static final int accActivityDetailText=0x7f080013;
+        public static final int action_settings=0x7f08001a;
         public static final int comparisonResultLabel=0x7f08000b;
-        public static final int extractFeaturesButton=0x7f08000f;
-        public static final int maximumDisplacementText=0x7f080011;
-        public static final int pager=0x7f080012;
+        public static final int editText=0x7f08000f;
+        public static final int fftButton=0x7f08000e;
+        public static final int fftSwitch=0x7f080016;
+        public static final int nextAccActivityButton=0x7f080014;
+        public static final int pager=0x7f080018;
+        public static final int previousAccActivityButton=0x7f080010;
+        public static final int rateText=0x7f080017;
         public static final int recalculateErrorButton=0x7f080006;
         public static final int recordForRecognitionButton=0x7f080007;
-        public static final int section_label=0x7f080013;
-        public static final int startRecordingButton=0x7f08000e;
+        public static final int saveButton=0x7f080015;
+        public static final int section_label=0x7f080019;
+        public static final int startRecordingButton=0x7f080012;
+        public static final int typeText=0x7f080011;
         public static final int xAccPlot=0x7f080001;
         public static final int xAccPlotLabel=0x7f080000;
         public static final int xyzActivityPlot=0x7f080009;
@@ -44,7 +51,6 @@ public final class R {
         public static final int yAccPlotLabel=0x7f080002;
         public static final int zAccPlot=0x7f080005;
         public static final int zAccPlotLabel=0x7f080004;
-        public static final int zeroCrossingRateText=0x7f080010;
     }
     public static final class layout {
         public static final int acc_monitor=0x7f030000;

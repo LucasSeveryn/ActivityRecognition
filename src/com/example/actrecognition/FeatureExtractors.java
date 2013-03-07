@@ -1,12 +1,24 @@
 package com.example.actrecognition;
 
 import java.util.ArrayList;
+import org.apache.commons.math3.stat.descriptive.*;
 
 public class FeatureExtractors {
+	private int rate=4;
+	public final static FeatureExtractors INSTANCE = new FeatureExtractors();
 
+	private FeatureExtractors() {
+		// Exists only to defeat instantiation.
+	}
+
+	// /FFT
+
+	public void setRate(int rate){
+		this.rate=rate;
+	}
 	public ArrayList<Float> iterativeFFT(ArrayList<Float> v, int dir) {
 		int n = v.size();
-		//ArrayList<Complex> bitRevCopy = new ArrayList<Complex>();
+		// ArrayList<Complex> bitRevCopy = new ArrayList<Complex>();
 		ArrayList<Complex> bitRevCopy = bitReverseCopy(v, n);
 
 		double upperLoopBound = Math.log(n) / Math.log(2);
@@ -30,25 +42,26 @@ public class FeatureExtractors {
 				}
 			}
 		}
-	
+
 		return toReal(bitRevCopy);
 	}
-	
-	public ArrayList<Float> toReal(ArrayList<Complex> input){
+
+	public ArrayList<Float> toReal(ArrayList<Complex> input) {
 		ArrayList<Float> output = new ArrayList<Float>();
-		for(Complex n : input){
-			output.add(Float.valueOf((float)n.abs()));
+		for (Complex n : input) {
+			output.add(Float.valueOf((float) n.abs()));
 		}
 		return output;
 	}
 
 	public ArrayList<Complex> bitReverseCopy(ArrayList<Float> v, int n) {
 		ArrayList<Complex> bitRevCopy = new ArrayList<Complex>();
-		Complex zero = new Complex(0,0);
-		while(bitRevCopy.size() < 512) bitRevCopy.add(zero);
-		
+		Complex zero = new Complex(0, 0);
+		while (bitRevCopy.size() < 512)
+			bitRevCopy.add(zero);
+
 		double maxbits = Math.log(n) / Math.log(2);
-		
+
 		if (((int) maxbits) - maxbits != 0) {
 			return null;
 		}
@@ -72,4 +85,50 @@ public class FeatureExtractors {
 		}
 		return result;
 	}
+	
+	// END OF FFT
+
+	public int getZeroCrossingCount(ArrayList<Float> data2, float zero,
+			float spread) {
+		int count = 0;
+
+		ArrayList<Float> data = (ArrayList<Float>) data2.clone();
+
+		for (int j = 0; j < data.size(); j++) {
+			float n = data.get(j);
+			if (n < zero + spread && n > zero - spread) {
+				data.set(j, zero);
+			}
+		}
+
+		float x;
+		float previous = data.get(0);
+		for (int i = rate; i + rate <= data.size(); i = i + rate) {
+			x = data.get(i);
+			if (previous < zero && x > zero || previous > zero && x < zero) {
+				count++;
+			}
+			previous = x;
+
+		}
+
+		return count;
+	}
+
+	public int getRate() {
+		return rate;
+	}
+
+	public double getStandardDeviation(ArrayList<Float> v){
+		DescriptiveStatistics stats = new DescriptiveStatistics();
+
+		// Add the data from the array
+		for( int i = 0; i < v.size(); i++) {
+		        stats.addValue(v.get(i));
+		}
+		return stats.getStandardDeviation();
+		
+	}
+	
+
 }

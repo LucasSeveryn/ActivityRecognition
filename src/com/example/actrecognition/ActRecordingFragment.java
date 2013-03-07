@@ -30,18 +30,21 @@ import android.view.ViewDebug.IntToString;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ActRecordingFragment extends Fragment{
+public class ActRecordingFragment extends Fragment {
 	private SimpleXYSeries xPlotSeries = new SimpleXYSeries("x acceleration");
 	private SimpleXYSeries yPlotSeries = new SimpleXYSeries("y acceleration");
 	private SimpleXYSeries zPlotSeries = new SimpleXYSeries("z acceleration");
 	XYPlot xyzPlot;
 
 	@SuppressWarnings("deprecation")
-	public void drawData(ArrayList<Float> xDataRecording, ArrayList<Float> yDataRecording, ArrayList<Float> zDataRecording, int lowerBound, int upperBound, int upperXBound) {
-		
+	public void drawData(ArrayList<Float> xDataRecording,
+			ArrayList<Float> yDataRecording, ArrayList<Float> zDataRecording,
+			int lowerBound, int upperBound, int upperXBound) {
+
 		xPlotSeries.setModel(xDataRecording,
 				SimpleXYSeries.ArrayFormat.Y_VALS_ONLY);
 		yPlotSeries.setModel(yDataRecording,
@@ -50,40 +53,38 @@ public class ActRecordingFragment extends Fragment{
 				SimpleXYSeries.ArrayFormat.Y_VALS_ONLY);
 
 		LineAndPointFormatter lineAndPointFormatter = new LineAndPointFormatter(
-	            Color.RED, null, null);
-	    Paint paint = lineAndPointFormatter.getLinePaint();
-	    paint.setStrokeWidth(1);
-	    lineAndPointFormatter.setLinePaint(paint);
-	    
+				Color.RED, null, null);
+		Paint paint = lineAndPointFormatter.getLinePaint();
+		paint.setStrokeWidth(1);
+		lineAndPointFormatter.setLinePaint(paint);
+
 		xyzPlot.addSeries(xPlotSeries, lineAndPointFormatter);
-		
-		lineAndPointFormatter = new LineAndPointFormatter(
-	            Color.BLUE, null, null);
-	    paint = lineAndPointFormatter.getLinePaint();
-	    paint.setStrokeWidth(1);
-	    lineAndPointFormatter.setLinePaint(paint);
-	    
-	    
+
+		lineAndPointFormatter = new LineAndPointFormatter(Color.BLUE, null,
+				null);
+		paint = lineAndPointFormatter.getLinePaint();
+		paint.setStrokeWidth(1);
+		lineAndPointFormatter.setLinePaint(paint);
+
 		xyzPlot.addSeries(yPlotSeries, lineAndPointFormatter);
-		
-		lineAndPointFormatter = new LineAndPointFormatter(
-	            Color.GREEN, null, null);
-	    paint = lineAndPointFormatter.getLinePaint();
-	    paint.setStrokeWidth(1);
-	    lineAndPointFormatter.setLinePaint(paint);
+
+		lineAndPointFormatter = new LineAndPointFormatter(Color.GREEN, null,
+				null);
+		paint = lineAndPointFormatter.getLinePaint();
+		paint.setStrokeWidth(1);
+		lineAndPointFormatter.setLinePaint(paint);
 		xyzPlot.setRangeBoundaries(lowerBound, upperBound, BoundaryMode.FIXED);
 		xyzPlot.setRangeStep(XYStepMode.INCREMENT_BY_VAL, 2);
 		xyzPlot.setDomainBoundaries(0, upperXBound, BoundaryMode.FIXED);
 		xyzPlot.addSeries(zPlotSeries, lineAndPointFormatter);
 
 		xyzPlot.redraw();
-		
 
 	}
-	
-	public String getEditTextText(){
-		return ((EditText) getView().findViewById(R.id.editText)).getText().toString();
 
+	public String getEditTextText() {
+		return ((EditText) getView().findViewById(R.id.typeText)).getText()
+				.toString();
 	}
 
 	public SimpleXYSeries getPlotSeries(int axis) {
@@ -118,33 +119,41 @@ public class ActRecordingFragment extends Fragment{
 		xyzPlot.setTitle("Recording");
 
 		xyzPlot.redraw();
+
+		Switch s = (Switch) rootView.findViewById(R.id.fftSwitch);
+
+		s.setOnCheckedChangeListener((MainActivity) getActivity());
+
+		EditText rateText = (EditText) rootView.findViewById(R.id.rateText);
+		rateText.addTextChangedListener((MainActivity) getActivity());
+
 		return rootView;
 	}
 
-	public void updateActivityDetailText(String type, int[] zeroCrossingCountsRecording, float[] maximumDisplacements) {
+	public void updateActivityDetailText(AccActivity activity) {
 		TextView zeroCrossingRateText = (TextView) this.getView().findViewById(
 				R.id.accActivityDetailText);
-		zeroCrossingRateText.setText("Type: " + type + "\nZero crossing rate. X: "
-				+ zeroCrossingCountsRecording[0] + " Y: "
-				+ zeroCrossingCountsRecording[1] + " Z: "
-				+ zeroCrossingCountsRecording[2] + "\n" 
-				+ "Max/Min displacement \nX: "
-				+ maximumDisplacements[0] + "/" + maximumDisplacements[1] + " zero: " + maximumDisplacements[6]
-				+ "\nY: " + maximumDisplacements[2] + "/"
-				+ maximumDisplacements[3] + " zero: " + maximumDisplacements[7] +  "\nZ: " + maximumDisplacements[4]
-				+ "/" + maximumDisplacements[5]  + " zero: " + maximumDisplacements[8]);
+		zeroCrossingRateText
+				.setText("Type: " + activity.getType()
+						+ "\nZero crossing rate: X: "
+						+ activity.getxCrossings() + " Y: "
+						+ activity.getyCrossings() + " Z: "
+						+ activity.getzCrossings() + "\n"
+						+ "Max/Min acceleration \nX: "
+						+ activity.getMinMax()[0] + "/"
+						+ activity.getMinMax()[1] + " zero: "
+						+ activity.getMinMax()[6] + "\nY: "
+						+ activity.getMinMax()[2] + "/"
+						+ activity.getMinMax()[3] + " zero: "
+						+ activity.getMinMax()[7] + "\nZ: "
+						+ activity.getMinMax()[4] + "/"
+						+ activity.getMinMax()[5] + " zero: "
+						+ activity.getMinMax()[8] + 
+						"\nStandard deviation: \n x-axis: " +
+						activity.getxSD() + "\ny-axis: " +
+						activity.getySD() + "\nz-axis: " +
+						activity.getzSD());
+
 	}
-
-//	public void updateMaximumDisplacementText(float[] maximumDisplacements) {
-//		TextView maximumDisplacementText = (TextView) this.getView()
-//				.findViewById(R.id.maximumDisplacementText);
-//		maximumDisplacementText.setText("Max/Min displacement \nX: "
-//				+ maximumDisplacements[0] + "/" + maximumDisplacements[1] + " zero: " + maximumDisplacements[6]
-//				+ "\nY: " + maximumDisplacements[2] + "/"
-//				+ maximumDisplacements[3] + " zero: " + maximumDisplacements[7] +  "\nZ: " + maximumDisplacements[4]
-//				+ "/" + maximumDisplacements[5]  + " zero: " + maximumDisplacements[8]);
-//
-//	}
-
 
 }

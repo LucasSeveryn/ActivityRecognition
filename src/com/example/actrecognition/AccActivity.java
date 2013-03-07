@@ -15,6 +15,9 @@ public class AccActivity {
 	int xCrossings;
 	int zCrossings;
 	int yCrossings;
+	double xSD;
+	double ySD;
+	double zSD;
 	String type;
 	private float[] minMax;
 	
@@ -108,6 +111,30 @@ public class AccActivity {
 
 	public ArrayList<Float> getZfData() {
 		return zfData;
+	}
+
+	public double getxSD() {
+		return xSD;
+	}
+
+	public void setxSD(double xSD) {
+		this.xSD = xSD;
+	}
+
+	public double getySD() {
+		return ySD;
+	}
+
+	public void setySD(double ySD) {
+		this.ySD = ySD;
+	}
+
+	public double getzSD() {
+		return zSD;
+	}
+
+	public void setzSD(double zSD) {
+		this.zSD = zSD;
 	}
 	
 }

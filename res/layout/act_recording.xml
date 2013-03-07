@@ -2,11 +2,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:paddingLeft="5dp"
     android:paddingRight="5dp"
-    android:paddingTop="5dp"
-    android:orientation="vertical" >
-    
+    android:paddingTop="5dp" >
+
     <TextView
         android:id="@+id/xyzPlotLabel"
         android:layout_width="fill_parent"
@@ -18,42 +18,117 @@
     <com.androidplot.xy.XYPlot
         android:id="@+id/xyzPlot"
         android:layout_width="fill_parent"
-        android:layout_height="340dp"
+        android:layout_height="240dp"
         android:layout_below="@id/xAccPlotLabel" />
 
-    <Button
-        android:id="@+id/startRecordingButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/xyzPlot"     
-        android:text="Start Recording" 
-        android:onClick="startRecording"/>
-    
-    <Button
-        android:id="@+id/extractFeaturesButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/xyzPlot"
-        android:layout_toRightOf="@id/startRecordingButton"
-        android:text="Extract Features" 
-        android:onClick="featureExtraction"/>
-
-    <TextView
+    <!--
+         <TextView
         android:id="@+id/zeroCrossingRateText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/startRecordingButton"
-        android:layout_below="@+id/startRecordingButton"
-        android:text=""
+        android:layout_below="@+id/saveButton"
+        android:text="crossingRate"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+    
     
         <TextView
         android:id="@+id/maximumDisplacementText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/zeroCrossingRateText"
-        android:layout_below="@+id/zeroCrossingRateText"
-        android:text=""
+        android:layout_below="@+id/saveButton"
+        android:text="minMax"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+    -->
+
+    <Button
+        android:id="@+id/fftButton"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/editText"
+        android:layout_toLeftOf="@+id/previousAccActivityButton"
+        android:onClick="applyFourier"
+        android:text="FFT" />
+
+    <Button
+        android:id="@+id/previousAccActivityButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:onClick="previousAccActivity"
+        android:text="Prev" />
+
+    <EditText
+        android:id="@+id/typeText"
+        android:inputType="number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/startRecordingButton"
+        android:layout_alignBottom="@+id/startRecordingButton"
+        android:layout_toRightOf="@+id/startRecordingButton"
+        android:ems="10"
+        android:text="1" />
+
+    <Button
+        android:id="@+id/startRecordingButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/xyzPlot"
+        android:onClick="startRecording"
+        android:text="Rec." />
+
+    <TextView
+        android:id="@+id/accActivityDetailText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/startRecordingButton"
+        android:layout_below="@+id/startRecordingButton"
+        android:text="Activity Details"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <Button
+        android:id="@+id/nextAccActivityButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/saveButton"
+        android:onClick="nextAccActivity"
+        android:text="Next >" />
+
+    <Button
+        android:id="@+id/saveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/xyzPlot"
+        android:layout_below="@+id/xyzPlot"
+        android:onClick="saveActivity"
+        android:text="Save" />
+
+    <Switch
+        android:id="@+id/fftSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:checked="false"
+        android:textOff="Wave"
+        android:textOn="FFT " />
+
+    <EditText
+        android:id="@+id/rateText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="29dp"
+        android:ems="10"
+        android:hint="0 crossing jump"
+        android:text="4"
+        android:inputType="number" >
+
+  
+    </EditText>
 
 </RelativeLayout>

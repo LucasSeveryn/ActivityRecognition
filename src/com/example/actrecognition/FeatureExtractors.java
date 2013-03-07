@@ -3,8 +3,7 @@ package com.example.actrecognition;
 import java.util.ArrayList;
 import org.apache.commons.math3.stat.descriptive.*;
 
-public class FeatureExtractors {
-	private int rate=4;
+public final class FeatureExtractors {
 	public final static FeatureExtractors INSTANCE = new FeatureExtractors();
 
 	private FeatureExtractors() {
@@ -13,10 +12,7 @@ public class FeatureExtractors {
 
 	// /FFT
 
-	public void setRate(int rate){
-		this.rate=rate;
-	}
-	public ArrayList<Float> iterativeFFT(ArrayList<Float> v, int dir) {
+	public static ArrayList<Float> iterativeFFT(ArrayList<Float> v, int dir) {
 		int n = v.size();
 		// ArrayList<Complex> bitRevCopy = new ArrayList<Complex>();
 		ArrayList<Complex> bitRevCopy = bitReverseCopy(v, n);
@@ -46,7 +42,7 @@ public class FeatureExtractors {
 		return toReal(bitRevCopy);
 	}
 
-	public ArrayList<Float> toReal(ArrayList<Complex> input) {
+	public static ArrayList<Float> toReal(ArrayList<Complex> input) {
 		ArrayList<Float> output = new ArrayList<Float>();
 		for (Complex n : input) {
 			output.add(Float.valueOf((float) n.abs()));
@@ -54,7 +50,7 @@ public class FeatureExtractors {
 		return output;
 	}
 
-	public ArrayList<Complex> bitReverseCopy(ArrayList<Float> v, int n) {
+	public static ArrayList<Complex> bitReverseCopy(ArrayList<Float> v, int n) {
 		ArrayList<Complex> bitRevCopy = new ArrayList<Complex>();
 		Complex zero = new Complex(0, 0);
 		while (bitRevCopy.size() < 512)
@@ -73,7 +69,7 @@ public class FeatureExtractors {
 		return bitRevCopy;
 	}
 
-	public int revBits(int n, int size) {
+	public static int revBits(int n, int size) {
 		int result = 0;
 
 		for (int i = size; i != 0; --i) {
@@ -88,8 +84,8 @@ public class FeatureExtractors {
 	
 	// END OF FFT
 
-	public int getZeroCrossingCount(ArrayList<Float> data2, float zero,
-			float spread) {
+	public static int getZeroCrossingCount(ArrayList<Float> data2, float zero,
+			float spread, int rate) {
 		int count = 0;
 
 		ArrayList<Float> data = (ArrayList<Float>) data2.clone();
@@ -115,19 +111,24 @@ public class FeatureExtractors {
 		return count;
 	}
 
-	public int getRate() {
-		return rate;
-	}
 
-	public double getStandardDeviation(ArrayList<Float> v){
+	public static float getStandardDeviation(ArrayList<Float> v){
 		DescriptiveStatistics stats = new DescriptiveStatistics();
 
 		// Add the data from the array
 		for( int i = 0; i < v.size(); i++) {
 		        stats.addValue(v.get(i));
 		}
-		return stats.getStandardDeviation();
+		return (float)stats.getStandardDeviation();
 		
+	}
+	
+	public static float getAverage(ArrayList<Float> v){
+		Float sum = 0f;
+		for (Float number : v) {
+			sum += number;
+		}
+		return sum / v.size();
 	}
 	
 

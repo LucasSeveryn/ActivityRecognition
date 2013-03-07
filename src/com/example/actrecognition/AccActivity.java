@@ -1,140 +1,140 @@
 package com.example.actrecognition;
 
-import java.util.ArrayList;
+import java.util.Collections;
 
 public class AccActivity {
-	ArrayList<Float> xData = new ArrayList<Float>();
-	ArrayList<Float> yData = new ArrayList<Float>();
-	ArrayList<Float> zData = new ArrayList<Float>();
-	ArrayList<Float> xfData = new ArrayList<Float>();
-	ArrayList<Float> yfData = new ArrayList<Float>();
-	ArrayList<Float> zfData = new ArrayList<Float>();
-	float xError;
-	float yError;
-	float zError;
-	int xCrossings;
-	int zCrossings;
-	int yCrossings;
-	double xSD;
-	double ySD;
-	double zSD;
-	String type;
+	AccData Data;
+	AccData fData;
+	int[] crossings;
+	float[] sd;
+	int type = 0;
 	private float[] minMax;
-	
-	public ArrayList<Float> getxData() {
-		return xData;
+	float spread = 0.30f;
+	int rate = 8;
+
+	public AccActivity(AccData recordedData, int type) {
+		Data = recordedData;
+		this.type=type;
+		fData = new AccData(FeatureExtractors.iterativeFFT(
+				Data.getDenoisedxData(), 1), FeatureExtractors.iterativeFFT(
+				Data.getDenoisedyData(), 1), FeatureExtractors.iterativeFFT(
+				Data.getDenoisedzData(), 1));
+		calculateMaximumDisplacements();
+		calculateZeroCrossingCounts();
+		calculateStandardDeviation();
+
 	}
 	
-	public int[] getCrossings(){
-		int[] crossings = {xCrossings,yCrossings,zCrossings};
+	public float[] getSD(){
+		return sd;
+	}
+
+	private void calculateStandardDeviation() {
+		float[] sd = {
+				FeatureExtractors.getStandardDeviation(Data.getxData()),
+				FeatureExtractors
+						.getStandardDeviation(Data.getyData()),
+								FeatureExtractors.getStandardDeviation(Data
+										.getzData())};
+		this.sd=sd;
+	}
+
+	private void calculateMaximumDisplacements() {
+		float[] minMax = { Collections.max(Data.getxData()),
+				Collections.min(Data.getxData()),
+				Collections.max(Data.getyData()),
+				Collections.min(Data.getyData()),
+				Collections.max(Data.getzData()),
+				Collections.min(Data.getzData()) };
+		this.minMax = minMax;
+	}
+
+	public void recalculate() {
+		fData = new AccData(FeatureExtractors.iterativeFFT(
+				Data.getDenoisedxData(), 1), FeatureExtractors.iterativeFFT(
+				Data.getDenoisedyData(), 1), FeatureExtractors.iterativeFFT(
+				Data.getDenoisedzData(), 1));
+		calculateMaximumDisplacements();
+		calculateZeroCrossingCounts();
+	}
+
+	private void calculateZeroCrossingCounts() {
+		int[] crossings = {
+				FeatureExtractors.getZeroCrossingCount(Data.getxData(),
+						Data.getNoise()[0], spread, rate),
+				FeatureExtractors.getZeroCrossingCount(Data.getzData(),
+						Data.getNoise()[1], spread, rate),
+				FeatureExtractors.getZeroCrossingCount(Data.getxData(),
+						Data.getNoise()[2], spread, rate) };
+		this.crossings = crossings;
+	}
+
+	public int[] getCrossings() {
 		return crossings;
 	}
-	public void setxData(ArrayList<Float> xData) {
-		this.xData = xData;
-	}
-	
-	public void setfData(ArrayList<Float> xfData,ArrayList<Float> zfData,ArrayList<Float> yfData){
-		this.xfData=xfData;
-		this.zfData=zfData;
-		this.yfData=yfData;
-	}
-	public ArrayList<Float> getyData() {
-		return yData;
-	}
-	public void setyData(ArrayList<Float> yData) {
-		this.yData = yData;
-	}
-	public ArrayList<Float> getzData() {
-		return zData;
-	}
-	public void setzData(ArrayList<Float> zData) {
-		this.zData = zData;
-	}
-	public float getxError() {
-		return xError;
-	}
-	public void setxError(float xError) {
-		this.xError = xError;
-	}
-	public float getyError() {
-		return yError;
-	}
-	public void setyError(float yError) {
-		this.yError = yError;
-	}
-	public float getzError() {
-		return zError;
-	}
-	public void setzError(float zError) {
-		this.zError = zError;
-	}
+
 	public int getxCrossings() {
-		return xCrossings;
+		return crossings[0];
 	}
+
 	public void setxCrossings(int xCrossings) {
-		this.xCrossings = xCrossings;
+		crossings[0] = xCrossings;
 	}
+
 	public int getzCrossings() {
-		return zCrossings;
+		return crossings[2];
 	}
+
 	public void setzCrossings(int zCrossings) {
-		this.zCrossings = zCrossings;
+		crossings[2] = zCrossings;
 	}
+
 	public int getyCrossings() {
-		return yCrossings;
+		return crossings[1];
 	}
+
 	public void setyCrossings(int yCrossings) {
-		this.yCrossings = yCrossings;
+		crossings[1] = yCrossings;
 	}
-	public String getType() {
+
+	public int getType() {
 		return type;
 	}
-	public void setType(String type) {
+
+	public void setType(int type) {
 		this.type = type;
 	}
 
 	public void setMinMax(float[] maximumDisplacements) {
-		this.minMax= maximumDisplacements;
+		this.minMax = maximumDisplacements;
 	}
-	
-	public float[] getMinMax(){
+
+	public float[] getMinMax() {
 		return minMax;
 	}
 
-	public ArrayList<Float> getXfData() {
-		return xfData;
+	public AccData getData() {
+		return Data;
 	}
 
-	public ArrayList<Float> getYfData() {
-		return yfData;
+	public AccData getfData() {
+		return fData;
 	}
 
-	public ArrayList<Float> getZfData() {
-		return zfData;
+	public float getSpread() {
+		return spread;
 	}
 
-	public double getxSD() {
-		return xSD;
+	public void setSpread(float spread) {
+		this.spread = spread;
 	}
 
-	public void setxSD(double xSD) {
-		this.xSD = xSD;
+	public int getRate() {
+		return rate;
 	}
 
-	public double getySD() {
-		return ySD;
+	public void setRate(int rate) {
+		this.rate = rate;
 	}
 
-	public void setySD(double ySD) {
-		this.ySD = ySD;
-	}
-
-	public double getzSD() {
-		return zSD;
-	}
-
-	public void setzSD(double zSD) {
-		this.zSD = zSD;
-	}
-	
 }

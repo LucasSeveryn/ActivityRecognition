@@ -41,10 +41,13 @@ public class ActRecordingFragment extends Fragment {
 	XYPlot xyzPlot;
 
 	@SuppressWarnings("deprecation")
-	public void drawData(ArrayList<Float> xDataRecording,
-			ArrayList<Float> yDataRecording, ArrayList<Float> zDataRecording,
+	public void drawData(AccData data,
 			int lowerBound, int upperBound, int upperXBound) {
 
+		ArrayList<Float> xDataRecording=data.getxData();
+		ArrayList<Float> yDataRecording=data.getzData();
+		ArrayList<Float> zDataRecording=data.getyData();
+		
 		xPlotSeries.setModel(xDataRecording,
 				SimpleXYSeries.ArrayFormat.Y_VALS_ONLY);
 		yPlotSeries.setModel(yDataRecording,
@@ -141,18 +144,18 @@ public class ActRecordingFragment extends Fragment {
 						+ activity.getzCrossings() + "\n"
 						+ "Max/Min acceleration \nX: "
 						+ activity.getMinMax()[0] + "/"
-						+ activity.getMinMax()[1] + " zero: "
-						+ activity.getMinMax()[6] + "\nY: "
+						+ activity.getMinMax()[1] + " av. noise: "
+						+ activity.getData().getNoise()[0] + "\nY: "
 						+ activity.getMinMax()[2] + "/"
-						+ activity.getMinMax()[3] + " zero: "
-						+ activity.getMinMax()[7] + "\nZ: "
+						+ activity.getMinMax()[3] + " av. noise: "
+						+ activity.getData().getNoise()[1] + "\nZ: "
 						+ activity.getMinMax()[4] + "/"
-						+ activity.getMinMax()[5] + " zero: "
-						+ activity.getMinMax()[8] + 
+						+ activity.getMinMax()[5] + " av. noise: "
+						+ activity.getData().getNoise()[2] + 
 						"\nStandard deviation: \n x-axis: " +
-						activity.getxSD() + "\ny-axis: " +
-						activity.getySD() + "\nz-axis: " +
-						activity.getzSD());
+						activity.getSD()[0] + "\ny-axis: " +
+						activity.getSD()[1] + "\nz-axis: " +
+						activity.getSD()[2]);
 
 	}
 

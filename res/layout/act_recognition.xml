@@ -23,7 +23,7 @@
         
         
         <com.androidplot.xy.XYPlot
-        android:id="@+id/xyzActivityPlot"
+        android:id="@+id/xyzPlot"
         android:layout_width="fill_parent"
         android:layout_height="240dp"
         android:layout_below="@id/recordForRecognitionButton" />
@@ -35,7 +35,7 @@
         android:text="Saved data:"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@android:color/black" 
-        android:layout_below="@id/xyzActivityPlot" />
+        android:layout_below="@id/xyzPlot" />
         
         <com.androidplot.xy.XYPlot
         android:id="@+id/xyzSavedPlot"

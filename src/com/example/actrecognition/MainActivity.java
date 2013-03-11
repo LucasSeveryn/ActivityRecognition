@@ -23,18 +23,18 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.CompoundButton;
 
 
 public class MainActivity extends FragmentActivity implements
-		ActionBar.TabListener, CompoundButton.OnCheckedChangeListener, TextWatcher {
+		ActionBar.TabListener, CompoundButton.OnCheckedChangeListener, TextWatcher, OnItemSelectedListener {
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
-	String tagFragment1;
-	String tagFragment2;
-	String tagFragment3;
+
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
 	 * fragments for each of the sections. We use a
@@ -134,11 +134,11 @@ public class MainActivity extends FragmentActivity implements
 
 
 	};
+	private boolean spinnerFirstInvoke=true;
 
 
 	public void finishRecording() {
-	
-		tempActivity = new AccActivity(recordedData, 0);
+		tempActivity = new AccActivity(recordedData);
 		recordingTab.updateActivityDetailText(tempActivity);
 		drawGraph();
 	}
@@ -293,17 +293,14 @@ public class MainActivity extends FragmentActivity implements
 	public void setTabFragment(int index, String tag) {
 		switch (index) {
 		case 1:
-			tagFragment1 = tag;
 			monitorTab = (AccMonitorFragment) getSupportFragmentManager()
 					.findFragmentByTag(tag);
 			break;
 		case 2:
-			tagFragment2 = tag;
 			recordingTab = (ActRecordingFragment) getSupportFragmentManager()
 					.findFragmentByTag(tag);
 			break;
 		case 3:
-			tagFragment3 = tag;
 			recognitionTab = (ActRecognitionFragment) getSupportFragmentManager()
 					.findFragmentByTag(tag);
 
@@ -394,6 +391,7 @@ public class MainActivity extends FragmentActivity implements
 	public void saveActivity(View view) {
 		index = activityLibrary.size();
 		if(!activityLibrary.contains(tempActivity)){
+			tempActivity.setType(recordingTab.getTypeSpinnerValue());
 			activityLibrary.add(tempActivity);
 			Toast.makeText(this, "Activity saved. Library size:" + activityLibrary.size(), Toast.LENGTH_SHORT)
 			.show();
@@ -439,6 +437,25 @@ public class MainActivity extends FragmentActivity implements
 				activityLibrary.set(index, tempActivity);
 			}
 		}
+		
+	}
+
+	@Override
+	public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,
+			long arg3) {
+		if(spinnerFirstInvoke==true){
+			spinnerFirstInvoke=false;
+		}else{
+			if(tempActivity!=null){
+				tempActivity.setType(recordingTab.getTypeSpinnerValue());
+			}
+		}
+		
+	}
+
+	@Override
+	public void onNothingSelected(AdapterView<?> arg0) {
+		// TODO Auto-generated method stub
 		
 	}
 }

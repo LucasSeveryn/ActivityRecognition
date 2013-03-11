@@ -7,4 +7,17 @@
     <string name="title_section2">Activity Recording</string>
     <string name="title_section3">Activity Recognition</string>
 
+    
+    
+    <string-array name="actTypeArray">
+        <item>Walking (0)</item>
+        <item>Running (1)</item>
+        <item>Walking up the stairs (2)</item>
+        <item>Walking down the stairs (3)</item>
+        <item>Sitting (4)</item>
+        <item>Standing up (5)</item>
+        <item>Jumping (6)</item>
+    </string-array>
+    
+    
 </resources>

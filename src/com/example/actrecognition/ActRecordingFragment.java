@@ -30,6 +30,7 @@ import android.view.ViewDebug.IntToString;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -85,9 +86,8 @@ public class ActRecordingFragment extends Fragment {
 
 	}
 
-	public String getEditTextText() {
-		return ((EditText) getView().findViewById(R.id.typeText)).getText()
-				.toString();
+	public int getTypeSpinnerValue() {
+		return ((Spinner) getView().findViewById(R.id.typeSpinner)).getSelectedItemPosition();
 	}
 
 	public SimpleXYSeries getPlotSeries(int axis) {
@@ -129,6 +129,9 @@ public class ActRecordingFragment extends Fragment {
 
 		EditText rateText = (EditText) rootView.findViewById(R.id.rateText);
 		rateText.addTextChangedListener((MainActivity) getActivity());
+		
+		Spinner typeSpinner = (Spinner) rootView.findViewById(R.id.typeSpinner);
+		typeSpinner.setOnItemSelectedListener((MainActivity) getActivity());
 
 		return rootView;
 	}
@@ -155,7 +158,9 @@ public class ActRecordingFragment extends Fragment {
 						"\nStandard deviation: \n x-axis: " +
 						activity.getSD()[0] + "\ny-axis: " +
 						activity.getSD()[1] + "\nz-axis: " +
-						activity.getSD()[2]);
+						activity.getSD()[2] + 
+						"\nAverage Resultant Acceleration: " + activity.getAvResAcceleration() + "m/s^2" +
+						"\n");
 
 	}
 

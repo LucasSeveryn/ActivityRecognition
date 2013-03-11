@@ -8,6 +8,9 @@
 package com.example.actrecognition;
 
 public final class R {
+    public static final class array {
+        public static final int actTypeArray=0x7f060000;
+    }
     public static final class attr {
     }
     public static final class dimen {
@@ -24,33 +27,33 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int accActivityDetailText=0x7f080013;
-        public static final int action_settings=0x7f08001a;
-        public static final int comparisonResultLabel=0x7f08000b;
-        public static final int editText=0x7f08000f;
-        public static final int fftButton=0x7f08000e;
-        public static final int fftSwitch=0x7f080016;
-        public static final int nextAccActivityButton=0x7f080014;
-        public static final int pager=0x7f080018;
-        public static final int previousAccActivityButton=0x7f080010;
-        public static final int rateText=0x7f080017;
-        public static final int recalculateErrorButton=0x7f080006;
-        public static final int recordForRecognitionButton=0x7f080007;
-        public static final int saveButton=0x7f080015;
-        public static final int section_label=0x7f080019;
-        public static final int startRecordingButton=0x7f080012;
-        public static final int typeText=0x7f080011;
-        public static final int xAccPlot=0x7f080001;
-        public static final int xAccPlotLabel=0x7f080000;
-        public static final int xyzActivityPlot=0x7f080009;
-        public static final int xyzActivityPlotLabel=0x7f080008;
-        public static final int xyzPlot=0x7f08000d;
-        public static final int xyzPlotLabel=0x7f08000c;
-        public static final int xyzSavedPlot=0x7f08000a;
-        public static final int yAccPlot=0x7f080003;
-        public static final int yAccPlotLabel=0x7f080002;
-        public static final int zAccPlot=0x7f080005;
-        public static final int zAccPlotLabel=0x7f080004;
+        public static final int accActivityDetailText=0x7f090011;
+        public static final int action_settings=0x7f09001a;
+        public static final int comparisonResultLabel=0x7f09000b;
+        public static final int editText=0x7f09000e;
+        public static final int fftButton=0x7f09000d;
+        public static final int fftSwitch=0x7f090014;
+        public static final int idButton=0x7f090017;
+        public static final int nextAccActivityButton=0x7f090012;
+        public static final int pager=0x7f090018;
+        public static final int previousAccActivityButton=0x7f09000f;
+        public static final int rateText=0x7f090015;
+        public static final int recalculateErrorButton=0x7f090006;
+        public static final int recordForRecognitionButton=0x7f090007;
+        public static final int saveButton=0x7f090013;
+        public static final int section_label=0x7f090019;
+        public static final int startRecordingButton=0x7f090010;
+        public static final int typeSpinner=0x7f090016;
+        public static final int xAccPlot=0x7f090001;
+        public static final int xAccPlotLabel=0x7f090000;
+        public static final int xyzActivityPlotLabel=0x7f090008;
+        public static final int xyzPlot=0x7f090009;
+        public static final int xyzPlotLabel=0x7f09000c;
+        public static final int xyzSavedPlot=0x7f09000a;
+        public static final int yAccPlot=0x7f090003;
+        public static final int yAccPlotLabel=0x7f090002;
+        public static final int zAccPlot=0x7f090005;
+        public static final int zAccPlotLabel=0x7f090004;
     }
     public static final class layout {
         public static final int acc_monitor=0x7f030000;
@@ -60,7 +63,7 @@ public final class R {
         public static final int fragment_main_dummy=0x7f030004;
     }
     public static final class menu {
-        public static final int main=0x7f070000;
+        public static final int main=0x7f080000;
     }
     public static final class string {
         public static final int action_settings=0x7f050001;
@@ -91,10 +94,10 @@ public final class R {
     
  API 14 theme customizations can go here. 
          */
-        public static final int AppBaseTheme=0x7f060000;
+        public static final int AppBaseTheme=0x7f070000;
         /**  Application theme. 
  All customizations that are NOT specific to a particular API-level can go here. 
          */
-        public static final int AppTheme=0x7f060001;
+        public static final int AppTheme=0x7f070001;
     }
 }

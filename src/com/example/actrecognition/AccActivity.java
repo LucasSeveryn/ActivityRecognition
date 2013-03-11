@@ -7,10 +7,15 @@ public class AccActivity {
 	AccData fData;
 	int[] crossings;
 	float[] sd;
-	int type = 0;
+	int type = -1;
 	private float[] minMax;
 	float spread = 0.30f;
 	int rate = 8;
+	float avResAcc;
+	
+	public float getAvResAcceleration(){
+		return avResAcc;
+	}
 
 	public AccActivity(AccData recordedData, int type) {
 		Data = recordedData;
@@ -22,9 +27,25 @@ public class AccActivity {
 		calculateMaximumDisplacements();
 		calculateZeroCrossingCounts();
 		calculateStandardDeviation();
-
+		calculateAvResAcceleration();
 	}
 	
+	private void calculateAvResAcceleration(){
+		avResAcc = FeatureExtractors.averageResultantAcceleration(Data.getxData(),Data.getyData(),Data.getzData());
+	}
+	
+	public AccActivity(AccData recordedData) {
+		Data = recordedData;
+		fData = new AccData(FeatureExtractors.iterativeFFT(
+				Data.getDenoisedxData(), 1), FeatureExtractors.iterativeFFT(
+				Data.getDenoisedyData(), 1), FeatureExtractors.iterativeFFT(
+				Data.getDenoisedzData(), 1));
+		calculateMaximumDisplacements();
+		calculateZeroCrossingCounts();
+		calculateStandardDeviation();
+		calculateAvResAcceleration();
+	}
+
 	public float[] getSD(){
 		return sd;
 	}
@@ -56,6 +77,7 @@ public class AccActivity {
 				Data.getDenoisedzData(), 1));
 		calculateMaximumDisplacements();
 		calculateZeroCrossingCounts();
+		calculateAvResAcceleration();
 	}
 
 	private void calculateZeroCrossingCounts() {
@@ -136,5 +158,7 @@ public class AccActivity {
 	public void setRate(int rate) {
 		this.rate = rate;
 	}
+
+
 
 }

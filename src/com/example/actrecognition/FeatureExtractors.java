@@ -10,6 +10,26 @@ public final class FeatureExtractors {
 		// Exists only to defeat instantiation.
 	}
 
+	public static float averageResultantAcceleration(ArrayList<Float> xv,ArrayList<Float> yv,ArrayList<Float> zv){
+		float result = 0;
+		for(int i=0;i<xv.size();i++){
+			double atomicResult=0;
+			float x=xv.get(i);
+			float y=yv.get(i);
+			float z=zv.get(i);
+
+			x=x*x;
+			y=y*y;
+			z=z*z;
+			
+			atomicResult=x+y+z;
+			atomicResult=Math.sqrt(atomicResult);
+			result+=atomicResult;
+		}
+		
+		return result / xv.size();
+	}
+	
 	// /FFT
 
 	public static ArrayList<Float> iterativeFFT(ArrayList<Float> v, int dir) {

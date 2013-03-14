@@ -95,31 +95,6 @@
         android:onClick="saveActivity"
         android:text="Save" />
 
-    <Switch
-        android:id="@+id/fftSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:checked="false"
-        android:textOff="Wave"
-        android:textOn="FFT " />
-
-    <EditText
-        android:id="@+id/rateText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="29dp"
-        android:ems="10"
-        android:hint="0 crossing jump"
-        android:text="4"
-        android:inputType="number" >
-
-  
-    </EditText>
-
     <Spinner
         android:id="@+id/typeSpinner"
         android:layout_width="wrap_content"
@@ -141,5 +116,29 @@
         android:layout_alignRight="@+id/saveButton"
         android:layout_below="@+id/saveButton"
         android:text="ID!" />
+
+    <Spinner
+        android:id="@+id/displaySpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/rateText"
+        android:layout_alignParentBottom="true"
+        android:layout_alignTop="@+id/nextAccActivityButton"
+        android:layout_toLeftOf="@+id/nextAccActivityButton"
+        android:entries="@array/displayType" />
+
+    <EditText
+        android:id="@+id/rateText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/nextAccActivityButton"
+        android:layout_centerHorizontal="true"
+        android:ems="10"
+        android:hint="0 crossing jump"
+        android:inputType="number"
+        android:text="4" >
+
+        <requestFocus />
+    </EditText>
 
 </RelativeLayout>

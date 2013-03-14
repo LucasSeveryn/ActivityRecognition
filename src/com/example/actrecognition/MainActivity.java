@@ -54,8 +54,9 @@ public class MainActivity extends FragmentActivity implements
 	
 	boolean showfft;
 	
-	private float[] minMax;
+	int displayType=0;
 	
+
 	private AccActivity tempActivity;
 
 	private int index = 0;
@@ -109,9 +110,9 @@ public class MainActivity extends FragmentActivity implements
 						monitorTab.zPlot, z);
 
 				if (monitorPlotData.getxData().size() == 119) {
-					float[] newAverageNoise = {FeatureExtractors.getAverage(monitorPlotData.getxData()),
-					FeatureExtractors.getAverage(monitorPlotData.getyData()),
-					FeatureExtractors.getAverage(monitorPlotData.getzData())};
+					float[] newAverageNoise = {FeatureExtractors.average(monitorPlotData.getxData()),
+					FeatureExtractors.average(monitorPlotData.getyData()),
+					FeatureExtractors.average(monitorPlotData.getzData())};
 					averageNoise=newAverageNoise;
 				}
 
@@ -369,10 +370,18 @@ public class MainActivity extends FragmentActivity implements
 	}
 	
 	public void drawGraph(){
-		if(showfft){
-			recordingTab.drawData(tempActivity.getfData(), -1, 100, 512);
-		}else{
+		switch(displayType){
+		case 0:
 			recordingTab.drawData(tempActivity.getData(), -15, 15, 512);
+			break;
+		case 1:
+			recordingTab.drawData(tempActivity.getlpfData(), -15, 15, 512);
+			break;
+		case 2:
+			recordingTab.drawData(tempActivity.getfData(), -1, 100, 512);
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -448,6 +457,10 @@ public class MainActivity extends FragmentActivity implements
 		}else{
 			if(tempActivity!=null){
 				tempActivity.setType(recordingTab.getTypeSpinnerValue());
+				
+				int prevDisplayType=displayType;
+				displayType=recordingTab.getdisplaySpinnerValue();
+				if(displayType!=prevDisplayType) drawGraph();
 			}
 		}
 		

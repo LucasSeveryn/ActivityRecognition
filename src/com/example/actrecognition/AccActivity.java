@@ -1,63 +1,107 @@
 package com.example.actrecognition;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.TreeSet;
 
 public class AccActivity {
 	AccData Data;
 	AccData fData;
+	AccData lpfData;
+	
 	int[] crossings;
 	float[] sd;
 	int type = -1;
 	private float[] minMax;
 	float spread = 0.30f;
 	int rate = 8;
+	float alpha = 0.30f;
 	float avResAcc;
+	float[] peakDistances;
+	int[] peakNumber;
+	TreeSet<Integer> peakIndicesX;
+	TreeSet<Integer> peakIndicesY;
+	TreeSet<Integer> peakIndicesZ;
+
 	
-	public float getAvResAcceleration(){
-		return avResAcc;
+	public TreeSet<Integer> getPeakIndicesX(){
+		return peakIndicesX;
+	}
+	
+	public TreeSet<Integer> getPeakIndicesY(){
+		return peakIndicesY;
+	}
+	
+	public TreeSet<Integer> getPeakIndicesZ(){
+		return peakIndicesZ;
+	}
+	
+	private void calculatePeakIndices(){
+		peakIndicesX = FeatureExtractors.peakIndices(Data.getxData(), 0.05f);
+		peakIndicesY = FeatureExtractors.peakIndices(Data.getyData(), 0.05f);
+		peakIndicesZ = FeatureExtractors.peakIndices(Data.getzData(), 0.05f);
 	}
 
-	public AccActivity(AccData recordedData, int type) {
-		Data = recordedData;
-		this.type=type;
-		fData = new AccData(FeatureExtractors.iterativeFFT(
-				Data.getDenoisedxData(), 1), FeatureExtractors.iterativeFFT(
-				Data.getDenoisedyData(), 1), FeatureExtractors.iterativeFFT(
-				Data.getDenoisedzData(), 1));
-		calculateMaximumDisplacements();
-		calculateZeroCrossingCounts();
-		calculateStandardDeviation();
-		calculateAvResAcceleration();
+	
+	
+	public float getAvResAcceleration() {
+		return avResAcc;
 	}
 	
-	private void calculateAvResAcceleration(){
-		avResAcc = FeatureExtractors.averageResultantAcceleration(Data.getxData(),Data.getyData(),Data.getzData());
+	private void calculatePeakNumber(){
+//		int[] newPeakNumber = {FeatureExtractors.numberofPeaks(Data.getxData(),
+//				minMax[0], 0.01f),FeatureExtractors.numberofPeaks(Data.getxData(),
+//						minMax[0], 0.01f),FeatureExtractors.numberofPeaks(Data.getxData(),
+//								minMax[0], 0.01f)};
+//		peakNumber=newPeakNumber;
 	}
-	
+
+	private void calculateAvPeakDistances() {
+//		float[] newPeakDistances = {
+//				FeatureExtractors.averageElementsBetweenPeaks(Data.getxData(),
+//						minMax[0], 0.01f),
+//				FeatureExtractors.averageElementsBetweenPeaks(Data.getyData(),
+//						minMax[2], 0.01f),
+//				FeatureExtractors.averageElementsBetweenPeaks(Data.getzData(),
+//						minMax[4], 0.01f) };
+//		this.peakDistances=newPeakDistances;
+	}
+
+
+	private void calculateAvResAcceleration() {
+		avResAcc = FeatureExtractors.averageResultantAcceleration(
+				Data.getxData(), Data.getyData(), Data.getzData());
+	}
+
+
 	public AccActivity(AccData recordedData) {
 		Data = recordedData;
 		fData = new AccData(FeatureExtractors.iterativeFFT(
 				Data.getDenoisedxData(), 1), FeatureExtractors.iterativeFFT(
 				Data.getDenoisedyData(), 1), FeatureExtractors.iterativeFFT(
 				Data.getDenoisedzData(), 1));
+		lpfData = new AccData(FeatureExtractors.lowPassFilter(Data.getxData(), alpha),
+				FeatureExtractors.lowPassFilter(Data.getyData(), alpha),
+				FeatureExtractors.lowPassFilter(Data.getzData(), alpha));
 		calculateMaximumDisplacements();
 		calculateZeroCrossingCounts();
 		calculateStandardDeviation();
 		calculateAvResAcceleration();
+		calculateAvPeakDistances();
+		calculatePeakNumber();
+		calculatePeakIndices();
 	}
 
-	public float[] getSD(){
+	public float[] getSD() {
 		return sd;
 	}
 
 	private void calculateStandardDeviation() {
-		float[] sd = {
-				FeatureExtractors.getStandardDeviation(Data.getxData()),
-				FeatureExtractors
-						.getStandardDeviation(Data.getyData()),
-								FeatureExtractors.getStandardDeviation(Data
-										.getzData())};
-		this.sd=sd;
+		float[] sd = { FeatureExtractors.standardDeviation(Data.getxData()),
+				FeatureExtractors.standardDeviation(Data.getyData()),
+				FeatureExtractors.standardDeviation(Data.getzData()) };
+		this.sd = sd;
 	}
 
 	private void calculateMaximumDisplacements() {
@@ -77,17 +121,16 @@ public class AccActivity {
 				Data.getDenoisedzData(), 1));
 		calculateMaximumDisplacements();
 		calculateZeroCrossingCounts();
-		calculateAvResAcceleration();
 	}
 
 	private void calculateZeroCrossingCounts() {
 		int[] crossings = {
-				FeatureExtractors.getZeroCrossingCount(Data.getxData(),
-						Data.getNoise()[0], spread, rate),
-				FeatureExtractors.getZeroCrossingCount(Data.getzData(),
-						Data.getNoise()[1], spread, rate),
-				FeatureExtractors.getZeroCrossingCount(Data.getxData(),
-						Data.getNoise()[2], spread, rate) };
+				FeatureExtractors.zeroCrossingCount(lpfData.getxData(),
+						Data.getXMiddleValue(), spread, rate),
+				FeatureExtractors.zeroCrossingCount(lpfData.getyData(),
+						Data.getYMiddleValue(), spread, rate),
+				FeatureExtractors.zeroCrossingCount(lpfData.getzData(),
+						Data.getZMiddleValue(), spread, rate) };
 		this.crossings = crossings;
 	}
 
@@ -159,6 +202,16 @@ public class AccActivity {
 		this.rate = rate;
 	}
 
+	public float[] getAvPeakDistance() {
+		return peakDistances;
+	}
 
+	public int[] getPeakNumber() {
+		return peakNumber;
+	}
+
+	public AccData getlpfData() {
+		return lpfData;
+	}
 
 }

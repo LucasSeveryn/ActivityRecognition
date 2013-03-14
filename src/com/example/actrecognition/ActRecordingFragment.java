@@ -42,13 +42,13 @@ public class ActRecordingFragment extends Fragment {
 	XYPlot xyzPlot;
 
 	@SuppressWarnings("deprecation")
-	public void drawData(AccData data,
-			int lowerBound, int upperBound, int upperXBound) {
+	public void drawData(AccData data, int lowerBound, int upperBound,
+			int upperXBound) {
 
-		ArrayList<Float> xDataRecording=data.getxData();
-		ArrayList<Float> yDataRecording=data.getzData();
-		ArrayList<Float> zDataRecording=data.getyData();
-		
+		ArrayList<Float> xDataRecording = data.getxData();
+		ArrayList<Float> yDataRecording = data.getyData();
+		ArrayList<Float> zDataRecording = data.getzData();
+
 		xPlotSeries.setModel(xDataRecording,
 				SimpleXYSeries.ArrayFormat.Y_VALS_ONLY);
 		yPlotSeries.setModel(yDataRecording,
@@ -87,7 +87,13 @@ public class ActRecordingFragment extends Fragment {
 	}
 
 	public int getTypeSpinnerValue() {
-		return ((Spinner) getView().findViewById(R.id.typeSpinner)).getSelectedItemPosition();
+		return ((Spinner) getView().findViewById(R.id.typeSpinner))
+				.getSelectedItemPosition();
+	}
+
+	public int getdisplaySpinnerValue() {
+		return ((Spinner) getView().findViewById(R.id.displaySpinner))
+				.getSelectedItemPosition();
 	}
 
 	public SimpleXYSeries getPlotSeries(int axis) {
@@ -123,15 +129,15 @@ public class ActRecordingFragment extends Fragment {
 
 		xyzPlot.redraw();
 
-		Switch s = (Switch) rootView.findViewById(R.id.fftSwitch);
-
-		s.setOnCheckedChangeListener((MainActivity) getActivity());
-
 		EditText rateText = (EditText) rootView.findViewById(R.id.rateText);
 		rateText.addTextChangedListener((MainActivity) getActivity());
-		
+
 		Spinner typeSpinner = (Spinner) rootView.findViewById(R.id.typeSpinner);
 		typeSpinner.setOnItemSelectedListener((MainActivity) getActivity());
+
+		Spinner displaySpinner = (Spinner) rootView
+				.findViewById(R.id.displaySpinner);
+		displaySpinner.setOnItemSelectedListener((MainActivity) getActivity());
 
 		return rootView;
 	}
@@ -139,29 +145,29 @@ public class ActRecordingFragment extends Fragment {
 	public void updateActivityDetailText(AccActivity activity) {
 		TextView zeroCrossingRateText = (TextView) this.getView().findViewById(
 				R.id.accActivityDetailText);
-		zeroCrossingRateText
-				.setText("Type: " + activity.getType()
-						+ "\nZero crossing rate: X: "
-						+ activity.getxCrossings() + " Y: "
-						+ activity.getyCrossings() + " Z: "
-						+ activity.getzCrossings() + "\n"
-						+ "Max/Min acceleration \nX: "
-						+ activity.getMinMax()[0] + "/"
-						+ activity.getMinMax()[1] + " av. noise: "
-						+ activity.getData().getNoise()[0] + "\nY: "
-						+ activity.getMinMax()[2] + "/"
-						+ activity.getMinMax()[3] + " av. noise: "
-						+ activity.getData().getNoise()[1] + "\nZ: "
-						+ activity.getMinMax()[4] + "/"
-						+ activity.getMinMax()[5] + " av. noise: "
-						+ activity.getData().getNoise()[2] + 
-						"\nStandard deviation: \n x-axis: " +
-						activity.getSD()[0] + "\ny-axis: " +
-						activity.getSD()[1] + "\nz-axis: " +
-						activity.getSD()[2] + 
-						"\nAverage Resultant Acceleration: " + activity.getAvResAcceleration() + "m/s^2" +
-						"\n");
+		zeroCrossingRateText.setText("Type: " + activity.getType()
+				+ "\nZero crossing rate: X: " + activity.getxCrossings()
+				+ " Y: " + activity.getyCrossings() + " Z: "
+				+ activity.getzCrossings() + "\n"
+				+ "Max/Min acceleration \nX: "
+				+ String.format("%.5f", activity.getMinMax()[0]) + "/"
+				+ String.format("%.5f", activity.getMinMax()[1])
+				+ " av. noise: "
+				+ String.format("%.5f", activity.getData().getNoise()[0])
+				+ " mid lfp: " + String.format("%.5f", activity.getlpfData().getXMiddleValue())
+				+ "\nY: " + String.format("%.5f", activity.getMinMax()[2])
+				+ "/" + String.format("%.5f", activity.getMinMax()[3])
+				+ " av. noise: "
+				+ String.format("%.5f", activity.getData().getNoise()[1])
+				+ " mid lfp: " + String.format("%.5f", activity.getlpfData().getYMiddleValue())
+				+ "\nZ: " + String.format("%.5f", activity.getMinMax()[4])
+				+ "/" + activity.getMinMax()[5] + " av. noise: "
+				+ String.format("%.5f", activity.getData().getNoise()[2])
+				+ " mid lfp: " + String.format("%.5f", activity.getlpfData().getZMiddleValue())
+				+ "\nStandard deviation: \n x-axis: " + activity.getSD()[0]
+				+ "\ny-axis: " + activity.getSD()[1] + "\nz-axis: "
+				+ activity.getSD()[2] + "\nAverage Resultant Acceleration: "
+				+ activity.getAvResAcceleration() + "m/s^2");
 
 	}
-
 }

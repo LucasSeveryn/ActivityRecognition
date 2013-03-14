@@ -1,6 +1,10 @@
 package com.example.actrecognition;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.TreeSet;
+
 import org.apache.commons.math3.stat.descriptive.*;
 
 public final class FeatureExtractors {
@@ -10,26 +14,120 @@ public final class FeatureExtractors {
 		// Exists only to defeat instantiation.
 	}
 
-	public static float averageResultantAcceleration(ArrayList<Float> xv,ArrayList<Float> yv,ArrayList<Float> zv){
-		float result = 0;
-		for(int i=0;i<xv.size();i++){
-			double atomicResult=0;
-			float x=xv.get(i);
-			float y=yv.get(i);
-			float z=zv.get(i);
+	public static TreeSet<Integer> peakIndices(ArrayList<Float> v,
+			float k) {
+		TreeSet<Integer> peakIndices = new TreeSet<Integer>();
 
-			x=x*x;
-			y=y*y;
-			z=z*z;
+//		Between any two points in your data, (x(0),y(0)) and 
+//		(x(n),y(n)), add up y(i+1)-y(i) for 0 <= i < n and call
+//		this T ("travel") and set R ("rise") to y(n)- y(0) + k 
+//		for suitably small k. T/R > 1 indicates a peak. This works
+//		OK if large travel due to noise is unlikely or
+//		if noise distributes symmetrically around a base curve 
+//		shape. For your application, accept the earliest peak with a 
+//		score above a given threshold, or analyze the curve of travel
+//		per rise values for more interesting properties.
+		
+		float y;
+		int x;
+		int n;
+		
+		for(x=0;x<v.size()-16;x+=16){
+			float travel=0;
+			float rise=0;
+			n=x+16;
 			
-			atomicResult=x+y+z;
-			atomicResult=Math.sqrt(atomicResult);
-			result+=atomicResult;
+			for(int i=x;i<n;i++){
+				if(i!=0){
+					travel+=v.get(i)-v.get(i-1);
+			}
+				
+			rise=v.get(n) - v.get(x) + k;
+			
+			if(travel/rise > 1.0f){
+				peakIndices.add(x);
+			}
+				
+				
+				
+			}
+			
+			
 		}
 		
+		return peakIndices;
+
+	}
+
+	public static float averageElementsBetweenPeaks(ArrayList<Float> v,
+			float peak, float range) {
+		
+//		ArrayList<Float> distances = new ArrayList<Float>();
+//		while (distances.size() < 3) {
+//			distances.clear();
+//			int prevPeakIndex = 0;
+//			for (int i = 0; i < v.size(); i++) {
+//				float element = v.get(i);
+//				if (element > peak * (1 - range)) {
+//			        if(prevPeakIndex!=0){
+//						distances.add((Float.valueOf(i - prevPeakIndex)));
+//			        }
+//					prevPeakIndex = i;
+//				}
+//
+//			}
+//			range = +0.01f;
+//		}
+
+		return 0.0f;
+//		return average(distances);
+	}
+
+	public static int numberofPeaks(ArrayList<Float> v, float peak, float range) {
+		ArrayList<Float> distances = new ArrayList<Float>();
+//
+//		while (distances.size() < 3) {
+//			distances.clear();
+//			int prevPeakIndex = 0;
+//			for (int i = 0; i < v.size(); i++) {
+//				float element = v.get(i);
+//				if (element > peak * (1 - range)) {
+//			        if(prevPeakIndex!=0){
+//						distances.add((Float.valueOf(i - prevPeakIndex)));
+//			        }
+//					prevPeakIndex = i;
+//				}
+//
+//			}
+//			range = +0.01f;
+//		}
+//
+//		return distances.size();
+		
+		return 1;
+	}
+
+	public static float averageResultantAcceleration(ArrayList<Float> xv,
+			ArrayList<Float> yv, ArrayList<Float> zv) {
+		float result = 0;
+		for (int i = 0; i < xv.size(); i++) {
+			double atomicResult = 0;
+			float x = xv.get(i);
+			float y = yv.get(i);
+			float z = zv.get(i);
+
+			x = x * x;
+			y = y * y;
+			z = z * z;
+
+			atomicResult = x + y + z;
+			atomicResult = Math.sqrt(atomicResult);
+			result += atomicResult;
+		}
+
 		return result / xv.size();
 	}
-	
+
 	// /FFT
 
 	public static ArrayList<Float> iterativeFFT(ArrayList<Float> v, int dir) {
@@ -101,21 +199,21 @@ public final class FeatureExtractors {
 		}
 		return result;
 	}
-	
+
 	// END OF FFT
 
-	public static int getZeroCrossingCount(ArrayList<Float> data2, float zero,
+	public static int zeroCrossingCount(ArrayList<Float> data2, float zero,
 			float spread, int rate) {
 		int count = 0;
 
 		ArrayList<Float> data = (ArrayList<Float>) data2.clone();
 
-		for (int j = 0; j < data.size(); j++) {
-			float n = data.get(j);
-			if (n < zero + spread && n > zero - spread) {
-				data.set(j, zero);
-			}
-		}
+//		for (int j = 0; j < data.size(); j++) {
+//			float n = data.get(j);
+//			if (n < zero + spread && n > zero - spread) {
+//				data.set(j, zero);
+//			}
+//		}
 
 		float x;
 		float previous = data.get(0);
@@ -131,25 +229,34 @@ public final class FeatureExtractors {
 		return count;
 	}
 
-
-	public static float getStandardDeviation(ArrayList<Float> v){
+	public static float standardDeviation(ArrayList<Float> v) {
 		DescriptiveStatistics stats = new DescriptiveStatistics();
 
 		// Add the data from the array
-		for( int i = 0; i < v.size(); i++) {
-		        stats.addValue(v.get(i));
+		for (int i = 0; i < v.size(); i++) {
+			stats.addValue(v.get(i));
 		}
-		return (float)stats.getStandardDeviation();
-		
+		return (float) stats.getStandardDeviation();
+
 	}
-	
-	public static float getAverage(ArrayList<Float> v){
+
+	public static float average(ArrayList<Float> v) {
 		Float sum = 0f;
 		for (Float number : v) {
 			sum += number;
 		}
 		return sum / v.size();
 	}
-	
+
+	public static ArrayList<Float> lowPassFilter(ArrayList<Float> v, float alpha) {
+		ArrayList<Float> output = new ArrayList<Float>();
+
+		output.add(v.get(0));
+		for(int i=1; i<v.size();i++){
+			output.add(alpha * v.get(i) + (1-alpha) * output.get(i-1));
+		}
+		
+		return output;				   								   
+	}
 
 }

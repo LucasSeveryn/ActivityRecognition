@@ -10,7 +10,7 @@ public final class IdentificationEngine {
 	}
 	
 	
-	public AccActivity findClosestMatch(AccActivity query, ArrayList<AccActivity> library){
+	public static AccActivity findClosestMatch(AccActivity query, ArrayList<AccActivity> library){
 		AccActivity guess = library.get(0);
 		
 		

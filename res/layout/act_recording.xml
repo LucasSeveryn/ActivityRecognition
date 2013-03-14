@@ -108,15 +108,6 @@
         android:inputType="number"
         android:text="1" />
 
-    <Button
-        android:id="@+id/idButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/saveButton"
-        android:layout_alignRight="@+id/saveButton"
-        android:layout_below="@+id/saveButton"
-        android:text="ID!" />
-
     <Spinner
         android:id="@+id/displaySpinner"
         android:layout_width="wrap_content"
@@ -141,4 +132,22 @@
         <requestFocus />
     </EditText>
 
+    <Button
+        android:id="@+id/idButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/accActivityDetailText"
+        android:layout_toRightOf="@+id/typeSpinner"
+        android:onClick="identify"
+        android:text="ID!" />
+
+    <Button
+        android:id="@+id/delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/idButton"
+        android:layout_toRightOf="@+id/typeSpinner"
+        android:onClick="identify"
+        android:text="Del" />
+    
 </RelativeLayout>

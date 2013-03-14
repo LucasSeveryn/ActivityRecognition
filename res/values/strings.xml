@@ -20,6 +20,10 @@
         <item>Sitting (4)</item>
         <item>Standing up (5)</item>
         <item>Jumping (6)</item>
+        <item>Test: Wave Sideways (7)</item>
+        <item>Test: Wave Forward (8)</item>
+        
+        
     </string-array>
 
 </resources>

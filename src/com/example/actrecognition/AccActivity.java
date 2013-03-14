@@ -1,11 +1,16 @@
 package com.example.actrecognition;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.TreeSet;
 
-public class AccActivity {
+public class AccActivity implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5739053446639539286L;
 	AccData Data;
 	AccData fData;
 	AccData lpfData;
@@ -150,8 +155,42 @@ public class AccActivity {
 		crossings[1] = yCrossings;
 	}
 
-	public int getType() {
-		return type;
+	
+//	  <string-array name="actTypeArray">
+//      <item>Walking (0)</item>
+//      <item>Running (1)</item>
+//      <item>Walking up the stairs (2)</item>
+//      <item>Walking down the stairs (3)</item>
+//      <item>Sitting (4)</item>
+//      <item>Standing up (5)</item>
+//      <item>Jumping (6)</item>
+//      <item>Test: Wave Sideways (7)</item>
+//      <item>Test: Wave Forward (8)</item>
+	public String getType() {
+		switch(type){
+		case 0:
+			return "Walking (0)";
+		case 1:
+			return "Running (1)";
+		case 2:
+			return "Walking up the stairs (2)";
+		case 3:
+			return "Walking down the stairs (3)";
+		case 4:
+			return "Sitting (4)";
+		case 5:
+			return "Standing up (5)";
+		case 6:
+			return "Jumping (6)";
+		case 7:
+			return "Test: Wave Sideways (7)";
+		case 8:
+			return "Test: Wave Forward (8)";
+		default:
+			return "Unspecified";
+		
+		}
+		
 	}
 
 	public void setType(int type) {

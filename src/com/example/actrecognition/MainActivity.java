@@ -1,13 +1,18 @@
 package com.example.actrecognition;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Locale;
 
 import com.androidplot.xy.SimpleXYSeries;
 import android.app.ActionBar;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.preference.PreferenceManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -29,9 +34,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.CompoundButton;
 
-
 public class MainActivity extends FragmentActivity implements
-		ActionBar.TabListener, CompoundButton.OnCheckedChangeListener, TextWatcher, OnItemSelectedListener {
+		ActionBar.TabListener, CompoundButton.OnCheckedChangeListener,
+		TextWatcher, OnItemSelectedListener {
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
 
@@ -50,12 +55,11 @@ public class MainActivity extends FragmentActivity implements
 	ViewPager mViewPager;
 	private boolean recordingEnabled = false;
 
-	float[] averageNoise = {0,0,0};
-	
+	float[] averageNoise = { 0, 0, 0 };
+
 	boolean showfft;
-	
-	int displayType=0;
-	
+
+	int displayType = 0;
 
 	private AccActivity tempActivity;
 
@@ -68,7 +72,7 @@ public class MainActivity extends FragmentActivity implements
 	AccData recordedData;
 	AccData monitorPlotData = new AccData();
 
-	static ArrayList<AccActivity> activityLibrary = new ArrayList<AccActivity>();
+	static ArrayList<AccActivity> activityLibrary;
 
 	AccMonitorFragment monitorTab;
 	ActRecognitionFragment recognitionTab;
@@ -110,10 +114,14 @@ public class MainActivity extends FragmentActivity implements
 						monitorTab.zPlot, z);
 
 				if (monitorPlotData.getxData().size() == 119) {
-					float[] newAverageNoise = {FeatureExtractors.average(monitorPlotData.getxData()),
-					FeatureExtractors.average(monitorPlotData.getyData()),
-					FeatureExtractors.average(monitorPlotData.getzData())};
-					averageNoise=newAverageNoise;
+					float[] newAverageNoise = {
+							FeatureExtractors.average(monitorPlotData
+									.getxData()),
+							FeatureExtractors.average(monitorPlotData
+									.getyData()),
+							FeatureExtractors.average(monitorPlotData
+									.getzData()) };
+					averageNoise = newAverageNoise;
 				}
 
 				if (counter % 25 == 0) {
@@ -126,25 +134,21 @@ public class MainActivity extends FragmentActivity implements
 					((TextView) findViewById(R.id.zAccPlotLabel))
 							.setText("z-plane acc. Error: " + averageNoise[2]
 									+ " Current value: " + z);
-					counter=1;
+					counter = 1;
 				}
 
 				counter++;
 			}
 		}
 
-
 	};
-	private boolean spinnerFirstInvoke=true;
-
+	private boolean spinnerFirstInvoke = true;
 
 	public void finishRecording() {
 		tempActivity = new AccActivity(recordedData);
 		recordingTab.updateActivityDetailText(tempActivity);
-		drawGraph();
+		drawRecordingGraph();
 	}
-
-
 
 	/**
 	 * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
@@ -239,6 +243,20 @@ public class MainActivity extends FragmentActivity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		activityLibrary = new ArrayList<AccActivity>();
+
+		String ser = SerializeObject.ReadSettings(this, "activityLibrary.dat");
+		if (ser != null && !ser.equalsIgnoreCase("")) {
+			Object obj = SerializeObject.stringToObject(ser);
+			if (obj instanceof ArrayList) {
+				activityLibrary = (ArrayList<AccActivity>) obj;
+				Toast.makeText(this, "Size: " + activityLibrary.size(),
+						Toast.LENGTH_SHORT).show();
+				tempActivity = activityLibrary.get(activityLibrary.size()-1);
+				index=activityLibrary.size()-1;
+			}
+		}
+
 		// Set up the action bar.
 		final ActionBar actionBar = getActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -304,7 +322,6 @@ public class MainActivity extends FragmentActivity implements
 		case 3:
 			recognitionTab = (ActRecognitionFragment) getSupportFragmentManager()
 					.findFragmentByTag(tag);
-
 			break;
 		}
 	}
@@ -329,12 +346,11 @@ public class MainActivity extends FragmentActivity implements
 
 	public void startRecording(View view) {
 		recordedData = new AccData();
-		Toast.makeText(this, "Recording will start in 5 sec", Toast.LENGTH_SHORT)
-				.show();
+		Toast.makeText(this, "Recording will start in 5 sec",
+				Toast.LENGTH_SHORT).show();
 		Runnable r = new dataRecording();
 		new Thread(r).start();
 	}
-
 
 	public void recalculateError(View view) {
 		recalculateError();
@@ -359,18 +375,34 @@ public class MainActivity extends FragmentActivity implements
 
 	public void nextAccActivity(View view) {
 		if (index + 1 < activityLibrary.size()) {
-			tempActivity=activityLibrary.get(index + 1);
+			tempActivity = activityLibrary.get(index + 1);
 			recordingTab.updateActivityDetailText(tempActivity);
-			drawGraph();
+			drawRecordingGraph();
 			index++;
-			Toast.makeText(this, "Activity #" + index + " selected", Toast.LENGTH_SHORT)
-			.show();
+			Toast.makeText(this, "Activity #" + index + " selected",
+					Toast.LENGTH_SHORT).show();
 		}
 
 	}
-	
-	public void drawGraph(){
-		switch(displayType){
+
+	public void drawRecognitionGraph() {
+		switch (displayType) {
+		case 0:
+			recordingTab.drawData(tempActivity.getData(), -15, 15, 512);
+			break;
+		case 1:
+			recordingTab.drawData(tempActivity.getlpfData(), -15, 15, 512);
+			break;
+		case 2:
+			recordingTab.drawData(tempActivity.getfData(), -1, 100, 512);
+			break;
+		default:
+			break;
+		}
+	}
+
+	public void drawRecordingGraph() {
+		switch (displayType) {
 		case 0:
 			recordingTab.drawData(tempActivity.getData(), -15, 15, 512);
 			break;
@@ -387,88 +419,102 @@ public class MainActivity extends FragmentActivity implements
 
 	public void previousAccActivity(View view) {
 		if (index - 1 >= 0) {
-			tempActivity=activityLibrary.get(index - 1);
+			tempActivity = activityLibrary.get(index - 1);
 			recordingTab.updateActivityDetailText(tempActivity);
-			drawGraph();
+			drawRecordingGraph();
 			index--;
-			Toast.makeText(this, "Activity #" + index + " selected", Toast.LENGTH_SHORT)
-			.show();
+			Toast.makeText(this, "Activity #" + index + " selected",
+					Toast.LENGTH_SHORT).show();
 		}
 
+	}
+
+	public void identify(View view) {
+		AccActivity result = IdentificationEngine.findClosestMatch(
+				tempActivity, activityLibrary);
 	}
 
 	public void saveActivity(View view) {
 		index = activityLibrary.size();
-		if(!activityLibrary.contains(tempActivity)){
+		if (!activityLibrary.contains(tempActivity)) {
 			tempActivity.setType(recordingTab.getTypeSpinnerValue());
 			activityLibrary.add(tempActivity);
-			Toast.makeText(this, "Activity saved. Library size:" + activityLibrary.size(), Toast.LENGTH_SHORT)
-			.show();
-		}else{
-			Toast.makeText(this, "Activity already in the library." , Toast.LENGTH_SHORT)
-			.show();
+			Toast.makeText(this,
+					"Activity saved. Library size:" + activityLibrary.size(),
+					Toast.LENGTH_SHORT).show();
+			String ser = SerializeObject.objectToString(activityLibrary);
+			if (ser != null && !ser.equalsIgnoreCase("")) {
+				SerializeObject.WriteSettings(this, ser, "activityLibrary.dat");
+			} else {
+				SerializeObject.WriteSettings(this, "", "activityLibrary.dat");
+			}
+
+		} else {
+			Toast.makeText(this, "Activity already in the library.",
+					Toast.LENGTH_SHORT).show();
 		}
-		
-		
+
 	}
 
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-		 if(isChecked){
-			 showfft=true;
-		 }else{
-			 showfft=false;
-		 }
-		 drawGraph();
+		if (isChecked) {
+			showfft = true;
+		} else {
+			showfft = false;
+		}
+		drawRecordingGraph();
 	}
 
 	@Override
 	public void afterTextChanged(Editable arg0) {
-	
-		
+
 	}
 
 	@Override
 	public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
 			int arg3) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-		if (arg0.length()>0){
+		if (arg0.length() > 0) {
 			tempActivity.setRate(Integer.parseInt(arg0.toString()));
 			tempActivity.recalculate();
 			recordingTab.updateActivityDetailText(tempActivity);
-			Toast.makeText(this, "Rate changed to:" + tempActivity.getRate(), Toast.LENGTH_SHORT).show();
-			if(activityLibrary.size()!=0&&tempActivity==activityLibrary.get(index)){
+			Toast.makeText(this, "Rate changed to:" + tempActivity.getRate(),
+					Toast.LENGTH_SHORT).show();
+			if (activityLibrary.size() != 0
+					&& tempActivity == activityLibrary.get(index)) {
 				activityLibrary.set(index, tempActivity);
 			}
 		}
-		
+
 	}
 
 	@Override
 	public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2,
 			long arg3) {
-		if(spinnerFirstInvoke==true){
-			spinnerFirstInvoke=false;
-		}else{
-			if(tempActivity!=null){
+		if (spinnerFirstInvoke == true) {
+			spinnerFirstInvoke = false;
+		} else {
+			if (tempActivity != null) {
 				tempActivity.setType(recordingTab.getTypeSpinnerValue());
-				
-				int prevDisplayType=displayType;
-				displayType=recordingTab.getdisplaySpinnerValue();
-				if(displayType!=prevDisplayType) drawGraph();
+
+				int prevDisplayType = displayType;
+				displayType = recordingTab.getdisplaySpinnerValue();
+				if (displayType != prevDisplayType)
+					drawRecordingGraph();
 			}
 		}
-		
+
 	}
 
 	@Override
 	public void onNothingSelected(AdapterView<?> arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

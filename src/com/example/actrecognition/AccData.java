@@ -1,9 +1,14 @@
 package com.example.actrecognition;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class AccData {
+public class AccData implements Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4027578149606001414L;
 	private ArrayList<Float> xData;
 	private ArrayList<Float> yData;
 	private ArrayList<Float> zData;

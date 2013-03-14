@@ -41,11 +41,9 @@ public final class FeatureExtractors {
 			return peakIndices;
 		}
 		
-		float cutoff = max * 0.9f;
-		int iterations = 0;
+		float cutoff = max * 0.85f;
 
-		while (peakIndices.size() < 3 && iterations < 5) {
-			iterations++;
+		while (peakIndices.size() < 3) {
 			for (int i = 0; i < v.size(); i++) {
 				if (v.get(i) > cutoff) {
 					peakIndices.add(Integer.valueOf(i));
@@ -53,7 +51,7 @@ public final class FeatureExtractors {
 			}
 
 			if (peakIndices.size() != 0) {
-				peakIndices = removeSimilar(peakIndices, 16);
+				peakIndices = removeSimilar(peakIndices, 8);
 			}
 
 			cutoff -= 0.05f;

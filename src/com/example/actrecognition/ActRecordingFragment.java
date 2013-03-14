@@ -152,20 +152,20 @@ public class ActRecordingFragment extends Fragment {
 				+ " Y: " + activity.getyCrossings() + " Z: "
 				+ activity.getzCrossings() + "\n"
 				+ "Max/Min acceleration \nX: "
-				+ String.format("%.5f", activity.getMinMax()[0]) + "/"
-				+ String.format("%.5f", activity.getMinMax()[1])
+				+ String.format("%.4f", activity.getMinMax()[0]) + "/"
+				+ String.format("%.4f", activity.getMinMax()[1])
 				+ " av. noise: "
-				+ String.format("%.5f", activity.getData().getNoise()[0])
-				+ " mid lfp: " + String.format("%.5f", activity.getlpfData().getXMiddleValue())
-				+ "\nY: " + String.format("%.5f", activity.getMinMax()[2])
-				+ "/" + String.format("%.5f", activity.getMinMax()[3])
+				+ String.format("%.4f", activity.getData().getNoise()[0])
+				+ " mid lfp: " + String.format("%.4f", activity.getlpfData().getXMiddleValue())
+				+ "\nY: " + String.format("%.4f", activity.getMinMax()[2])
+				+ "/" + String.format("%.4f", activity.getMinMax()[3])
 				+ " av. noise: "
-				+ String.format("%.5f", activity.getData().getNoise()[1])
-				+ " mid lfp: " + String.format("%.5f", activity.getlpfData().getYMiddleValue())
-				+ "\nZ: " + String.format("%.5f", activity.getMinMax()[4])
-				+ "/" + activity.getMinMax()[5] + " av. noise: "
-				+ String.format("%.5f", activity.getData().getNoise()[2])
-				+ " mid lfp: " + String.format("%.5f", activity.getlpfData().getZMiddleValue())
+				+ String.format("%.4f", activity.getData().getNoise()[1])
+				+ " mid lfp: " + String.format("%.4f", activity.getlpfData().getYMiddleValue())
+				+ "\nZ: " + String.format("%.4f", activity.getMinMax()[4])
+				+ "/" + String.format("%.4f",activity.getMinMax()[5]) + " av. noise: "
+				+ String.format("%.4f", activity.getData().getNoise()[2])
+				+ " mid lfp: " + String.format("%.4f", activity.getlpfData().getZMiddleValue())
 				+ "\nStandard deviation: \n x-axis: " + activity.getSD()[0]
 				+ "\ny-axis: " + activity.getSD()[1] + "\nz-axis: "
 				+ activity.getSD()[2] + "\nAverage Resultant Acceleration: "

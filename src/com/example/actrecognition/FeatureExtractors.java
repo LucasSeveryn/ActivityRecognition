@@ -14,97 +14,71 @@ public final class FeatureExtractors {
 		// Exists only to defeat instantiation.
 	}
 
-	public static TreeSet<Integer> peakIndices(ArrayList<Float> v,
-			float k) {
-		TreeSet<Integer> peakIndices = new TreeSet<Integer>();
+	private static ArrayList<Integer> removeSimilar(ArrayList<Integer> v, int k) {
+		Collections.sort(v);
+		int previous = v.get(0);
+		int current;
+		int i = 1;
 
-//		Between any two points in your data, (x(0),y(0)) and 
-//		(x(n),y(n)), add up y(i+1)-y(i) for 0 <= i < n and call
-//		this T ("travel") and set R ("rise") to y(n)- y(0) + k 
-//		for suitably small k. T/R > 1 indicates a peak. This works
-//		OK if large travel due to noise is unlikely or
-//		if noise distributes symmetrically around a base curve 
-//		shape. For your application, accept the earliest peak with a 
-//		score above a given threshold, or analyze the curve of travel
-//		per rise values for more interesting properties.
-		
-		float y;
-		int x;
-		int n;
-		
-		for(x=0;x<v.size()-16;x+=16){
-			float travel=0;
-			float rise=0;
-			n=x+16;
-			
-			for(int i=x;i<n;i++){
-				if(i!=0){
-					travel+=v.get(i)-v.get(i-1);
+		while (i < v.size()) {
+			current = v.get(i);
+			if ((current - previous) < k) {
+				v.remove(i);
+			} else {
+				i++;
 			}
-				
-			rise=v.get(n) - v.get(x) + k;
-			
-			if(travel/rise > 1.0f){
-				peakIndices.add(x);
-			}
-				
-				
-				
-			}
-			
-			
+			previous = current;
+		}
+		return v;
+	}
+
+	public static ArrayList<Integer> peakIndices(ArrayList<Float> v) {
+		ArrayList<Integer> peakIndices = new ArrayList<Integer>();
+		float max = Collections.max(v);
+		float min = Collections.min(v);
+		if (max - min < 1.0f) {
+			peakIndices.add(Integer.valueOf(0));
+			return peakIndices;
 		}
 		
+		float cutoff = max * 0.9f;
+		int iterations = 0;
+
+		while (peakIndices.size() < 3 && iterations < 5) {
+			iterations++;
+			for (int i = 0; i < v.size(); i++) {
+				if (v.get(i) > cutoff) {
+					peakIndices.add(Integer.valueOf(i));
+				}
+			}
+
+			if (peakIndices.size() != 0) {
+				peakIndices = removeSimilar(peakIndices, 16);
+			}
+
+			cutoff -= 0.05f;
+		}
+
+		if (peakIndices.size() != 0) {
+			peakIndices = removeSimilar(peakIndices, 16);
+		} else {
+			peakIndices.add(Integer.valueOf(0));
+		}
+
 		return peakIndices;
 
 	}
 
-	public static float averageElementsBetweenPeaks(ArrayList<Float> v,
-			float peak, float range) {
-		
-//		ArrayList<Float> distances = new ArrayList<Float>();
-//		while (distances.size() < 3) {
-//			distances.clear();
-//			int prevPeakIndex = 0;
-//			for (int i = 0; i < v.size(); i++) {
-//				float element = v.get(i);
-//				if (element > peak * (1 - range)) {
-//			        if(prevPeakIndex!=0){
-//						distances.add((Float.valueOf(i - prevPeakIndex)));
-//			        }
-//					prevPeakIndex = i;
-//				}
-//
-//			}
-//			range = +0.01f;
-//		}
-
-		return 0.0f;
-//		return average(distances);
-	}
-
-	public static int numberofPeaks(ArrayList<Float> v, float peak, float range) {
-		ArrayList<Float> distances = new ArrayList<Float>();
-//
-//		while (distances.size() < 3) {
-//			distances.clear();
-//			int prevPeakIndex = 0;
-//			for (int i = 0; i < v.size(); i++) {
-//				float element = v.get(i);
-//				if (element > peak * (1 - range)) {
-//			        if(prevPeakIndex!=0){
-//						distances.add((Float.valueOf(i - prevPeakIndex)));
-//			        }
-//					prevPeakIndex = i;
-//				}
-//
-//			}
-//			range = +0.01f;
-//		}
-//
-//		return distances.size();
-		
-		return 1;
+	public static float averageDifference(ArrayList<Integer> v) {
+		int previous = v.get(0);
+		int current;
+		int difference = 0;
+		for (int i = 1; i < v.size(); i++) {
+			current = v.get(i);
+			difference = difference + (current - previous);
+			previous = current;
+		}
+		return (difference / v.size());
 	}
 
 	public static float averageResultantAcceleration(ArrayList<Float> xv,
@@ -208,12 +182,12 @@ public final class FeatureExtractors {
 
 		ArrayList<Float> data = (ArrayList<Float>) data2.clone();
 
-//		for (int j = 0; j < data.size(); j++) {
-//			float n = data.get(j);
-//			if (n < zero + spread && n > zero - spread) {
-//				data.set(j, zero);
-//			}
-//		}
+		// for (int j = 0; j < data.size(); j++) {
+		// float n = data.get(j);
+		// if (n < zero + spread && n > zero - spread) {
+		// data.set(j, zero);
+		// }
+		// }
 
 		float x;
 		float previous = data.get(0);
@@ -252,11 +226,11 @@ public final class FeatureExtractors {
 		ArrayList<Float> output = new ArrayList<Float>();
 
 		output.add(v.get(0));
-		for(int i=1; i<v.size();i++){
-			output.add(alpha * v.get(i) + (1-alpha) * output.get(i-1));
+		for (int i = 1; i < v.size(); i++) {
+			output.add(alpha * v.get(i) + (1 - alpha) * output.get(i - 1));
 		}
-		
-		return output;				   								   
+
+		return output;
 	}
 
 }

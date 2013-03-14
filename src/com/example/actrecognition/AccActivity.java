@@ -20,27 +20,27 @@ public class AccActivity {
 	float avResAcc;
 	float[] peakDistances;
 	int[] peakNumber;
-	TreeSet<Integer> peakIndicesX;
-	TreeSet<Integer> peakIndicesY;
-	TreeSet<Integer> peakIndicesZ;
+	ArrayList<Integer> peakIndicesX;
+	ArrayList<Integer> peakIndicesY;
+	ArrayList<Integer> peakIndicesZ;
 
 	
-	public TreeSet<Integer> getPeakIndicesX(){
+	public ArrayList<Integer> getPeakIndicesX(){
 		return peakIndicesX;
 	}
 	
-	public TreeSet<Integer> getPeakIndicesY(){
+	public ArrayList<Integer> getPeakIndicesY(){
 		return peakIndicesY;
 	}
 	
-	public TreeSet<Integer> getPeakIndicesZ(){
+	public ArrayList<Integer> getPeakIndicesZ(){
 		return peakIndicesZ;
 	}
 	
 	private void calculatePeakIndices(){
-		peakIndicesX = FeatureExtractors.peakIndices(Data.getxData(), 0.05f);
-		peakIndicesY = FeatureExtractors.peakIndices(Data.getyData(), 0.05f);
-		peakIndicesZ = FeatureExtractors.peakIndices(Data.getzData(), 0.05f);
+		peakIndicesX = FeatureExtractors.peakIndices(lpfData.getxData());
+		peakIndicesY = FeatureExtractors.peakIndices(lpfData.getyData());
+		peakIndicesZ = FeatureExtractors.peakIndices(lpfData.getzData());
 	}
 
 	
@@ -49,23 +49,12 @@ public class AccActivity {
 		return avResAcc;
 	}
 	
-	private void calculatePeakNumber(){
-//		int[] newPeakNumber = {FeatureExtractors.numberofPeaks(Data.getxData(),
-//				minMax[0], 0.01f),FeatureExtractors.numberofPeaks(Data.getxData(),
-//						minMax[0], 0.01f),FeatureExtractors.numberofPeaks(Data.getxData(),
-//								minMax[0], 0.01f)};
-//		peakNumber=newPeakNumber;
-	}
-
 	private void calculateAvPeakDistances() {
-//		float[] newPeakDistances = {
-//				FeatureExtractors.averageElementsBetweenPeaks(Data.getxData(),
-//						minMax[0], 0.01f),
-//				FeatureExtractors.averageElementsBetweenPeaks(Data.getyData(),
-//						minMax[2], 0.01f),
-//				FeatureExtractors.averageElementsBetweenPeaks(Data.getzData(),
-//						minMax[4], 0.01f) };
-//		this.peakDistances=newPeakDistances;
+		float[] newPeakDistances = {
+				FeatureExtractors.averageDifference(peakIndicesX),
+				FeatureExtractors.averageDifference(peakIndicesY),
+				FeatureExtractors.averageDifference(peakIndicesZ) };
+		peakDistances=newPeakDistances;
 	}
 
 
@@ -88,9 +77,8 @@ public class AccActivity {
 		calculateZeroCrossingCounts();
 		calculateStandardDeviation();
 		calculateAvResAcceleration();
-		calculateAvPeakDistances();
-		calculatePeakNumber();
 		calculatePeakIndices();
+		calculateAvPeakDistances();
 	}
 
 	public float[] getSD() {

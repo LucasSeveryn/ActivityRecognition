@@ -78,7 +78,8 @@ public class ActRecordingFragment extends Fragment {
 		paint.setStrokeWidth(1);
 		lineAndPointFormatter.setLinePaint(paint);
 		xyzPlot.setRangeBoundaries(lowerBound, upperBound, BoundaryMode.FIXED);
-		xyzPlot.setRangeStep(XYStepMode.INCREMENT_BY_VAL, 2);
+		xyzPlot.setRangeStep(XYStepMode.INCREMENT_BY_VAL, 1);
+		xyzPlot.setDomainStep(XYStepMode.INCREMENT_BY_VAL, 50);
 		xyzPlot.setDomainBoundaries(0, upperXBound, BoundaryMode.FIXED);
 		xyzPlot.addSeries(zPlotSeries, lineAndPointFormatter);
 
@@ -118,7 +119,8 @@ public class ActRecordingFragment extends Fragment {
 		((MainActivity) getActivity()).setTabFragment(2, getTag());
 
 		xyzPlot.setRangeBoundaries(-15, 15, BoundaryMode.FIXED);
-		xyzPlot.setRangeStep(XYStepMode.INCREMENT_BY_VAL, 2);
+		xyzPlot.setRangeStep(XYStepMode.INCREMENT_BY_VAL, 1);
+		xyzPlot.setDomainStep(XYStepMode.INCREMENT_BY_VAL, 50);
 		xyzPlot.setDomainBoundaries(0, 512, BoundaryMode.FIXED);
 		xyzPlot.setTicksPerRangeLabel(1);
 		xyzPlot.setDomainLabel("Time");
@@ -167,7 +169,10 @@ public class ActRecordingFragment extends Fragment {
 				+ "\nStandard deviation: \n x-axis: " + activity.getSD()[0]
 				+ "\ny-axis: " + activity.getSD()[1] + "\nz-axis: "
 				+ activity.getSD()[2] + "\nAverage Resultant Acceleration: "
-				+ activity.getAvResAcceleration() + "m/s^2");
+				+ activity.getAvResAcceleration() + "m/s^2"
+				+ "\n x peaks:" + activity.getPeakIndicesX() + " Av. distance: " + activity.getAvPeakDistance()[0]
+				+ "\n y peaks:" + activity.getPeakIndicesY() + " Av. distance: " + activity.getAvPeakDistance()[1]
+				+ "\n z peaks:" + activity.getPeakIndicesZ() + " Av. distance: " + activity.getAvPeakDistance()[2]);
 
 	}
 }

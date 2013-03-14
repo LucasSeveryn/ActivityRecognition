@@ -432,6 +432,9 @@ public class MainActivity extends FragmentActivity implements
 	public void identify(View view) {
 		AccActivity result = IdentificationEngine.findClosestMatch(
 				tempActivity, activityLibrary);
+		
+		Toast.makeText(this, "Activity Type: " + result.getType(),
+				Toast.LENGTH_LONG).show();
 	}
 
 	public void saveActivity(View view) {

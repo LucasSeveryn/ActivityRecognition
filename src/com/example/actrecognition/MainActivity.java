@@ -58,6 +58,8 @@ public class MainActivity extends FragmentActivity implements
 	float[] averageNoise = { 0, 0, 0 };
 
 	boolean showfft;
+	
+	int purgeCounter = 0;
 
 	int displayType = 0;
 
@@ -356,6 +358,13 @@ public class MainActivity extends FragmentActivity implements
 		recalculateError();
 	}
 
+	public void purge(View view) {
+		purgeCounter++;
+		if(purgeCounter>3){
+			activityLibrary.clear();
+		}
+	}
+	
 	void recalculateError() {
 		monitorPlotData.clear();
 	}
@@ -394,6 +403,12 @@ public class MainActivity extends FragmentActivity implements
 			recordingTab.drawData(tempActivity.getlpfData(), -15, 15, 512);
 			break;
 		case 2:
+			recordingTab.drawData(tempActivity.gethpfData(), -15, 15, 512);
+			break;
+		case 3:
+			recordingTab.drawData(tempActivity.getbpfData(), -15, 15, 512);
+			break;
+		case 4:
 			recordingTab.drawData(tempActivity.getfData(), -1, 100, 512);
 			break;
 		default:
@@ -410,6 +425,12 @@ public class MainActivity extends FragmentActivity implements
 			recordingTab.drawData(tempActivity.getlpfData(), -15, 15, 512);
 			break;
 		case 2:
+			recordingTab.drawData(tempActivity.gethpfData(), -15, 15, 512);
+			break;
+		case 3:
+			recordingTab.drawData(tempActivity.getbpfData(), -15, 15, 512);
+			break;
+		case 4:
 			recordingTab.drawData(tempActivity.getfData(), -1, 100, 512);
 			break;
 		default:
@@ -429,6 +450,20 @@ public class MainActivity extends FragmentActivity implements
 
 	}
 
+	public void remove(View view){
+		activityLibrary.remove(index);
+		index=index-1;
+		tempActivity = activityLibrary.get(index);
+		recordingTab.updateActivityDetailText(tempActivity);
+		drawRecordingGraph();
+		String ser = SerializeObject.objectToString(activityLibrary);
+		if (ser != null && !ser.equalsIgnoreCase("")) {
+			SerializeObject.WriteSettings(this, ser, "activityLibrary.dat");
+		} else {
+			SerializeObject.WriteSettings(this, "", "activityLibrary.dat");
+		}
+	}
+	
 	public void identify(View view) {
 		AccActivity result = IdentificationEngine.findClosestMatch(
 				tempActivity, activityLibrary);

@@ -10,6 +10,8 @@
     <string-array name="displayType">
         <item>Raw Data</item>
         <item>LPF Data</item>
+        <item>HPF Data</item>
+        <item>BPF Data</item>
         <item>FFT Data</item>
     </string-array>
     <string-array name="actTypeArray">

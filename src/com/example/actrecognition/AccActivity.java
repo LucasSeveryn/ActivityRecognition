@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.TreeSet;
 
-public class AccActivity implements Serializable{
+public class AccActivity implements Serializable {
 	/**
 	 * 
 	 */
@@ -14,60 +14,69 @@ public class AccActivity implements Serializable{
 	AccData Data;
 	AccData fData;
 	AccData lpfData;
-	
+	AccData hpfData;
+	AccData bpfData;
+
 	int[] crossings;
 	float[] sd;
 	int type = -1;
 	private float[] minMax;
 	float spread = 0.30f;
 	int rate = 8;
-	float alpha = 0.30f;
+	float alpha = 0.10f;
 	float avResAcc;
 	float[] peakDistances;
 	int[] peakNumber;
+	float[] binX;
+	float[] binY;
+	float[] binZ;
 	ArrayList<Integer> peakIndicesX;
 	ArrayList<Integer> peakIndicesY;
 	ArrayList<Integer> peakIndicesZ;
 
-	
-	public ArrayList<Integer> getPeakIndicesX(){
+	public ArrayList<Integer> getPeakIndicesX() {
 		return peakIndicesX;
 	}
-	
-	public ArrayList<Integer> getPeakIndicesY(){
+
+	public ArrayList<Integer> getPeakIndicesY() {
 		return peakIndicesY;
 	}
-	
-	public ArrayList<Integer> getPeakIndicesZ(){
+
+	public ArrayList<Integer> getPeakIndicesZ() {
 		return peakIndicesZ;
 	}
-	
-	private void calculatePeakIndices(){
-		peakIndicesX = FeatureExtractors.peakIndices(lpfData.getxData());
-		peakIndicesY = FeatureExtractors.peakIndices(lpfData.getyData());
-		peakIndicesZ = FeatureExtractors.peakIndices(lpfData.getzData());
+
+	private void calculatePeakIndices() {
+		peakIndicesX = FeatureExtractors.peakIndices(lpfData.getxData(),
+				Data.getNoise()[0]);
+		peakIndicesY = FeatureExtractors.peakIndices(lpfData.getyData(),
+				Data.getNoise()[1]);
+		peakIndicesZ = FeatureExtractors.peakIndices(lpfData.getzData(),
+				Data.getNoise()[2]);
 	}
 
-	
-	
+	public void calculateBinnedDistribution() {
+		binX = FeatureExtractors.binnedDistribution(Data.getxData());
+		binY = FeatureExtractors.binnedDistribution(Data.getyData());
+		binZ = FeatureExtractors.binnedDistribution(Data.getzData());
+	}
+
 	public float getAvResAcceleration() {
 		return avResAcc;
 	}
-	
+
 	private void calculateAvPeakDistances() {
 		float[] newPeakDistances = {
 				FeatureExtractors.averageDifference(peakIndicesX),
 				FeatureExtractors.averageDifference(peakIndicesY),
 				FeatureExtractors.averageDifference(peakIndicesZ) };
-		peakDistances=newPeakDistances;
+		peakDistances = newPeakDistances;
 	}
-
 
 	private void calculateAvResAcceleration() {
 		avResAcc = FeatureExtractors.averageResultantAcceleration(
 				Data.getxData(), Data.getyData(), Data.getzData());
 	}
-
 
 	public AccActivity(AccData recordedData) {
 		Data = recordedData;
@@ -75,15 +84,25 @@ public class AccActivity implements Serializable{
 				Data.getDenoisedxData(), 1), FeatureExtractors.iterativeFFT(
 				Data.getDenoisedyData(), 1), FeatureExtractors.iterativeFFT(
 				Data.getDenoisedzData(), 1));
-		lpfData = new AccData(FeatureExtractors.lowPassFilter(Data.getxData(), alpha),
+		lpfData = new AccData(FeatureExtractors.lowPassFilter(Data.getxData(),
+				alpha),
 				FeatureExtractors.lowPassFilter(Data.getyData(), alpha),
 				FeatureExtractors.lowPassFilter(Data.getzData(), alpha));
+		hpfData = new AccData(FeatureExtractors.highPassFilter(Data.getxData(),
+				alpha),
+				FeatureExtractors.highPassFilter(Data.getyData(), alpha),
+				FeatureExtractors.highPassFilter(Data.getzData(), alpha));
+		bpfData = new AccData(FeatureExtractors.highPassFilter(
+				lpfData.getxData(), alpha), FeatureExtractors.highPassFilter(
+				lpfData.getyData(), alpha), FeatureExtractors.highPassFilter(
+				lpfData.getzData(), alpha));
 		calculateMaximumDisplacements();
 		calculateZeroCrossingCounts();
 		calculateStandardDeviation();
 		calculateAvResAcceleration();
 		calculatePeakIndices();
 		calculateAvPeakDistances();
+		calculateBinnedDistribution();
 	}
 
 	public float[] getSD() {
@@ -118,12 +137,12 @@ public class AccActivity implements Serializable{
 
 	private void calculateZeroCrossingCounts() {
 		int[] crossings = {
-				FeatureExtractors.zeroCrossingCount(lpfData.getxData(),
-						Data.getXMiddleValue(), spread, rate),
-				FeatureExtractors.zeroCrossingCount(lpfData.getyData(),
-						Data.getYMiddleValue(), spread, rate),
-				FeatureExtractors.zeroCrossingCount(lpfData.getzData(),
-						Data.getZMiddleValue(), spread, rate) };
+				FeatureExtractors.zeroCrossingCount(bpfData.getxData(), 0,
+						spread, rate),
+				FeatureExtractors.zeroCrossingCount(bpfData.getyData(), 0,
+						spread, rate),
+				FeatureExtractors.zeroCrossingCount(bpfData.getzData(), 0,
+						spread, rate) };
 		this.crossings = crossings;
 	}
 
@@ -155,19 +174,18 @@ public class AccActivity implements Serializable{
 		crossings[1] = yCrossings;
 	}
 
-	
-//	  <string-array name="actTypeArray">
-//      <item>Walking (0)</item>
-//      <item>Running (1)</item>
-//      <item>Walking up the stairs (2)</item>
-//      <item>Walking down the stairs (3)</item>
-//      <item>Sitting (4)</item>
-//      <item>Standing up (5)</item>
-//      <item>Jumping (6)</item>
-//      <item>Test: Wave Sideways (7)</item>
-//      <item>Test: Wave Forward (8)</item>
+	// <string-array name="actTypeArray">
+	// <item>Walking (0)</item>
+	// <item>Running (1)</item>
+	// <item>Walking up the stairs (2)</item>
+	// <item>Walking down the stairs (3)</item>
+	// <item>Sitting (4)</item>
+	// <item>Standing up (5)</item>
+	// <item>Jumping (6)</item>
+	// <item>Test: Wave Sideways (7)</item>
+	// <item>Test: Wave Forward (8)</item>
 	public String getType() {
-		switch(type){
+		switch (type) {
 		case 0:
 			return "Walking (0)";
 		case 1:
@@ -188,9 +206,9 @@ public class AccActivity implements Serializable{
 			return "Test: Wave Forward (8)";
 		default:
 			return "Unspecified";
-		
+
 		}
-		
+
 	}
 
 	public void setType(int type) {
@@ -239,6 +257,53 @@ public class AccActivity implements Serializable{
 
 	public AccData getlpfData() {
 		return lpfData;
+	}
+
+	public AccData getbpfData() {
+		return bpfData;
+	}
+
+	public AccData gethpfData() {
+		return hpfData;
+	}
+
+	public String printBinX() {
+		return "[" + String.format("%.2f", binX[0]) + ","
+				+ String.format("%.2f", binX[1]) + ","
+				+ String.format("%.2f", binX[2]) + ","
+				+ String.format("%.2f", binX[3]) + ","
+				+ String.format("%.2f", binX[4]) + ","
+				+ String.format("%.2f", binX[5]) + ","
+				+ String.format("%.2f", binX[6]) + ","
+				+ String.format("%.2f", binX[7]) + ","
+				+ String.format("%.2f", binX[8]) + ","
+				+ String.format("%.2f", binX[9]) + "]";
+	}
+
+	public String printBinY() {
+		return "[" + String.format("%.2f", binY[0]) + ","
+				+ String.format("%.2f", binY[1]) + ","
+				+ String.format("%.2f", binY[2]) + ","
+				+ String.format("%.2f", binY[3]) + ","
+				+ String.format("%.2f", binY[4]) + ","
+				+ String.format("%.2f", binY[5]) + ","
+				+ String.format("%.2f", binY[6]) + ","
+				+ String.format("%.2f", binY[7]) + ","
+				+ String.format("%.2f", binY[8]) + ","
+				+ String.format("%.2f", binY[9]) + "]";
+	}
+
+	public String printBinZ() {
+		return "[" + String.format("%.2f", binZ[0]) + ","
+				+ String.format("%.2f", binZ[1]) + ","
+				+ String.format("%.2f", binZ[2]) + ","
+				+ String.format("%.2f", binZ[3]) + ","
+				+ String.format("%.2f", binZ[4]) + ","
+				+ String.format("%.2f", binZ[5]) + ","
+				+ String.format("%.2f", binZ[6]) + ","
+				+ String.format("%.2f", binZ[7]) + ","
+				+ String.format("%.2f", binZ[8]) + ","
+				+ String.format("%.2f", binZ[9]) + "]";
 	}
 
 }

@@ -147,32 +147,61 @@ public class ActRecordingFragment extends Fragment {
 	public void updateActivityDetailText(AccActivity activity) {
 		TextView zeroCrossingRateText = (TextView) this.getView().findViewById(
 				R.id.accActivityDetailText);
-		zeroCrossingRateText.setText("Type: " + activity.getType()
-				+ "\nZero crossing rate: X: " + activity.getxCrossings()
-				+ " Y: " + activity.getyCrossings() + " Z: "
-				+ activity.getzCrossings() + "\n"
-				+ "Max/Min acceleration \nX: "
-				+ String.format("%.4f", activity.getMinMax()[0]) + "/"
-				+ String.format("%.4f", activity.getMinMax()[1])
-				+ " av. noise: "
-				+ String.format("%.4f", activity.getData().getNoise()[0])
-				+ " mid lfp: " + String.format("%.4f", activity.getlpfData().getXMiddleValue())
-				+ "\nY: " + String.format("%.4f", activity.getMinMax()[2])
-				+ "/" + String.format("%.4f", activity.getMinMax()[3])
-				+ " av. noise: "
-				+ String.format("%.4f", activity.getData().getNoise()[1])
-				+ " mid lfp: " + String.format("%.4f", activity.getlpfData().getYMiddleValue())
-				+ "\nZ: " + String.format("%.4f", activity.getMinMax()[4])
-				+ "/" + String.format("%.4f",activity.getMinMax()[5]) + " av. noise: "
-				+ String.format("%.4f", activity.getData().getNoise()[2])
-				+ " mid lfp: " + String.format("%.4f", activity.getlpfData().getZMiddleValue())
-				+ "\nStandard deviation: \n x-axis: " + activity.getSD()[0]
-				+ "\ny-axis: " + activity.getSD()[1] + "\nz-axis: "
-				+ activity.getSD()[2] + "\nAverage Resultant Acceleration: "
-				+ activity.getAvResAcceleration() + "m/s^2"
-				+ "\n x peaks:" + activity.getPeakIndicesX() + " Av. distance: " + activity.getAvPeakDistance()[0]
-				+ "\n y peaks:" + activity.getPeakIndicesY() + " Av. distance: " + activity.getAvPeakDistance()[1]
-				+ "\n z peaks:" + activity.getPeakIndicesZ() + " Av. distance: " + activity.getAvPeakDistance()[2]);
+		zeroCrossingRateText
+				.setText("Type: "
+						+ activity.getType()
+						+ "\nZero crossing rate: X: "
+						+ activity.getxCrossings()
+						+ " Y: "
+						+ activity.getyCrossings()
+						+ " Z: "
+						+ activity.getzCrossings()
+						+ "\n"
+						+ "Max/Min acceleration \nX: "
+						+ String.format("%.4f", activity.getMinMax()[0])
+						+ "/"
+						+ String.format("%.4f", activity.getMinMax()[1])
+						+ " av. noise: "
+						+ String.format("%.4f",
+								activity.getData().getNoise()[0])
+						+ " mid lfp: "
+						+ String.format("%.4f", activity.getlpfData()
+								.getXMiddleValue())
+						+ "\nY: "
+						+ String.format("%.4f", activity.getMinMax()[2])
+						+ "/"
+						+ String.format("%.4f", activity.getMinMax()[3])
+						+ " av. noise: "
+						+ String.format("%.4f",
+								activity.getData().getNoise()[1])
+						+ " mid lfp: "
+						+ String.format("%.4f", activity.getlpfData()
+								.getYMiddleValue())
+						+ "\nZ: "
+						+ String.format("%.4f", activity.getMinMax()[4])
+						+ "/"
+						+ String.format("%.4f", activity.getMinMax()[5])
+						+ " av. noise: "
+						+ String.format("%.4f",
+								activity.getData().getNoise()[2])
+						+ " mid lfp: "
+						+ String.format("%.4f", activity.getlpfData()
+								.getZMiddleValue())
+						+ "\nStandard deviation: \n x-axis: "
+						+ activity.getSD()[0] + "\ny-axis: "
+						+ activity.getSD()[1] + "\nz-axis: "
+						+ activity.getSD()[2]
+						+ "\nAverage Resultant Acceleration: "
+						+ activity.getAvResAcceleration() + "m/s^2"
+						+ "\n x peaks: " + activity.getPeakIndicesX()
+						+ " Av. distance: " + activity.getAvPeakDistance()[0]
+						+ "\n y peaks: " + activity.getPeakIndicesY()
+						+ " Av. distance: " + activity.getAvPeakDistance()[1]
+						+ "\n z peaks: " + activity.getPeakIndicesZ()
+						+ " Av. distance: " + activity.getAvPeakDistance()[2]
+						+ "\n x bin: " + activity.printBinX()
+						+ "\n y bin: " + activity.printBinY()
+						+ "\n z bin: " + activity.printBinZ());
 
 	}
 }

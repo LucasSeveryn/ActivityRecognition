@@ -31,38 +31,61 @@ public final class FeatureExtractors {
 		}
 		return v;
 	}
-
-	public static ArrayList<Integer> peakIndices(ArrayList<Float> v) {
-		ArrayList<Integer> peakIndices = new ArrayList<Integer>();
-		float max = Collections.max(v);
-		float min = Collections.min(v);
-		if (max - min < 1.0f) {
-			peakIndices.add(Integer.valueOf(0));
-			return peakIndices;
+	
+	public static float[] binnedDistribution(ArrayList<Float> v){
+		float [] result = {0,0,0,0,0,0,0,0,0,0,0};
+		
+		float max=Collections.max(v);
+		float min=Collections.min(v);
+		float step=Math.abs(max-min)*0.1f;		
+		float current;
+		int resultIndex;
+		
+		for(Float n : v){
+			current = n;
+			if (current == max) resultIndex = 9;
+			else{
+				current = n - min;
+				current = current / step;
+				resultIndex = (int) current;				
+			}			
+			result[resultIndex] += 1;
 		}
 		
-		float cutoff = max * 0.85f;
+		for(int i=0;i<result.length;i++){
+			result[i] = result[i] / 512;
+		}
+		
+		return result;
+		
+	}
 
-		while (peakIndices.size() < 3) {
+
+	public static ArrayList<Integer> peakIndices(ArrayList<Float> v, float noise) {
+		ArrayList<Integer> peakIndices = new ArrayList<Integer>();
+		float max = Collections.max(v);		
+		float cutoff = max * 0.85f;
+		int iterations=0;
+		while (peakIndices.size() < 3 && iterations < 40) {
 			for (int i = 0; i < v.size(); i++) {
 				if (v.get(i) > cutoff) {
 					peakIndices.add(Integer.valueOf(i));
 				}
 			}
 
-			if (peakIndices.size() != 0) {
+			if (peakIndices.size() > 1) {
 				peakIndices = removeSimilar(peakIndices, 8);
 			}
-
 			cutoff -= 0.05f;
+			iterations++;
 		}
-
-		if (peakIndices.size() != 0) {
-			peakIndices = removeSimilar(peakIndices, 16);
-		} else {
-			peakIndices.add(Integer.valueOf(0));
+		if(peakIndices.size() > 1){
+			peakIndices = removeSimilar(peakIndices, 8);
+		}else{
+			peakIndices.add(0);
+			peakIndices.add(0);
+			peakIndices.add(0);
 		}
-
 		return peakIndices;
 
 	}
@@ -178,20 +201,16 @@ public final class FeatureExtractors {
 			float spread, int rate) {
 		int count = 0;
 
+		float max = Collections.max(data2);
+		float min = Collections.min(data2);
+				
 		ArrayList<Float> data = (ArrayList<Float>) data2.clone();
-
-		// for (int j = 0; j < data.size(); j++) {
-		// float n = data.get(j);
-		// if (n < zero + spread && n > zero - spread) {
-		// data.set(j, zero);
-		// }
-		// }
 
 		float x;
 		float previous = data.get(0);
 		for (int i = rate; i + rate <= data.size(); i = i + rate) {
 			x = data.get(i);
-			if (previous < zero && x > zero || previous > zero && x < zero) {
+			if (previous < zero && x > zero || previous > zero && x < zero ) {
 				count++;
 			}
 			previous = x;
@@ -226,6 +245,19 @@ public final class FeatureExtractors {
 		output.add(v.get(0));
 		for (int i = 1; i < v.size(); i++) {
 			output.add(alpha * v.get(i) + (1 - alpha) * output.get(i - 1));
+		}
+
+		return output;
+	}
+
+	public static ArrayList<Float> highPassFilter(ArrayList<Float> v,
+			float alpha) {
+		alpha = 1-alpha;
+		ArrayList<Float> output = new ArrayList<Float>();
+		output.add(v.get(0));
+		for (int i = 1; i < v.size(); i++) {
+
+			output.add(alpha * output.get(i-1) + alpha * (v.get(i) - v.get(i-1)));
 		}
 
 		return output;

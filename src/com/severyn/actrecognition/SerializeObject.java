@@ -1,4 +1,4 @@
-package com.example.actrecognition;
+package com.severyn.actrecognition;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;

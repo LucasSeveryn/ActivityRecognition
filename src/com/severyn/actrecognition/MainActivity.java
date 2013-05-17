@@ -1,23 +1,28 @@
-package com.example.actrecognition;
+package com.severyn.actrecognition;
 
-import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Locale;
 
-import com.androidplot.xy.SimpleXYSeries;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONObject;
+import org.json.JSONStringer;
+
 import android.app.ActionBar;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.app.FragmentTransaction;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-import android.preference.PreferenceManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -26,19 +31,26 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.CompoundButton;
+
+import com.androidplot.xy.SimpleXYSeries;
+import com.example.actrecognition.R;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 
 public class MainActivity extends FragmentActivity implements
 		ActionBar.TabListener, CompoundButton.OnCheckedChangeListener,
 		TextWatcher, OnItemSelectedListener {
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
+	private Sensor mGyro;
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -144,10 +156,77 @@ public class MainActivity extends FragmentActivity implements
 		}
 
 	};
+	private final SensorEventListener mGSensorListener = new SensorEventListener() {
+		private int counter = 0;
+
+		@Override
+		public void onAccuracyChanged(Sensor sensor, int accuracy) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void onSensorChanged(SensorEvent event) {
+
+			if (monitorTab != null) {
+				float x = event.values[0];
+				float y = event.values[1];
+				float z = event.values[2];
+
+				if (recordingEnabled) {
+					if (recordedGData.getxData().size() <= 511) {
+						recordedGData.addX(x);
+						recordedGData.addY(y);
+						recordedGData.addZ(z);
+					} else {
+						recordedGData.setNoise(averageNoise);
+						finishRecording();
+					}
+				}
+
+				
+				monitorTab.updatePlot(monitorPlotData.getxData(), xPlotSeries,
+						monitorTab.xPlot, x);
+				monitorTab.updatePlot(monitorPlotData.getyData(), yPlotSeries,
+						monitorTab.yPlot, y);
+				monitorTab.updatePlot(monitorPlotData.getzData(), zPlotSeries,
+						monitorTab.zPlot, z);
+
+				if (monitorPlotData.getxData().size() == 119) {
+					float[] newAverageNoise = {
+							FeatureExtractors.average(monitorPlotData
+									.getxData()),
+							FeatureExtractors.average(monitorPlotData
+									.getyData()),
+							FeatureExtractors.average(monitorPlotData
+									.getzData()) };
+					averageNoise = newAverageNoise;
+				}
+
+				if (counter % 25 == 0) {
+					((TextView) findViewById(R.id.xAccPlotLabel))
+							.setText("x-plane acc. Error: " + averageNoise[0]
+									+ " Current value: " + x);
+					((TextView) findViewById(R.id.yAccPlotLabel))
+							.setText("y-plane acc. Error: " + averageNoise[1]
+									+ " Current value: " + y);
+					((TextView) findViewById(R.id.zAccPlotLabel))
+							.setText("z-plane acc. Error: " + averageNoise[2]
+									+ " Current value: " + z);
+					counter = 1;
+				}
+
+				counter++;
+			}
+		}
+
+	};
+	
 	private boolean spinnerFirstInvoke = true;
+	private AccData recordedGData;
 
 	public void finishRecording() {
-		tempActivity = new AccActivity(recordedData);
+		tempActivity = new AccActivity(recordedData,recordedGData);
 		recordingTab.updateActivityDetailText(tempActivity);
 		drawRecordingGraph();
 	}
@@ -242,6 +321,9 @@ public class MainActivity extends FragmentActivity implements
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+
+		StrictMode.setThreadPolicy(policy); 
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
@@ -298,8 +380,12 @@ public class MainActivity extends FragmentActivity implements
 		}
 
 		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+//		mAccelerometer = mSensorManager
+//				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+//		mSensorManager.registerListener(mSensorListener, mAccelerometer,
+//				SensorManager.SENSOR_DELAY_GAME);
 		mAccelerometer = mSensorManager
-				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+				.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 		mSensorManager.registerListener(mSensorListener, mAccelerometer,
 				SensorManager.SENSOR_DELAY_GAME);
 	}
@@ -348,6 +434,7 @@ public class MainActivity extends FragmentActivity implements
 
 	public void startRecording(View view) {
 		recordedData = new AccData();
+		recordedGData = new AccData();
 		Toast.makeText(this, "Recording will start in 5 sec",
 				Toast.LENGTH_SHORT).show();
 		Runnable r = new dataRecording();
@@ -363,6 +450,63 @@ public class MainActivity extends FragmentActivity implements
 		if(purgeCounter>3){
 			activityLibrary.clear();
 		}
+	}
+	
+	
+	public void send(View view) { 
+	   String apiURI="https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data?apiKey=Ix7evhXTw3uwk1gDHCvzz-uMNEhOy8ZN";
+		try {
+
+            // make web service connection
+            final HttpPost request = new HttpPost(apiURI);
+            request.setHeader("Accept", "application/json");
+            request.setHeader("Content-type", "application/json");
+            
+            // Build JSON string
+//          JSONStringer TestApp = new JSONStringer().object().key("id").value("1").endObject();
+//          StringEntity entity = new StringEntity(TestApp.toString());
+            Gson gson = new Gson();
+            
+            
+            JsonElement jsonElement = gson.toJsonTree(tempActivity.getData());
+            jsonElement.getAsJsonObject().addProperty("type", tempActivity.type);
+            
+            String json = gson.toJson(jsonElement);
+            StringEntity entity = new StringEntity(json);
+
+            Log.d("****Parameter Input****", "Testing:" + json);
+            request.setEntity(entity);
+            // Send request to WCF service
+            final DefaultHttpClient httpClient = new DefaultHttpClient();
+            
+            new AsyncTask<Void, Void, Void>() {
+                @Override public Void doInBackground(Void... arg) {
+                    try {   
+                    	HttpResponse response = httpClient.execute(request);  
+                    	 Log.d("WebInvoke", "Saving: " + response.getStatusLine().toString());
+                         // Get the status of web service
+                         BufferedReader rd = new BufferedReader(new InputStreamReader(
+                                      response.getEntity().getContent()));
+                         // print status in log
+                         String line = "";
+                         while ((line = rd.readLine()) != null) {
+                               Log.d("****Status Line***", "Webservice: " + line);
+
+                         }
+                    } catch (Exception e) {   
+                        Log.e("SendMail", e.getMessage(), e);   
+                    }
+					return null; 
+                }
+            }.execute();
+            
+
+           
+
+     } catch (Exception e) {
+            e.printStackTrace();
+     }
+
 	}
 	
 	void recalculateError() {

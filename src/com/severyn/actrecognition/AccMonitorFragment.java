@@ -1,4 +1,4 @@
-package com.example.actrecognition;
+package com.severyn.actrecognition;
 import java.util.ArrayList;
 
 import android.content.Context;
@@ -21,6 +21,7 @@ import com.androidplot.xy.LineAndPointFormatter;
 import com.androidplot.xy.SimpleXYSeries;
 import com.androidplot.xy.XYPlot;
 import com.androidplot.xy.XYStepMode;
+import com.example.actrecognition.R;
 
 
 public class AccMonitorFragment extends Fragment {

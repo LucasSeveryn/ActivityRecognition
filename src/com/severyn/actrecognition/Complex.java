@@ -1,4 +1,4 @@
-package com.example.actrecognition;
+package com.severyn.actrecognition;
 
 public class Complex {
     private final double re;   // the real part

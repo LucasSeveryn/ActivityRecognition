@@ -1,4 +1,4 @@
-package com.example.actrecognition;
+package com.severyn.actrecognition;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -33,6 +33,7 @@ public class AccActivity implements Serializable {
 	ArrayList<Integer> peakIndicesX;
 	ArrayList<Integer> peakIndicesY;
 	ArrayList<Integer> peakIndicesZ;
+	private AccData GData;
 
 	public ArrayList<Integer> getPeakIndicesX() {
 		return peakIndicesX;
@@ -78,8 +79,9 @@ public class AccActivity implements Serializable {
 				Data.getxData(), Data.getyData(), Data.getzData());
 	}
 
-	public AccActivity(AccData recordedData) {
+	public AccActivity(AccData recordedData, AccData recordedGData) {
 		Data = recordedData;
+		GData = recordedGData;
 		fData = new AccData(FeatureExtractors.iterativeFFT(
 				Data.getDenoisedxData(), 1), FeatureExtractors.iterativeFFT(
 				Data.getDenoisedyData(), 1), FeatureExtractors.iterativeFFT(
@@ -204,6 +206,8 @@ public class AccActivity implements Serializable {
 			return "Test: Wave Sideways (7)";
 		case 8:
 			return "Test: Wave Forward (8)";
+		case 9:
+			return "Test: Unidentified (9)";
 		default:
 			return "Unspecified";
 

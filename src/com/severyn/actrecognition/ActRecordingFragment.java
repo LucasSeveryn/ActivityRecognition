@@ -1,4 +1,4 @@
-package com.example.actrecognition;
+package com.severyn.actrecognition;
 
 import java.util.ArrayList;
 import java.util.Timer;
@@ -9,6 +9,7 @@ import com.androidplot.xy.LineAndPointFormatter;
 import com.androidplot.xy.SimpleXYSeries;
 import com.androidplot.xy.XYPlot;
 import com.androidplot.xy.XYStepMode;
+import com.example.actrecognition.R;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

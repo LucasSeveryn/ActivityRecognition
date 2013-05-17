@@ -1,4 +1,4 @@
-package com.example.actrecognition;
+package com.severyn.actrecognition;
 
 import java.util.ArrayList;
 import java.util.Collections;

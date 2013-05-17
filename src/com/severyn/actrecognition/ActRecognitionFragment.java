@@ -1,8 +1,9 @@
-package com.example.actrecognition;
+package com.severyn.actrecognition;
 
 import com.androidplot.xy.BoundaryMode;
 import com.androidplot.xy.XYPlot;
 import com.androidplot.xy.XYStepMode;
+import com.example.actrecognition.R;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

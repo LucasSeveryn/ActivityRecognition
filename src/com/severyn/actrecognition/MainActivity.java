@@ -1,15 +1,22 @@
 package com.severyn.actrecognition;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Locale;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
 
@@ -32,6 +39,7 @@ import android.support.v4.view.ViewPager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
@@ -45,12 +53,26 @@ import com.example.actrecognition.R;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
+
 public class MainActivity extends FragmentActivity implements
 		ActionBar.TabListener, CompoundButton.OnCheckedChangeListener,
 		TextWatcher, OnItemSelectedListener {
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
 	private Sensor mGyro;
+	private NaiveGaussianClassifier ng;
+	private String apiKey = "Ix7evhXTw3uwk1gDHCvzz-uMNEhOy8ZN";
+
+	
+	private double samplingRate = 40; // Hz
+	int sensorDelayMicroseconds = (int) (Math
+			.round(((1 / this.samplingRate) * 1000000.0)));
+	
+	
+	private double samplingRateG = 40; // Hz
+	int sensorDelayMicrosecondsG = (int) (Math
+			.round(((1 / this.samplingRateG) * 1000000.0)));
+	
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -68,9 +90,10 @@ public class MainActivity extends FragmentActivity implements
 	private boolean recordingEnabled = false;
 
 	float[] averageNoise = { 0, 0, 0 };
-
-	boolean showfft;
+	float[] averageGNoise = { 0, 0, 0 };
 	
+	boolean showfft;
+
 	int purgeCounter = 0;
 
 	int displayType = 0;
@@ -108,35 +131,47 @@ public class MainActivity extends FragmentActivity implements
 				float x = event.values[0];
 				float y = event.values[1];
 				float z = event.values[2];
-
 				if (recordingEnabled) {
-					if (recordedData.getxData().size() <= 511) {
-						recordedData.addX(x);
-						recordedData.addY(y);
-						recordedData.addZ(z);
-					} else {
-						recordedData.setNoise(averageNoise);
-						finishRecording();
-					}
+					recordedData.addX(x);
+					recordedData.addY(y);
+					recordedData.addZ(z);
 				}
-
-				monitorTab.updatePlot(monitorPlotData.getxData(), xPlotSeries,
-						monitorTab.xPlot, x);
-				monitorTab.updatePlot(monitorPlotData.getyData(), yPlotSeries,
-						monitorTab.yPlot, y);
-				monitorTab.updatePlot(monitorPlotData.getzData(), zPlotSeries,
-						monitorTab.zPlot, z);
-
-				if (monitorPlotData.getxData().size() == 119) {
-					float[] newAverageNoise = {
-							FeatureExtractors.average(monitorPlotData
-									.getxData()),
-							FeatureExtractors.average(monitorPlotData
-									.getyData()),
-							FeatureExtractors.average(monitorPlotData
-									.getzData()) };
-					averageNoise = newAverageNoise;
+				if (recordedData!=null&&recordedData.size()>511){
+					recordingEnabled = false;
+					finishRecording();
 				}
+//				if (recordingEnabled) {
+//					if (recordedData.getxData().size() <= 511) {
+//						recordedData.addX(x);
+//						recordedData.addY(y);
+//						recordedData.addZ(z);
+//					} else {
+//						Log.d("****Accelero****", "Accelerometer finished recording");
+//						recordedData.setNoise(averageNoise);
+//						finishRecording();
+//					}
+//				}
+
+				 monitorTab.updatePlot(monitorPlotData.getxData(),
+				 xPlotSeries,
+				 monitorTab.xPlot, x);
+				 monitorTab.updatePlot(monitorPlotData.getyData(),
+				 yPlotSeries,
+				 monitorTab.yPlot, y);
+				 monitorTab.updatePlot(monitorPlotData.getzData(),
+				 zPlotSeries,
+				 monitorTab.zPlot, z);
+				
+				 if (monitorPlotData.getxData().size() == 119) {
+				 float[] newAverageNoise = {
+				 FeatureExtractors.average(monitorPlotData
+				 .getxData()),
+				 FeatureExtractors.average(monitorPlotData
+				 .getyData()),
+				 FeatureExtractors.average(monitorPlotData
+				 .getzData()) };
+				 averageNoise = newAverageNoise;
+				 }
 
 				if (counter % 25 == 0) {
 					((TextView) findViewById(R.id.xAccPlotLabel))
@@ -173,18 +208,26 @@ public class MainActivity extends FragmentActivity implements
 				float y = event.values[1];
 				float z = event.values[2];
 
-				if (recordingEnabled) {
-					if (recordedGData.getxData().size() <= 511) {
-						recordedGData.addX(x);
-						recordedGData.addY(y);
-						recordedGData.addZ(z);
-					} else {
-						recordedGData.setNoise(averageNoise);
-						finishRecording();
-					}
+				
+				if (recordingEnabled&&recordedGData!=null&&recordedGData.size()<512) {
+					recordedGData.addX(x);
+					recordedGData.addY(y);
+					recordedGData.addZ(z);
 				}
 
 				
+//				if (recordingEnabled) {
+//					if (recordedGData.getxData().size() <= 511) {
+//						recordedGData.addX(x);
+//						recordedGData.addY(y);
+//						recordedGData.addZ(z);
+//					} else {
+//						Log.d("****Gyro****", "Gyro finished recording");
+//						recordedGData.setNoise(averageGNoise);
+//						finishRecording();
+//					}
+//				}
+
 				monitorTab.updatePlot(monitorPlotData.getxData(), xPlotSeries,
 						monitorTab.xPlot, x);
 				monitorTab.updatePlot(monitorPlotData.getyData(), yPlotSeries,
@@ -200,18 +243,18 @@ public class MainActivity extends FragmentActivity implements
 									.getyData()),
 							FeatureExtractors.average(monitorPlotData
 									.getzData()) };
-					averageNoise = newAverageNoise;
+					averageGNoise = newAverageNoise;
 				}
 
 				if (counter % 25 == 0) {
 					((TextView) findViewById(R.id.xAccPlotLabel))
-							.setText("x-plane acc. Error: " + averageNoise[0]
+							.setText("x-plane acc. Error: " + averageGNoise[0]
 									+ " Current value: " + x);
 					((TextView) findViewById(R.id.yAccPlotLabel))
-							.setText("y-plane acc. Error: " + averageNoise[1]
+							.setText("y-plane acc. Error: " + averageGNoise[1]
 									+ " Current value: " + y);
 					((TextView) findViewById(R.id.zAccPlotLabel))
-							.setText("z-plane acc. Error: " + averageNoise[2]
+							.setText("z-plane acc. Error: " + averageGNoise[2]
 									+ " Current value: " + z);
 					counter = 1;
 				}
@@ -221,12 +264,17 @@ public class MainActivity extends FragmentActivity implements
 		}
 
 	};
-	
+
 	private boolean spinnerFirstInvoke = true;
 	private AccData recordedGData;
 
 	public void finishRecording() {
-		tempActivity = new AccActivity(recordedData,recordedGData);
+		recordingEnabled = false;
+//		recordedData.setNoise(averageNoise);
+//		recordedGData.setNoise(averageGNoise);
+		tempActivity = new AccActivity(recordedData, recordedGData);
+		recordedData = new AccData();
+		recordedGData = new AccData();
 		recordingTab.updateActivityDetailText(tempActivity);
 		drawRecordingGraph();
 	}
@@ -313,7 +361,7 @@ public class MainActivity extends FragmentActivity implements
 			pause(500);
 			recordingEnabled = true;
 			t = System.currentTimeMillis();
-			pause(12000);
+			pause(13000);
 			recordingEnabled = false;
 			v.vibrate(100);
 		}
@@ -321,9 +369,10 @@ public class MainActivity extends FragmentActivity implements
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+				.permitAll().build();
 
-		StrictMode.setThreadPolicy(policy); 
+		StrictMode.setThreadPolicy(policy);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
@@ -336,8 +385,8 @@ public class MainActivity extends FragmentActivity implements
 				activityLibrary = (ArrayList<AccActivity>) obj;
 				Toast.makeText(this, "Size: " + activityLibrary.size(),
 						Toast.LENGTH_SHORT).show();
-				tempActivity = activityLibrary.get(activityLibrary.size()-1);
-				index=activityLibrary.size()-1;
+				tempActivity = activityLibrary.get(activityLibrary.size() - 1);
+				index = activityLibrary.size() - 1;
 			}
 		}
 
@@ -380,14 +429,13 @@ public class MainActivity extends FragmentActivity implements
 		}
 
 		mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-//		mAccelerometer = mSensorManager
-//				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-//		mSensorManager.registerListener(mSensorListener, mAccelerometer,
-//				SensorManager.SENSOR_DELAY_GAME);
 		mAccelerometer = mSensorManager
-				.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		mSensorManager.registerListener(mSensorListener, mAccelerometer,
-				SensorManager.SENSOR_DELAY_GAME);
+				sensorDelayMicroseconds);
+		mGyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+		mSensorManager.registerListener(mGSensorListener, mGyro,
+				sensorDelayMicrosecondsG);
 	}
 
 	@Override
@@ -447,68 +495,71 @@ public class MainActivity extends FragmentActivity implements
 
 	public void purge(View view) {
 		purgeCounter++;
-		if(purgeCounter>3){
+		if (purgeCounter > 3) {
 			activityLibrary.clear();
 		}
 	}
-	
-	
-	public void send(View view) { 
-	   String apiURI="https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data?apiKey=Ix7evhXTw3uwk1gDHCvzz-uMNEhOy8ZN";
+
+	public void send(View view) {
+		String apiURI = "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data?apiKey=Ix7evhXTw3uwk1gDHCvzz-uMNEhOy8ZN";
 		try {
 
-            // make web service connection
-            final HttpPost request = new HttpPost(apiURI);
-            request.setHeader("Accept", "application/json");
-            request.setHeader("Content-type", "application/json");
-            
-            // Build JSON string
-//          JSONStringer TestApp = new JSONStringer().object().key("id").value("1").endObject();
-//          StringEntity entity = new StringEntity(TestApp.toString());
-            Gson gson = new Gson();
-            
-            
-            JsonElement jsonElement = gson.toJsonTree(tempActivity.getData());
-            jsonElement.getAsJsonObject().addProperty("type", tempActivity.type);
-            
-            String json = gson.toJson(jsonElement);
-            StringEntity entity = new StringEntity(json);
+			// make web service connection
+			final HttpPost request = new HttpPost(apiURI);
+			request.setHeader("Accept", "application/json");
+			request.setHeader("Content-type", "application/json");
 
-            Log.d("****Parameter Input****", "Testing:" + json);
-            request.setEntity(entity);
-            // Send request to WCF service
-            final DefaultHttpClient httpClient = new DefaultHttpClient();
-            
-            new AsyncTask<Void, Void, Void>() {
-                @Override public Void doInBackground(Void... arg) {
-                    try {   
-                    	HttpResponse response = httpClient.execute(request);  
-                    	 Log.d("WebInvoke", "Saving: " + response.getStatusLine().toString());
-                         // Get the status of web service
-                         BufferedReader rd = new BufferedReader(new InputStreamReader(
-                                      response.getEntity().getContent()));
-                         // print status in log
-                         String line = "";
-                         while ((line = rd.readLine()) != null) {
-                               Log.d("****Status Line***", "Webservice: " + line);
+			// Build JSON string
+			// JSONStringer TestApp = new
+			// JSONStringer().object().key("id").value("1").endObject();
+			// StringEntity entity = new StringEntity(TestApp.toString());
+			Gson gson = new Gson();
+			Gson gson2 = new Gson();
+			JsonElement gyroReadings = gson.toJsonTree(tempActivity.getGyroData());
+			JsonElement jsonElement = gson.toJsonTree(tempActivity.getData());
+			jsonElement.getAsJsonObject().add("gyro", gyroReadings);
+			jsonElement.getAsJsonObject()
+					.addProperty("type", tempActivity.type);
+			
 
-                         }
-                    } catch (Exception e) {   
-                        Log.e("SendMail", e.getMessage(), e);   
-                    }
-					return null; 
-                }
-            }.execute();
-            
+			String json = gson.toJson(jsonElement);
+			StringEntity entity = new StringEntity(json);
 
-           
+			Log.d("****Parameter Input****", "Testing:" + json);
+			request.setEntity(entity);
+			// Send request to WCF service
+			final DefaultHttpClient httpClient = new DefaultHttpClient();
 
-     } catch (Exception e) {
-            e.printStackTrace();
-     }
+			new AsyncTask<Void, Void, Void>() {
+				@Override
+				public Void doInBackground(Void... arg) {
+					try {
+						HttpResponse response = httpClient.execute(request);
+						Log.d("WebInvoke", "Saving: "
+								+ response.getStatusLine().toString());
+						// Get the status of web service
+						BufferedReader rd = new BufferedReader(
+								new InputStreamReader(response.getEntity()
+										.getContent()));
+						// print status in log
+						String line = "";
+						while ((line = rd.readLine()) != null) {
+							Log.d("****Status Line***", "Webservice: " + line);
+
+						}
+					} catch (Exception e) {
+						Log.e("SendMail", e.getMessage(), e);
+					}
+					return null;
+				}
+			}.execute();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 	}
-	
+
 	void recalculateError() {
 		monitorPlotData.clear();
 	}
@@ -594,9 +645,9 @@ public class MainActivity extends FragmentActivity implements
 
 	}
 
-	public void remove(View view){
+	public void remove(View view) {
 		activityLibrary.remove(index);
-		index=index-1;
+		index = index - 1;
 		tempActivity = activityLibrary.get(index);
 		recordingTab.updateActivityDetailText(tempActivity);
 		drawRecordingGraph();
@@ -607,13 +658,17 @@ public class MainActivity extends FragmentActivity implements
 			SerializeObject.WriteSettings(this, "", "activityLibrary.dat");
 		}
 	}
-	
+
 	public void identify(View view) {
-		AccActivity result = IdentificationEngine.findClosestMatch(
-				tempActivity, activityLibrary);
-		
-		Toast.makeText(this, "Activity Type: " + result.getType(),
-				Toast.LENGTH_LONG).show();
+//		finishRecording();	
+		Pair <Integer,String> classification = ng.classify(FeatureExtractors2.calculateFeatures(tempActivity.getData()));
+		recognitionTab.updateStatusText(classification.second,false);
+		recognitionTab.updateStatusText2(FeatureExtractors2.getType(classification.first), true);
+//		AccActivity result = IdentificationEngine.findClosestMatch(
+//				tempActivity, activityLibrary);
+//
+//		Toast.makeText(this, "Activity Type: " + result.getType(),
+//				Toast.LENGTH_LONG).show();
 	}
 
 	public void saveActivity(View view) {
@@ -698,5 +753,143 @@ public class MainActivity extends FragmentActivity implements
 	public void onNothingSelected(AdapterView<?> arg0) {
 		// TODO Auto-generated method stub
 
+	}
+	
+	
+	public void loadEntropyFromCloud() {
+		String apiURI = null;
+		// try {
+		apiURI = "https://api.mongolab.com/api/1/databases/activity_recognition/collections/entropy_data"
+				// + "?f="
+				// + URLEncoder.encode("{\"" + arrayName + "\": 1}", "UTF-8")
+				// + "&l=1"
+				+ "?apiKey=" + apiKey;
+		// } catch (UnsupportedEncodingException e1) {
+		// TODO Auto-generated catch block
+		// e1.printStackTrace();
+		// }
+
+		Log.d("****Status Line***", "" + apiURI);
+
+		try {
+
+			// make web service connection
+			final StringBuilder builder = new StringBuilder();
+
+			final HttpGet request = new HttpGet(apiURI);
+			request.setHeader("Accept", "application/json");
+			request.setHeader("Content-type", "application/json");
+			final DefaultHttpClient httpClient = new DefaultHttpClient();
+
+			new AsyncTask<Void, Void, String>() {
+
+				@Override
+				protected void onPostExecute(String result) {
+					super.onPostExecute(result);
+					writeEntropyData(result);
+				}
+
+				@Override
+				public String doInBackground(Void... arg) {
+					try {
+						HttpResponse response = httpClient.execute(request);
+						StatusLine statusLine = response.getStatusLine();
+						int statusCode = statusLine.getStatusCode();
+						if (statusCode == 200) {
+
+							HttpEntity entity = response.getEntity();
+							InputStream content = entity.getContent();
+
+							BufferedReader reader = new BufferedReader(
+									new InputStreamReader(content));
+							String line;
+							while ((line = reader.readLine()) != null) {
+								builder.append(line);
+							}
+							Log.d("****Status Line***", "Success");
+
+							return builder.toString();
+
+						} else {
+							Log.d("****Status Line***",
+									"Failed to download file");
+						}
+
+					} catch (Exception e) {
+						Log.e("SendMail", e.getMessage(), e);
+					}
+					return null;
+				}
+			}.execute();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	protected void writeEntropyData(String result) {
+		recognitionTab.updateStatusText(result, false);
+		JSONArray jsonArray;
+		try {
+			jsonArray = new JSONArray(result);
+			
+		   
+			
+			ArrayList<ArrayList<Double>> entropyMean = new ArrayList<ArrayList<Double>>();
+			ArrayList<ArrayList<Double>> entropyVar = new ArrayList<ArrayList<Double>>();
+			ArrayList<Double> filler = new ArrayList<Double>();
+			
+			 for (int i = 0; i < 9; i++) {
+			        entropyMean.add(filler);
+			        entropyVar.add(filler);
+			 }
+			
+			
+			for (int i = 0; i < jsonArray.length(); i++) {
+				JSONObject obj = (JSONObject) jsonArray.get(i);
+				Iterator<?> keys = obj.keys();
+				while (keys.hasNext()) {
+					String key = (String) keys.next();
+					if (key.startsWith("mean")) {
+						ArrayList<Double> tempArray = new ArrayList<Double>();
+						JSONArray dataArray = obj.getJSONArray(key);
+						for (int j = 0; j < dataArray.length(); j++) {
+							JSONObject arrayEntry = (JSONObject) dataArray
+									.get(j);
+							tempArray.add(arrayEntry.getDouble(Integer
+													.toString(j)));
+						}
+						entropyMean
+						.set((Integer.valueOf(key.substring(key
+								.length() - 1))),tempArray);
+					} else if (key.startsWith("var")) {
+						ArrayList<Double> tempArray = new ArrayList<Double>();
+	
+						JSONArray dataArray = obj.getJSONArray(key);
+						for (int j = 0; j < dataArray.length(); j++) {
+							JSONObject arrayEntry = (JSONObject) dataArray
+									.get(j);
+							tempArray.add(arrayEntry.getDouble(Integer
+													.toString(j)));
+						}
+						entropyVar
+						.set((Integer.valueOf(key.substring(key
+								.length() - 1))),tempArray);
+					}
+	
+				}
+	
+			}
+			ng = new NaiveGaussianClassifier(entropyMean, entropyVar);
+	
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+	}
+
+	public void getEntropyData(View view) {
+		loadEntropyFromCloud();
 	}
 }

@@ -115,7 +115,7 @@
         android:layout_alignTop="@+id/accActivityDetailText"
         android:layout_toRightOf="@+id/typeSpinner"
         android:onClick="identify"
-        android:text="ID!" />
+        android:text="Id" />
 
     <Button
         android:id="@+id/delete"
@@ -133,14 +133,26 @@
         android:layout_below="@+id/delete"
         android:layout_toRightOf="@+id/typeSpinner"
         android:onClick="purge"
-        android:text="Purge" />
+        android:text="Purge"
+        android:textSize="15sp" />
+    
+     <Button
+        android:id="@+id/send"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/purge"
+        android:layout_toRightOf="@+id/typeSpinner"
+        android:onClick="send"
+        android:text="Send"
+        android:textSize="15sp" />
+    
 
     <EditText
         android:id="@+id/rateText"
         android:layout_width="16dp"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/purge"
+        android:layout_below="@+id/send"
         android:layout_toRightOf="@+id/typeSpinner"
         android:ems="10"
         android:hint="0 crossing jump"

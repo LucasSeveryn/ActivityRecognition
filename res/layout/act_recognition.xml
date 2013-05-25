@@ -5,12 +5,12 @@
     android:orientation="vertical" >
     
         <Button
-        android:id="@+id/recordForRecognitionButton"
+        android:id="@+id/loadEntropyData"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Record and Compare activity"
+        android:text="Load entropy data"
         android:textColor="@android:color/black" 
-        android:onClick="startActivityRecording"/>
+        android:onClick="getEntropyData"/>
 
         <TextView
         android:id="@+id/xyzActivityPlotLabel"
@@ -19,17 +19,17 @@
         android:text="Activity data:"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@android:color/black" 
-        android:layout_below="@id/recordForRecognitionButton" />
+        android:layout_below="@id/loadEntropyData" />
         
         
         <com.androidplot.xy.XYPlot
         android:id="@+id/xyzPlot"
         android:layout_width="fill_parent"
-        android:layout_height="240dp"
-        android:layout_below="@id/recordForRecognitionButton" />
+        android:layout_height="40dp"
+        android:layout_below="@id/loadEntropyData" />
         
         <TextView
-        android:id="@+id/xyzActivityPlotLabel"
+        android:id="@+id/statusText"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="Saved data:"
@@ -37,20 +37,13 @@
         android:textColor="@android:color/black" 
         android:layout_below="@id/xyzPlot" />
         
-        <com.androidplot.xy.XYPlot
-        android:id="@+id/xyzSavedPlot"
-        android:layout_width="fill_parent"
-        android:layout_height="240dp"
-        android:layout_below="@id/xyzActivityPlotLabel" />
-        
-        <TextView
-        android:id="@+id/comparisonResultLabel"
+                <TextView
+        android:id="@+id/statusText2"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Similarity: x%"
+        android:text="Status text 2"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@android:color/black" 
-        android:layout_below="@id/xyzSavedPlot" />
-        
+        android:layout_below="@id/statusText" />
         
 </RelativeLayout>

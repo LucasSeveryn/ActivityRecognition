@@ -12,7 +12,7 @@ public class AccData implements Serializable {
 	private ArrayList<Float> xData;
 	private ArrayList<Float> yData;
 	private ArrayList<Float> zData;
-	private float[] averageNoise;
+//	private float[] averageNoise;
 
 	public AccData() {
 		xData = new ArrayList<Float>();
@@ -36,10 +36,10 @@ public class AccData implements Serializable {
 		return xData.size();
 	}
 	
-	public float[] getNoise() {
-		return averageNoise;
-
-	}
+//	public float[] getNoise() {
+//	//	return averageNoise;
+//
+//	}
 
 	public AccData(ArrayList<Float> xData, ArrayList<Float> yData,
 			ArrayList<Float> zData) {
@@ -51,7 +51,7 @@ public class AccData implements Serializable {
 	public ArrayList<Float> getDenoisedxData() {
 		ArrayList<Float> clonexData = (ArrayList<Float>) xData.clone();
 		for (int i = 0; i < clonexData.size(); i++) {
-			clonexData.set(i, clonexData.get(i) - averageNoise[0]);
+	//		clonexData.set(i, clonexData.get(i) - averageNoise[0]);
 		}
 		return clonexData;
 	}
@@ -59,7 +59,7 @@ public class AccData implements Serializable {
 	public ArrayList<Float> getDenoisedyData() {
 		ArrayList<Float> clonexData = (ArrayList<Float>) yData.clone();
 		for (int i = 0; i < clonexData.size(); i++) {
-			clonexData.set(i, clonexData.get(i) - averageNoise[1]);
+	//		clonexData.set(i, clonexData.get(i) - averageNoise[1]);
 		}
 		return clonexData;
 	}
@@ -67,7 +67,7 @@ public class AccData implements Serializable {
 	public ArrayList<Float> getDenoisedzData() {
 		ArrayList<Float> clonexData = (ArrayList<Float>) zData.clone();
 		for (int i = 0; i < clonexData.size(); i++) {
-			clonexData.set(i, clonexData.get(i) - averageNoise[2]);
+	//		clonexData.set(i, clonexData.get(i) - averageNoise[2]);
 		}
 		return clonexData;
 	}
@@ -114,7 +114,7 @@ public class AccData implements Serializable {
 		yData.add(y);
 	}
 
-	public void setNoise(float[] averageNoise) {
-		this.averageNoise = averageNoise;
-	}
+//	public void setNoise(float[] averageNoise) {
+//		this.averageNoise = averageNoise;
+//	}
 }

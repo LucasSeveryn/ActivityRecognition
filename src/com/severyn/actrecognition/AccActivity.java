@@ -3,8 +3,7 @@ package com.severyn.actrecognition;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.TreeSet;
+
 
 public class AccActivity implements Serializable {
 	/**
@@ -19,7 +18,7 @@ public class AccActivity implements Serializable {
 
 	int[] crossings;
 	float[] sd;
-	int type = -1;
+	int type = 9;
 	private float[] minMax;
 	float spread = 0.30f;
 	int rate = 8;
@@ -47,14 +46,14 @@ public class AccActivity implements Serializable {
 		return peakIndicesZ;
 	}
 
-	private void calculatePeakIndices() {
-		peakIndicesX = FeatureExtractors.peakIndices(lpfData.getxData(),
-				Data.getNoise()[0]);
-		peakIndicesY = FeatureExtractors.peakIndices(lpfData.getyData(),
-				Data.getNoise()[1]);
-		peakIndicesZ = FeatureExtractors.peakIndices(lpfData.getzData(),
-				Data.getNoise()[2]);
-	}
+//	private void calculatePeakIndices() {
+//		peakIndicesX = FeatureExtractors.peakIndices(lpfData.getxData(),
+//				Data.getNoise()[0]);
+//		peakIndicesY = FeatureExtractors.peakIndices(lpfData.getyData(),
+//				Data.getNoise()[1]);
+//		peakIndicesZ = FeatureExtractors.peakIndices(lpfData.getzData(),
+//				Data.getNoise()[2]);
+//	}
 
 	public void calculateBinnedDistribution() {
 		binX = FeatureExtractors.binnedDistribution(Data.getxData());
@@ -82,10 +81,10 @@ public class AccActivity implements Serializable {
 	public AccActivity(AccData recordedData, AccData recordedGData) {
 		Data = recordedData;
 		GData = recordedGData;
-		fData = new AccData(FeatureExtractors.iterativeFFT(
-				Data.getDenoisedxData(), 1), FeatureExtractors.iterativeFFT(
-				Data.getDenoisedyData(), 1), FeatureExtractors.iterativeFFT(
-				Data.getDenoisedzData(), 1));
+//		fData = new AccData(FeatureExtractors.iterativeFFT(
+//				Data.getDenoisedxData(), 1), FeatureExtractors.iterativeFFT(
+//				Data.getDenoisedyData(), 1), FeatureExtractors.iterativeFFT(
+//				Data.getDenoisedzData(), 1));
 		lpfData = new AccData(FeatureExtractors.lowPassFilter(Data.getxData(),
 				alpha),
 				FeatureExtractors.lowPassFilter(Data.getyData(), alpha),
@@ -102,9 +101,9 @@ public class AccActivity implements Serializable {
 		calculateZeroCrossingCounts();
 		calculateStandardDeviation();
 		calculateAvResAcceleration();
-		calculatePeakIndices();
-		calculateAvPeakDistances();
-		calculateBinnedDistribution();
+//		calculatePeakIndices();
+//		calculateAvPeakDistances();
+//		calculateBinnedDistribution();
 	}
 
 	public float[] getSD() {
@@ -284,6 +283,10 @@ public class AccActivity implements Serializable {
 				+ String.format("%.2f", binX[9]) + "]";
 	}
 
+	public AccData getGyroData(){
+		return GData;
+	}
+	
 	public String printBinY() {
 		return "[" + String.format("%.2f", binY[0]) + ","
 				+ String.format("%.2f", binY[1]) + ","

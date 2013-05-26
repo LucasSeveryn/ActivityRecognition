@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Locale;
 
@@ -99,6 +100,7 @@ public class MainActivity extends FragmentActivity implements
 	int displayType = 0;
 
 	private AccActivity tempActivity;
+	private AccFeat tempFeat;
 
 	private int index = 0;
 
@@ -114,6 +116,7 @@ public class MainActivity extends FragmentActivity implements
 	AccMonitorFragment monitorTab;
 	ActRecognitionFragment recognitionTab;
 	ActRecordingFragment recordingTab;
+	
 
 	private final SensorEventListener mSensorListener = new SensorEventListener() {
 		private int counter = 0;
@@ -273,9 +276,10 @@ public class MainActivity extends FragmentActivity implements
 //		recordedData.setNoise(averageNoise);
 //		recordedGData.setNoise(averageGNoise);
 		tempActivity = new AccActivity(recordedData, recordedGData);
+		tempFeat = FeatureExtractors2.calculateFeatures(tempActivity.getData());
 		recordedData = new AccData();
 		recordedGData = new AccData();
-		recordingTab.updateActivityDetailText(tempActivity);
+		recordingTab.updateActivityDetailText(tempActivity,tempFeat);
 		drawRecordingGraph();
 	}
 
@@ -386,6 +390,7 @@ public class MainActivity extends FragmentActivity implements
 				Toast.makeText(this, "Size: " + activityLibrary.size(),
 						Toast.LENGTH_SHORT).show();
 				tempActivity = activityLibrary.get(activityLibrary.size() - 1);
+				tempFeat = FeatureExtractors2.calculateFeatures(tempActivity.getData());
 				index = activityLibrary.size() - 1;
 			}
 		}
@@ -433,9 +438,9 @@ public class MainActivity extends FragmentActivity implements
 				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		mSensorManager.registerListener(mSensorListener, mAccelerometer,
 				sensorDelayMicroseconds);
-		mGyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-		mSensorManager.registerListener(mGSensorListener, mGyro,
-				sensorDelayMicrosecondsG);
+//		mGyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+//		mSensorManager.registerListener(mGSensorListener, mGyro,
+//				sensorDelayMicrosecondsG);
 	}
 
 	@Override
@@ -487,6 +492,10 @@ public class MainActivity extends FragmentActivity implements
 				Toast.LENGTH_SHORT).show();
 		Runnable r = new dataRecording();
 		new Thread(r).start();
+	}
+	
+	public void toast(String string) {
+		Toast.makeText(this, string, Toast.LENGTH_SHORT).show();
 	}
 
 	public void recalculateError(View view) {
@@ -580,7 +589,8 @@ public class MainActivity extends FragmentActivity implements
 	public void nextAccActivity(View view) {
 		if (index + 1 < activityLibrary.size()) {
 			tempActivity = activityLibrary.get(index + 1);
-			recordingTab.updateActivityDetailText(tempActivity);
+			tempFeat = FeatureExtractors2.calculateFeatures(tempActivity.getData());
+			recordingTab.updateActivityDetailText(tempActivity,tempFeat);
 			drawRecordingGraph();
 			index++;
 			Toast.makeText(this, "Activity #" + index + " selected",
@@ -636,7 +646,8 @@ public class MainActivity extends FragmentActivity implements
 	public void previousAccActivity(View view) {
 		if (index - 1 >= 0) {
 			tempActivity = activityLibrary.get(index - 1);
-			recordingTab.updateActivityDetailText(tempActivity);
+			tempFeat = FeatureExtractors2.calculateFeatures(tempActivity.getData());
+			recordingTab.updateActivityDetailText(tempActivity,tempFeat);
 			drawRecordingGraph();
 			index--;
 			Toast.makeText(this, "Activity #" + index + " selected",
@@ -649,7 +660,7 @@ public class MainActivity extends FragmentActivity implements
 		activityLibrary.remove(index);
 		index = index - 1;
 		tempActivity = activityLibrary.get(index);
-		recordingTab.updateActivityDetailText(tempActivity);
+		recordingTab.updateActivityDetailText(tempActivity,tempFeat);
 		drawRecordingGraph();
 		String ser = SerializeObject.objectToString(activityLibrary);
 		if (ser != null && !ser.equalsIgnoreCase("")) {
@@ -661,9 +672,35 @@ public class MainActivity extends FragmentActivity implements
 
 	public void identify(View view) {
 //		finishRecording();	
-		Pair <Integer,String> classification = ng.classify(FeatureExtractors2.calculateFeatures(tempActivity.getData()));
+		Pair <ArrayList<Double>,String> classification = ng.classify(FeatureExtractors2.calculateFeatures(tempActivity.getData()));
 		recognitionTab.updateStatusText(classification.second,false);
-		recognitionTab.updateStatusText2(FeatureExtractors2.getType(classification.first), true);
+		ArrayList<Double> results = classification.first;
+		
+		int maxindex = 0;
+		double maxvalue = results.get(0);
+
+		for (int i = 0; i < 9; i++) {
+			if (i != 1 && i != 4 && i != 5 && i != 6
+					&& !Double.isNaN(results.get(i))) {
+				maxvalue = results.get(i);
+				maxindex = i;
+				break;
+			}
+		}
+
+		for (int i = 0; i < 9; i++) {
+			if (!Double.isNaN(results.get(i))) {
+				if (results.get(i) > results.get(i) && i != 1 && i != 4
+						&& i != 5 && i != 6) {
+					maxvalue = results.get(i);
+					maxindex = i;
+				}
+			}
+
+		}
+	
+		recognitionTab.updateStatusText2(FeatureExtractors2.getType(maxindex), true);
+		recognitionTab.drawData(classification.first);
 //		AccActivity result = IdentificationEngine.findClosestMatch(
 //				tempActivity, activityLibrary);
 //
@@ -720,7 +757,7 @@ public class MainActivity extends FragmentActivity implements
 		if (arg0.length() > 0) {
 			tempActivity.setRate(Integer.parseInt(arg0.toString()));
 			tempActivity.recalculate();
-			recordingTab.updateActivityDetailText(tempActivity);
+			recordingTab.updateActivityDetailText(tempActivity,tempFeat);
 			Toast.makeText(this, "Rate changed to:" + tempActivity.getRate(),
 					Toast.LENGTH_SHORT).show();
 			if (activityLibrary.size() != 0
@@ -828,7 +865,8 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	protected void writeEntropyData(String result) {
-		recognitionTab.updateStatusText(result, false);
+		recognitionTab.updateStatusText("Entropy data loaded succefully.\nFirst 128 characters:" + result.substring(0, Math.min(result.length(), 128)) + "...", false);
+		toast("Entropy data loaded succesfully. First 128 characters:" + result.substring(0, Math.min(result.length(), 128)) + "...");
 		JSONArray jsonArray;
 		try {
 			jsonArray = new JSONArray(result);

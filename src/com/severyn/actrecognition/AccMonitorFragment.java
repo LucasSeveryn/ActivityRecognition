@@ -48,18 +48,18 @@ public class AccMonitorFragment extends Fragment {
 		yPlot = (XYPlot) rootView.findViewById(R.id.yAccPlot);
 		zPlot = (XYPlot) rootView.findViewById(R.id.zAccPlot);
 
-		initialisePlot(xPlot, ((MainActivity) getActivity()).getPlotSeries(0));
-		initialisePlot(yPlot, ((MainActivity) getActivity()).getPlotSeries(1));
-		initialisePlot(zPlot, ((MainActivity) getActivity()).getPlotSeries(2));
+		initialisePlot(xPlot, ((MainActivity) getActivity()).getPlotSeries(0),Color.RED);
+		initialisePlot(yPlot, ((MainActivity) getActivity()).getPlotSeries(1),Color.BLUE);
+		initialisePlot(zPlot, ((MainActivity) getActivity()).getPlotSeries(2),Color.GREEN);
 
 		return rootView;
 	}
 
-	void initialisePlot(XYPlot plot, SimpleXYSeries series) {
+	void initialisePlot(XYPlot plot, SimpleXYSeries series, int colour) {
 		plot.setRangeBoundaries(-16, 16, BoundaryMode.FIXED);
 		plot.setRangeStep(XYStepMode.INCREMENT_BY_VAL, 2);
 		plot.setDomainBoundaries(0, 120, BoundaryMode.FIXED);
-		plot.addSeries(series, new LineAndPointFormatter(Color.RED,
+		plot.addSeries(series, new LineAndPointFormatter(colour,
 				Color.TRANSPARENT, Color.TRANSPARENT));
 		plot.setTicksPerRangeLabel(1);
 		plot.setDomainLabel("Time");

@@ -90,7 +90,7 @@ public class ActRecognitionFragment extends Fragment {
 
 		}
 		
-		pPlot.setRangeBoundaries(Collections.min(probabilityData)*1.5,0, BoundaryMode.FIXED);
+		pPlot.setRangeBoundaries(Collections.max(probabilityData2)*1.5,0, BoundaryMode.FIXED);
 //		pPlot.setRangeValueFormat(new DecimalFormat("0000E0"));
 		pSeries.setModel(probabilityData2,
 				SimpleXYSeries.ArrayFormat.Y_VALS_ONLY);

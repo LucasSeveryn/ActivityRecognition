@@ -3,6 +3,7 @@ package com.severyn.actrecognition;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -54,26 +55,23 @@ import com.example.actrecognition.R;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 
-
 public class MainActivity extends FragmentActivity implements
 		ActionBar.TabListener, CompoundButton.OnCheckedChangeListener,
 		TextWatcher, OnItemSelectedListener {
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
 	private Sensor mGyro;
-	private NaiveGaussianClassifier ng;
+	private GaussianNaiveBayesClassifier ng;
 	private String apiKey = "Ix7evhXTw3uwk1gDHCvzz-uMNEhOy8ZN";
+	private boolean entropyDataLoaded = false;
 
-	
 	private double samplingRate = 40; // Hz
 	int sensorDelayMicroseconds = (int) (Math
 			.round(((1 / this.samplingRate) * 1000000.0)));
-	
-	
+
 	private double samplingRateG = 40; // Hz
 	int sensorDelayMicrosecondsG = (int) (Math
 			.round(((1 / this.samplingRateG) * 1000000.0)));
-	
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -92,7 +90,7 @@ public class MainActivity extends FragmentActivity implements
 
 	float[] averageNoise = { 0, 0, 0 };
 	float[] averageGNoise = { 0, 0, 0 };
-	
+
 	boolean showfft;
 
 	int purgeCounter = 0;
@@ -112,11 +110,12 @@ public class MainActivity extends FragmentActivity implements
 	AccData monitorPlotData = new AccData();
 
 	static ArrayList<AccActivity> activityLibrary;
-
+	static ArrayList<ArrayList<Double>> gnbcLibrary;
+	
+	
 	AccMonitorFragment monitorTab;
 	ActRecognitionFragment recognitionTab;
 	ActRecordingFragment recordingTab;
-	
 
 	private final SensorEventListener mSensorListener = new SensorEventListener() {
 		private int counter = 0;
@@ -139,42 +138,40 @@ public class MainActivity extends FragmentActivity implements
 					recordedData.addY(y);
 					recordedData.addZ(z);
 				}
-				if (recordedData!=null&&recordedData.size()>511){
+				if (recordedData != null && recordedData.size() > 511) {
 					recordingEnabled = false;
 					finishRecording();
 				}
-//				if (recordingEnabled) {
-//					if (recordedData.getxData().size() <= 511) {
-//						recordedData.addX(x);
-//						recordedData.addY(y);
-//						recordedData.addZ(z);
-//					} else {
-//						Log.d("****Accelero****", "Accelerometer finished recording");
-//						recordedData.setNoise(averageNoise);
-//						finishRecording();
-//					}
-//				}
+				// if (recordingEnabled) {
+				// if (recordedData.getxData().size() <= 511) {
+				// recordedData.addX(x);
+				// recordedData.addY(y);
+				// recordedData.addZ(z);
+				// } else {
+				// Log.d("****Accelero****",
+				// "Accelerometer finished recording");
+				// recordedData.setNoise(averageNoise);
+				// finishRecording();
+				// }
+				// }
 
-				 monitorTab.updatePlot(monitorPlotData.getxData(),
-				 xPlotSeries,
-				 monitorTab.xPlot, x);
-				 monitorTab.updatePlot(monitorPlotData.getyData(),
-				 yPlotSeries,
-				 monitorTab.yPlot, y);
-				 monitorTab.updatePlot(monitorPlotData.getzData(),
-				 zPlotSeries,
-				 monitorTab.zPlot, z);
-				
-				 if (monitorPlotData.getxData().size() == 119) {
-				 float[] newAverageNoise = {
-				 FeatureExtractors.average(monitorPlotData
-				 .getxData()),
-				 FeatureExtractors.average(monitorPlotData
-				 .getyData()),
-				 FeatureExtractors.average(monitorPlotData
-				 .getzData()) };
-				 averageNoise = newAverageNoise;
-				 }
+				monitorTab.updatePlot(monitorPlotData.getxData(), xPlotSeries,
+						monitorTab.xPlot, x);
+				monitorTab.updatePlot(monitorPlotData.getyData(), yPlotSeries,
+						monitorTab.yPlot, y);
+				monitorTab.updatePlot(monitorPlotData.getzData(), zPlotSeries,
+						monitorTab.zPlot, z);
+
+				if (monitorPlotData.getxData().size() == 119) {
+					float[] newAverageNoise = {
+							FeatureExtractors.average(monitorPlotData
+									.getxData()),
+							FeatureExtractors.average(monitorPlotData
+									.getyData()),
+							FeatureExtractors.average(monitorPlotData
+									.getzData()) };
+					averageNoise = newAverageNoise;
+				}
 
 				if (counter % 25 == 0) {
 					((TextView) findViewById(R.id.xAccPlotLabel))
@@ -211,25 +208,24 @@ public class MainActivity extends FragmentActivity implements
 				float y = event.values[1];
 				float z = event.values[2];
 
-				
-				if (recordingEnabled&&recordedGData!=null&&recordedGData.size()<512) {
+				if (recordingEnabled && recordedGData != null
+						&& recordedGData.size() < 512) {
 					recordedGData.addX(x);
 					recordedGData.addY(y);
 					recordedGData.addZ(z);
 				}
 
-				
-//				if (recordingEnabled) {
-//					if (recordedGData.getxData().size() <= 511) {
-//						recordedGData.addX(x);
-//						recordedGData.addY(y);
-//						recordedGData.addZ(z);
-//					} else {
-//						Log.d("****Gyro****", "Gyro finished recording");
-//						recordedGData.setNoise(averageGNoise);
-//						finishRecording();
-//					}
-//				}
+				// if (recordingEnabled) {
+				// if (recordedGData.getxData().size() <= 511) {
+				// recordedGData.addX(x);
+				// recordedGData.addY(y);
+				// recordedGData.addZ(z);
+				// } else {
+				// Log.d("****Gyro****", "Gyro finished recording");
+				// recordedGData.setNoise(averageGNoise);
+				// finishRecording();
+				// }
+				// }
 
 				monitorTab.updatePlot(monitorPlotData.getxData(), xPlotSeries,
 						monitorTab.xPlot, x);
@@ -270,16 +266,18 @@ public class MainActivity extends FragmentActivity implements
 
 	private boolean spinnerFirstInvoke = true;
 	private AccData recordedGData;
+	private ArrayList<Double> tempGNBC;
+	private int gnbcIndex;
 
 	public void finishRecording() {
 		recordingEnabled = false;
-//		recordedData.setNoise(averageNoise);
-//		recordedGData.setNoise(averageGNoise);
+		// recordedData.setNoise(averageNoise);
+		// recordedGData.setNoise(averageGNoise);
 		tempActivity = new AccActivity(recordedData, recordedGData);
 		tempFeat = FeatureExtractors2.calculateFeatures(tempActivity.getData());
 		recordedData = new AccData();
 		recordedGData = new AccData();
-		recordingTab.updateActivityDetailText(tempActivity,tempFeat);
+		recordingTab.updateActivityDetailText(tempActivity, tempFeat);
 		drawRecordingGraph();
 	}
 
@@ -381,6 +379,7 @@ public class MainActivity extends FragmentActivity implements
 		setContentView(R.layout.activity_main);
 
 		activityLibrary = new ArrayList<AccActivity>();
+		gnbcLibrary = new ArrayList<ArrayList<Double>>();
 
 		String ser = SerializeObject.ReadSettings(this, "activityLibrary.dat");
 		if (ser != null && !ser.equalsIgnoreCase("")) {
@@ -390,7 +389,8 @@ public class MainActivity extends FragmentActivity implements
 				Toast.makeText(this, "Size: " + activityLibrary.size(),
 						Toast.LENGTH_SHORT).show();
 				tempActivity = activityLibrary.get(activityLibrary.size() - 1);
-				tempFeat = FeatureExtractors2.calculateFeatures(tempActivity.getData());
+				tempFeat = FeatureExtractors2.calculateFeatures(tempActivity
+						.getData());
 				index = activityLibrary.size() - 1;
 			}
 		}
@@ -438,9 +438,9 @@ public class MainActivity extends FragmentActivity implements
 				.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		mSensorManager.registerListener(mSensorListener, mAccelerometer,
 				sensorDelayMicroseconds);
-//		mGyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-//		mSensorManager.registerListener(mGSensorListener, mGyro,
-//				sensorDelayMicrosecondsG);
+		// mGyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+		// mSensorManager.registerListener(mGSensorListener, mGyro,
+		// sensorDelayMicrosecondsG);
 	}
 
 	@Override
@@ -486,14 +486,18 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	public void startRecording(View view) {
-		recordedData = new AccData();
-		recordedGData = new AccData();
-		Toast.makeText(this, "Recording will start in 5 sec",
-				Toast.LENGTH_SHORT).show();
-		Runnable r = new dataRecording();
-		new Thread(r).start();
+		if (!recordingEnabled) {
+			recordedData = new AccData();
+			recordedGData = new AccData();
+			Toast.makeText(this, "Recording will start in 5 sec",
+					Toast.LENGTH_SHORT).show();
+			Runnable r = new dataRecording();
+			new Thread(r).start();
+		} else {
+			toast("Recording in progress!");
+		}
 	}
-	
+
 	public void toast(String string) {
 		Toast.makeText(this, string, Toast.LENGTH_SHORT).show();
 	}
@@ -524,12 +528,12 @@ public class MainActivity extends FragmentActivity implements
 			// StringEntity entity = new StringEntity(TestApp.toString());
 			Gson gson = new Gson();
 			Gson gson2 = new Gson();
-			JsonElement gyroReadings = gson.toJsonTree(tempActivity.getGyroData());
+			JsonElement gyroReadings = gson.toJsonTree(tempActivity
+					.getGyroData());
 			JsonElement jsonElement = gson.toJsonTree(tempActivity.getData());
 			jsonElement.getAsJsonObject().add("gyro", gyroReadings);
 			jsonElement.getAsJsonObject()
 					.addProperty("type", tempActivity.type);
-			
 
 			String json = gson.toJson(jsonElement);
 			StringEntity entity = new StringEntity(json);
@@ -589,12 +593,24 @@ public class MainActivity extends FragmentActivity implements
 	public void nextAccActivity(View view) {
 		if (index + 1 < activityLibrary.size()) {
 			tempActivity = activityLibrary.get(index + 1);
-			tempFeat = FeatureExtractors2.calculateFeatures(tempActivity.getData());
-			recordingTab.updateActivityDetailText(tempActivity,tempFeat);
+			tempFeat = FeatureExtractors2.calculateFeatures(tempActivity
+					.getData());
+			recordingTab.updateActivityDetailText(tempActivity, tempFeat);
 			drawRecordingGraph();
 			index++;
 			Toast.makeText(this, "Activity #" + index + " selected",
 					Toast.LENGTH_SHORT).show();
+		}
+
+	}
+	
+	public void nextGNBC(View view) {
+		if (gnbcIndex + 1 < gnbcLibrary.size()) {
+			tempGNBC = gnbcLibrary.get(gnbcIndex + 1);
+			recognitionTab.drawData(tempGNBC);
+			gnbcIndex++;
+			toast("GNBC result #" + gnbcIndex + " selected");
+			recognitionTab.updateStatusText("Selected GNBC result: " + gnbcIndex +"\n"+ resultArrayToString(tempGNBC), false);
 		}
 
 	}
@@ -643,11 +659,14 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 
+
+	
 	public void previousAccActivity(View view) {
 		if (index - 1 >= 0) {
 			tempActivity = activityLibrary.get(index - 1);
-			tempFeat = FeatureExtractors2.calculateFeatures(tempActivity.getData());
-			recordingTab.updateActivityDetailText(tempActivity,tempFeat);
+			tempFeat = FeatureExtractors2.calculateFeatures(tempActivity
+					.getData());
+			recordingTab.updateActivityDetailText(tempActivity, tempFeat);
 			drawRecordingGraph();
 			index--;
 			Toast.makeText(this, "Activity #" + index + " selected",
@@ -656,11 +675,22 @@ public class MainActivity extends FragmentActivity implements
 
 	}
 
+	public void previousGNBC(View view) {
+		if (gnbcIndex - 1 >= 0 && gnbcLibrary.size()>0) {
+			tempGNBC = gnbcLibrary.get(gnbcIndex - 1);
+			recognitionTab.drawData(tempGNBC);
+			gnbcIndex--;
+			toast("GNBC result #" + index + " selected");
+			recognitionTab.updateStatusText("Selected GNBC result: " + gnbcIndex +"\n"+resultArrayToString(tempGNBC), false);
+		}
+
+	}
+	
 	public void remove(View view) {
 		activityLibrary.remove(index);
 		index = index - 1;
 		tempActivity = activityLibrary.get(index);
-		recordingTab.updateActivityDetailText(tempActivity,tempFeat);
+		recordingTab.updateActivityDetailText(tempActivity, tempFeat);
 		drawRecordingGraph();
 		String ser = SerializeObject.objectToString(activityLibrary);
 		if (ser != null && !ser.equalsIgnoreCase("")) {
@@ -670,46 +700,74 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 
-	public void identify(View view) {
-//		finishRecording();	
-		Pair <ArrayList<Double>,String> classification = ng.classify(FeatureExtractors2.calculateFeatures(tempActivity.getData()));
-		recognitionTab.updateStatusText(classification.second,false);
-		ArrayList<Double> results = classification.first;
-		
-		int maxindex = 0;
-		double maxvalue = results.get(0);
+	public String resultArrayToString(ArrayList<Double> array){
+		String txt="";
+		for (int i=0;i<array.size();i++){
+			double d = array.get(i);
+			if (!Double.isNaN(d)) {
+	            DecimalFormat df = new DecimalFormat("000E00");
 
-		for (int i = 0; i < 9; i++) {
-			if (i != 1 && i != 4 && i != 5 && i != 6
-					&& !Double.isNaN(results.get(i))) {
-				maxvalue = results.get(i);
-				maxindex = i;
-				break;
-			}
-		}
+				if (d != 0.0) {
+//					txt += ("\n[" + i + "] " + String.format("%.5f", Math.exp(array.get(i)))+ " log:" + String.format("%.5f", array.get(i)));
+					txt += ("\n[" + i + "] " +df.format( Math.exp(array.get(i))) + " log:" + String.format("%.5f", array.get(i)));
 
-		for (int i = 0; i < 9; i++) {
-			if (!Double.isNaN(results.get(i))) {
-				if (results.get(i) > results.get(i) && i != 1 && i != 4
-						&& i != 5 && i != 6) {
-					maxvalue = results.get(i);
-					maxindex = i;
 				}
 			}
 
 		}
+		return txt;
+	}
 	
-		recognitionTab.updateStatusText2(FeatureExtractors2.getType(maxindex), true);
-		recognitionTab.drawData(classification.first);
-//		AccActivity result = IdentificationEngine.findClosestMatch(
-//				tempActivity, activityLibrary);
-//
-//		Toast.makeText(this, "Activity Type: " + result.getType(),
-//				Toast.LENGTH_LONG).show();
+	public void identify(View view) {
+		// finishRecording();
+		if (entropyDataLoaded) {
+			toast("identifying...");
+			Pair<ArrayList<Double>, String> classification = ng
+					.classify(FeatureExtractors2.calculateFeatures(tempActivity
+							.getData()));
+			recognitionTab.updateStatusText(classification.second, false);
+			ArrayList<Double> results = classification.first;
+			tempGNBC = results;
+
+			int maxindex = 0;
+			double maxvalue = results.get(0);
+
+			for (int i = 0; i < 9; i++) {
+				if (i != 1 && i != 4 && i != 5 && i != 6
+						&& !Double.isNaN(results.get(i))) {
+					maxvalue = results.get(i);
+					maxindex = i;
+					break;
+				}
+			}
+
+			for (int i = 0; i < 9; i++) {
+				if (!Double.isNaN(results.get(i))) {
+					if (results.get(i) > results.get(maxindex) && i != 1 && i != 4
+							&& i != 5 && i != 6) {
+						maxvalue = results.get(i);
+						maxindex = i;
+					}
+				}
+
+			}
+
+			recognitionTab.updateStatusText2(
+					FeatureExtractors2.getType(maxindex), true);
+			recognitionTab.drawData(classification.first);
+		} else {
+			toast("entropy data not loaded - loading data");
+			loadEntropyFromCloud();
+		}
+		// AccActivity result = IdentificationEngine.findClosestMatch(
+		// tempActivity, activityLibrary);
+		//
+		// Toast.makeText(this, "Activity Type: " + result.getType(),
+		// Toast.LENGTH_LONG).show();
 	}
 
 	public void saveActivity(View view) {
-		index = activityLibrary.size();
+		gnbcIndex = activityLibrary.size();
 		if (!activityLibrary.contains(tempActivity)) {
 			tempActivity.setType(recordingTab.getTypeSpinnerValue());
 			activityLibrary.add(tempActivity);
@@ -726,6 +784,25 @@ public class MainActivity extends FragmentActivity implements
 		} else {
 			Toast.makeText(this, "Activity already in the library.",
 					Toast.LENGTH_SHORT).show();
+		}
+
+	}
+	
+	public void saveGNBC(View view) {
+		index = gnbcLibrary.size();
+		if (!gnbcLibrary.contains(tempGNBC)) {
+			gnbcLibrary.add(tempGNBC);
+			toast("GNBC result saved. Library size:" + gnbcLibrary.size());
+			gnbcIndex=gnbcLibrary.size()-1;
+//			String ser = SerializeObject.objectToString(activityLibrary);
+//			if (ser != null && !ser.equalsIgnoreCase("")) {
+//				SerializeObject.WriteSettings(this, ser, "activityLibrary.dat");
+//			} else {
+//				SerializeObject.WriteSettings(this, "", "activityLibrary.dat");
+//			}
+
+		} else {
+			toast("GNBC result already in the library.");
 		}
 
 	}
@@ -757,7 +834,7 @@ public class MainActivity extends FragmentActivity implements
 		if (arg0.length() > 0) {
 			tempActivity.setRate(Integer.parseInt(arg0.toString()));
 			tempActivity.recalculate();
-			recordingTab.updateActivityDetailText(tempActivity,tempFeat);
+			recordingTab.updateActivityDetailText(tempActivity, tempFeat);
 			Toast.makeText(this, "Rate changed to:" + tempActivity.getRate(),
 					Toast.LENGTH_SHORT).show();
 			if (activityLibrary.size() != 0
@@ -791,8 +868,7 @@ public class MainActivity extends FragmentActivity implements
 		// TODO Auto-generated method stub
 
 	}
-	
-	
+
 	public void loadEntropyFromCloud() {
 		String apiURI = null;
 		// try {
@@ -865,24 +941,25 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	protected void writeEntropyData(String result) {
-		recognitionTab.updateStatusText("Entropy data loaded succefully.\nFirst 128 characters:" + result.substring(0, Math.min(result.length(), 128)) + "...", false);
-		toast("Entropy data loaded succesfully. First 128 characters:" + result.substring(0, Math.min(result.length(), 128)) + "...");
+		recognitionTab.updateStatusText(
+				"Entropy data loaded succefully.\nFirst 128 characters:"
+						+ result.substring(0, Math.min(result.length(), 128))
+						+ "...", false);
+		toast("Entropy data loaded succesfully.");
+		entropyDataLoaded = true;
 		JSONArray jsonArray;
 		try {
 			jsonArray = new JSONArray(result);
-			
-		   
-			
+
 			ArrayList<ArrayList<Double>> entropyMean = new ArrayList<ArrayList<Double>>();
 			ArrayList<ArrayList<Double>> entropyVar = new ArrayList<ArrayList<Double>>();
 			ArrayList<Double> filler = new ArrayList<Double>();
-			
-			 for (int i = 0; i < 9; i++) {
-			        entropyMean.add(filler);
-			        entropyVar.add(filler);
-			 }
-			
-			
+
+			for (int i = 0; i < 9; i++) {
+				entropyMean.add(filler);
+				entropyVar.add(filler);
+			}
+
 			for (int i = 0; i < jsonArray.length(); i++) {
 				JSONObject obj = (JSONObject) jsonArray.get(i);
 				Iterator<?> keys = obj.keys();
@@ -895,36 +972,34 @@ public class MainActivity extends FragmentActivity implements
 							JSONObject arrayEntry = (JSONObject) dataArray
 									.get(j);
 							tempArray.add(arrayEntry.getDouble(Integer
-													.toString(j)));
+									.toString(j)));
 						}
-						entropyMean
-						.set((Integer.valueOf(key.substring(key
-								.length() - 1))),tempArray);
+						entropyMean.set((Integer.valueOf(key.substring(key
+								.length() - 1))), tempArray);
 					} else if (key.startsWith("var")) {
 						ArrayList<Double> tempArray = new ArrayList<Double>();
-	
+
 						JSONArray dataArray = obj.getJSONArray(key);
 						for (int j = 0; j < dataArray.length(); j++) {
 							JSONObject arrayEntry = (JSONObject) dataArray
 									.get(j);
 							tempArray.add(arrayEntry.getDouble(Integer
-													.toString(j)));
+									.toString(j)));
 						}
-						entropyVar
-						.set((Integer.valueOf(key.substring(key
-								.length() - 1))),tempArray);
+						entropyVar.set((Integer.valueOf(key.substring(key
+								.length() - 1))), tempArray);
 					}
-	
+
 				}
-	
+
 			}
-			ng = new NaiveGaussianClassifier(entropyMean, entropyVar);
-	
+			ng = new GaussianNaiveBayesClassifier(entropyMean, entropyVar);
+
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	
+
 	}
 
 	public void getEntropyData(View view) {

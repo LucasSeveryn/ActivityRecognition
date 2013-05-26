@@ -17,30 +17,51 @@
         android:id="@+id/statusText"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/statusText2"
         android:layout_below="@id/pPlot"
+        android:layout_toLeftOf="@+id/button3"
         android:text="Saved data:"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@android:color/black" />
+
+    <Button
+        android:id="@+id/prevButton"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:onClick="previousGNBC"
+        android:text="Prev." />
+
+    <Button
+        android:id="@+id/nextButton"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:onClick="nextGNBC"
+        android:text="Next" />
+
+    <Button
+        android:id="@+id/button3"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/pPlot"
+        android:text="Save" 
+        android:onClick="saveGNBC"/>
 
     <TextView
         android:id="@+id/statusText2"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/statusText"
-        android:layout_toLeftOf="@+id/loadEntropyButton"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/statusText"
+        android:layout_marginTop="46dp"
         android:text="Status text 2"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@android:color/black" />
-
-    <Button
-        android:id="@+id/loadEntropyButton"
-        android:layout_width="76dp"
-        android:layout_height="70dp"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/pPlot"
-        android:onClick="getEntropyData"
-        android:text="Load entropy data" />
 
 </RelativeLayout>

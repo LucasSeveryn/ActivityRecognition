@@ -115,8 +115,8 @@ public class ActRecordingFragment extends Fragment {
 
 		xyzPlot.redraw();
 
-		EditText rateText = (EditText) rootView.findViewById(R.id.rateText);
-		rateText.addTextChangedListener((MainActivity) getActivity());
+//		EditText rateText = (EditText) rootView.findViewById(R.id.rateText);
+//		rateText.addTextChangedListener((MainActivity) getActivity());
 
 		Spinner typeSpinner = (Spinner) rootView.findViewById(R.id.typeSpinner);
 		typeSpinner.setOnItemSelectedListener((MainActivity) getActivity());

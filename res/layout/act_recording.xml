@@ -59,21 +59,36 @@
         android:onClick="previousAccActivity"
         android:text="Prev" />
 
-    <Button
-        android:id="@+id/startRecordingButton"
+    <ToggleButton
+        android:id="@+id/recordingToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/xyzPlot"
         android:onClick="startRecording"
-        android:text="Rec." />
+        android:text="Rec."
+        android:textOff="Not Rec."
+        android:textOn="Rec" />
+
+    <Spinner
+        android:id="@+id/typeSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/accActivityDetailText"
+        android:layout_alignTop="@+id/saveButton"
+        android:layout_toLeftOf="@+id/saveButton"
+        android:layout_toRightOf="@+id/recordingToggle"
+        android:ems="10"
+        android:entries="@array/actTypeArray"
+        android:inputType="number"
+        android:text="1" />
 
     <TextView
         android:id="@+id/accActivityDetailText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/startRecordingButton"
-        android:layout_below="@+id/startRecordingButton"
+        android:layout_alignLeft="@+id/recordingToggle"
+        android:layout_below="@+id/recordingToggle"
         android:text="Activity Details"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
@@ -87,32 +102,28 @@
         android:text="Next >" />
 
     <Button
-        android:id="@+id/saveButton"
+        android:id="@+id/startRecordingButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignRight="@+id/xyzPlot"
         android:layout_below="@+id/xyzPlot"
-        android:onClick="saveActivity"
-        android:text="Save" />
+        android:onClick="startRecording"
+        android:text="Rec." />
 
-    <Spinner
-        android:id="@+id/typeSpinner"
+    <Button
+        android:id="@+id/saveButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/accActivityDetailText"
-        android:layout_alignTop="@+id/saveButton"
-        android:layout_toLeftOf="@+id/saveButton"
-        android:layout_toRightOf="@+id/startRecordingButton"
-        android:ems="10"
-        android:entries="@array/actTypeArray"
-        android:inputType="number"
-        android:text="1" />
+        android:layout_alignRight="@+id/xyzPlot"
+        android:layout_below="@+id/startRecordingButton"
+        android:onClick="saveActivity"
+        android:text="Save" />
 
     <Button
         android:id="@+id/idButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/accActivityDetailText"
+        android:layout_below="@+id/saveButton"
         android:layout_toRightOf="@+id/typeSpinner"
         android:onClick="identify"
         android:text="Id" />
@@ -125,39 +136,28 @@
         android:layout_toRightOf="@+id/typeSpinner"
         android:onClick="remove"
         android:text="Del" />
-    
+
     <Button
-        android:id="@+id/purge"
+        android:id="@+id/send"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/delete"
         android:layout_toRightOf="@+id/typeSpinner"
-        android:onClick="purge"
-        android:text="Purge"
-        android:textSize="15sp" />
-    
-     <Button
-        android:id="@+id/send"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/purge"
-        android:layout_toRightOf="@+id/typeSpinner"
         android:onClick="send"
         android:text="Send"
         android:textSize="15sp" />
-    
 
-    <EditText
-        android:id="@+id/rateText"
-        android:layout_width="16dp"
+    <Button
+        android:id="@+id/purge"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
         android:layout_below="@+id/send"
+                android:layout_above="@+id/nextAccActivityButton"
+        
         android:layout_toRightOf="@+id/typeSpinner"
-        android:ems="10"
-        android:hint="0 crossing jump"
-        android:inputType="number"
-        android:text="4" />
+        android:onClick="purge"
+        android:text="Purge"
+        android:textSize="15sp" />
 
     <Spinner
         android:id="@+id/displaySpinner"
@@ -168,5 +168,7 @@
         android:layout_alignTop="@+id/nextAccActivityButton"
         android:layout_toLeftOf="@+id/nextAccActivityButton"
         android:entries="@array/displayType" />
-    
+
+
+
 </RelativeLayout>

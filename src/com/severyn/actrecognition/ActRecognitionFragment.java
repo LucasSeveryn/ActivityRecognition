@@ -107,7 +107,7 @@ public class ActRecognitionFragment extends Fragment {
 		if(append){
 			statusText.setText(statusText.getText()+ " " + text);
 		}
-		statusText.setText(text);
+		else statusText.setText(text);
 
 	}
 	

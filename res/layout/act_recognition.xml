@@ -3,47 +3,44 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    
-        <Button
-        android:id="@+id/loadEntropyData"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Load entropy data"
-        android:textColor="@android:color/black" 
-        android:onClick="getEntropyData"/>
 
-        <TextView
-        android:id="@+id/xyzActivityPlotLabel"
+ 
+
+    <com.androidplot.xy.XYPlot
+        android:id="@+id/pPlot"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Activity data:"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@android:color/black" 
-        android:layout_below="@id/loadEntropyData" />
-        
-        
-        <com.androidplot.xy.XYPlot
-        android:id="@+id/xyzPlot"
-        android:layout_width="fill_parent"
-        android:layout_height="40dp"
-        android:layout_below="@id/loadEntropyData" />
-        
-        <TextView
+        android:layout_height="240dp"
+   
+        />
+
+    <TextView
         android:id="@+id/statusText"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/statusText2"
+        android:layout_below="@id/pPlot"
         android:text="Saved data:"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@android:color/black" 
-        android:layout_below="@id/xyzPlot" />
-        
-                <TextView
+        android:textColor="@android:color/black" />
+
+    <TextView
         android:id="@+id/statusText2"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/statusText"
+        android:layout_toLeftOf="@+id/loadEntropyButton"
         android:text="Status text 2"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@android:color/black" 
-        android:layout_below="@id/statusText" />
-        
+        android:textColor="@android:color/black" />
+
+    <Button
+        android:id="@+id/loadEntropyButton"
+        android:layout_width="76dp"
+        android:layout_height="70dp"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/pPlot"
+        android:onClick="getEntropyData"
+        android:text="Load entropy data" />
+
 </RelativeLayout>

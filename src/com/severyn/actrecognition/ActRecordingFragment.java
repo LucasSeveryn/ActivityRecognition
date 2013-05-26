@@ -128,65 +128,38 @@ public class ActRecordingFragment extends Fragment {
 		return rootView;
 	}
 
-	public void updateActivityDetailText(AccActivity activity) {
-		TextView zeroCrossingRateText = (TextView) this.getView().findViewById(
+	private String printHistogram(int[] array){
+		String result = "";
+		for(int i : array){
+			result += (" | " + i);
+		}
+		result +="|";
+		return result;
+	}
+	
+	public String f(Double d){
+		return String.format("%.3f", d);
+	}
+	
+	public void updateActivityDetailText(AccActivity activity, AccFeat accFeat) {
+		TextView accActivityDetailText = (TextView) this.getView().findViewById(
 				R.id.accActivityDetailText);
-		zeroCrossingRateText
-				.setText("Type: "
-						+ activity.getType()
-						+ "\nAcc data: " + activity.getData().getxData().size() + "Gyro data: " + activity.getGyroData().getxData().size() + "\n"
-						+ "\nZero crossing rate: X: "
-						+ activity.getxCrossings()
-						+ " Y: "
-						+ activity.getyCrossings()
-						+ " Z: "
-						+ activity.getzCrossings()
-						+ "\n"
-						+ "Max/Min acceleration \nX: "
-						+ String.format("%.4f", activity.getMinMax()[0])
-						+ "/"
-						+ String.format("%.4f", activity.getMinMax()[1])
-						+ " av. noise: "
-//						+ String.format("%.4f",
-//								activity.getData().getNoise()[0])
-						+ " mid lfp: "
-						+ String.format("%.4f", activity.getlpfData()
-								.getXMiddleValue())
-						+ "\nY: "
-						+ String.format("%.4f", activity.getMinMax()[2])
-						+ "/"
-						+ String.format("%.4f", activity.getMinMax()[3])
-						+ " av. noise: "
-//						+ String.format("%.4f",
-//								activity.getData().getNoise()[1])
-						+ " mid lfp: " 
-						+ String.format("%.4f", activity.getlpfData()
-								.getYMiddleValue())
-						+ "\nZ: "
-						+ String.format("%.4f", activity.getMinMax()[4])
-						+ "/"
-						+ String.format("%.4f", activity.getMinMax()[5])
-						+ " av. noise: "
-//						+ String.format("%.4f",
-//								activity.getData().getNoise()[2])
-						+ " mid lfp: "
-						+ String.format("%.4f", activity.getlpfData()
-								.getZMiddleValue())
-						+ "\nStandard deviation: \n x-axis: "
-						+ activity.getSD()[0] + "\ny-axis: "
-						+ activity.getSD()[1] + "\nz-axis: "
-						+ activity.getSD()[2]
-						+ "\nAverage Resultant Acceleration: "
-						+ activity.getAvResAcceleration() + "m/s^2"
-//						+ "\n x peaks: " + activity.getPeakIndicesX()
-//						+ " Av. distance: " + activity.getAvPeakDistance()[0]
-//						+ "\n y peaks: " + activity.getPeakIndicesY()
-//						+ " Av. distance: " + activity.getAvPeakDistance()[1]
-//						+ "\n z peaks: " + activity.getPeakIndicesZ()
-//						+ " Av. distance: " + activity.getAvPeakDistance()[2]
-//						+ "\n x bin: " + activity.printBinX()
-//						+ "\n y bin: " + activity.printBinY()
-//						+ "\n z bin: " + activity.printBinZ()
+		accActivityDetailText
+				.setText("Type: " + FeatureExtractors2.getType(accFeat.getType())
+						+ "\nAcc data points: " + activity.getData().getxData().size() + " Gyro data points: " + activity.getGyroData().getxData().size()
+						+ "\nMean: X: " + f(accFeat.getMean(0)) + " Y: " + f(accFeat.getMean(1)) + " Z: " + f(accFeat.getMean(2))
+						+ "\nStandard deviation: X: " + f(accFeat.getSd(0)) + " Y: " + f(accFeat.getSd(1)) + " Z: " + f(accFeat.getSd(2))
+						+ "\nAverage peak distance: X: " + f(accFeat.getAvPeakDistance(0)) + " Y: " + f(accFeat.getAvPeakDistance(1)) + " Z: " + f(accFeat.getAvPeakDistance(2))
+						+ "\nZero crossing count: X: " + accFeat.getCrossingCount(0) + " Y: " + accFeat.getCrossingCount(1) + " Z: " + accFeat.getCrossingCount(2)
+						+ "\nAverage resultant acceleration: " + f(accFeat.getResultantAcc())
+						+ "\nAcceleration histograms:"
+						+ "\n    X: " + printHistogram(accFeat.getHistogramArray(0))
+						+ "\n    Y: " + printHistogram(accFeat.getHistogramArray(1))
+						+ "\n    Z: " + printHistogram(accFeat.getHistogramArray(2))
+						+ "\nFFT histograms:"
+						+ "\n    X: " + printHistogram(accFeat.getFFTHistogramArray(0))
+						+ "\n    Y: " + printHistogram(accFeat.getFFTHistogramArray(1))
+						+ "\n    Z: " + printHistogram(accFeat.getFFTHistogramArray(2))
 						);
 
 	}

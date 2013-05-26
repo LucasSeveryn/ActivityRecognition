@@ -112,6 +112,14 @@ public class AccFeat {
 //		System.out.println("axis: " + axis + " index: " + index);
 		return fftHistogram[axis][index];
 	}
+	public int[] getHistogramArray(int axis) {
+//		System.out.println("axis: " + axis + " index: " + index);
+		return histogram[axis];
+	}
+	public int[] getFFTHistogramArray(int axis) {
+//		System.out.println("axis: " + axis + " index: " + index);
+		return fftHistogram[axis];
+	}
 
 	public void setHistogram(int i, int[] histogram) {
 		this.histogram[i] = histogram;

@@ -113,6 +113,14 @@ public class AccData implements Serializable {
 	public void addY(float y) {
 		yData.add(y);
 	}
+	
+	public void removeElements(int n){
+		for(int i=0;i<n;i++){
+			xData.remove(0);
+			yData.remove(0);
+			zData.remove(0);
+		}
+	}
 
 //	public void setNoise(float[] averageNoise) {
 //		this.averageNoise = averageNoise;

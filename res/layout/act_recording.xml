@@ -61,27 +61,15 @@
 
     <ToggleButton
         android:id="@+id/recordingToggle"
-        android:layout_width="wrap_content"
+        android:layout_width="50dp"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/previousAccActivityButton"
         android:layout_below="@+id/xyzPlot"
-        android:onClick="startRecording"
+        android:onClick="startConstantRecording"
         android:text="Rec."
-        android:textOff="Not Rec."
+        android:textOff="Not Rec"
         android:textOn="Rec" />
-
-    <Spinner
-        android:id="@+id/typeSpinner"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/accActivityDetailText"
-        android:layout_alignTop="@+id/saveButton"
-        android:layout_toLeftOf="@+id/saveButton"
-        android:layout_toRightOf="@+id/recordingToggle"
-        android:ems="10"
-        android:entries="@array/actTypeArray"
-        android:inputType="number"
-        android:text="1" />
 
     <TextView
         android:id="@+id/accActivityDetailText"
@@ -125,7 +113,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/saveButton"
         android:layout_toRightOf="@+id/typeSpinner"
-        android:onClick="identify"
+        android:onClick="idButtonClick"
         android:text="Id" />
 
     <Button
@@ -165,10 +153,21 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/typeSpinner"
         android:layout_alignParentBottom="true"
-        android:layout_alignTop="@+id/nextAccActivityButton"
+
         android:layout_toLeftOf="@+id/nextAccActivityButton"
         android:entries="@array/displayType" />
 
-
+    <Spinner
+        android:id="@+id/typeSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/recordingToggle"
+        android:layout_alignTop="@+id/recordingToggle"
+        android:layout_toLeftOf="@+id/startRecordingButton"
+        android:layout_toRightOf="@+id/recordingToggle"
+        android:ems="10"
+        android:entries="@array/actTypeArray"
+        android:inputType="number"
+        android:text="1" />
 
 </RelativeLayout>

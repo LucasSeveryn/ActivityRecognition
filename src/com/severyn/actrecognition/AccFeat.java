@@ -5,6 +5,7 @@ public class AccFeat {
 	Double[] mean = new Double[3];
 	Double[] sd = new Double[3];
 	Double[] avPeakDistance = new Double[3];
+	Double[] maxDisplacement = new Double[3];
 	int[][] histogram = new int[3][10];
 	int[][] fftHistogram = new int[3][10];
 	int[] crossingCount = new int[3];
@@ -29,7 +30,11 @@ public class AccFeat {
 			case 9: return crossingCount[0];
 			case 10: return crossingCount[1];
 			case 11: return crossingCount[2];
-			case 12: return resultantAcc;	
+			case 12: return resultantAcc;
+			case 73: return maxDisplacement[0];
+			case 74: return maxDisplacement[1];
+			case 75: return maxDisplacement[2];
+
 		}
 		if(i>12&&i<=histogram[0].length*3+12){
 			//System.out.println("axis: " + (int) Math.floor((i-13)/histogram[0].length) + " index: " + (i-13) % histogram[0].length);
@@ -80,7 +85,11 @@ public class AccFeat {
 	public void setSd(int i, Double sd) {
 		this.sd[i] = sd;
 	}
-
+	
+	
+	public void setMaxDisplacementValue(int i, Double val) {
+		this.maxDisplacement[i] = val;
+	}
 
 	public void setResultantAcc(double resultantAcc) {
 		this.resultantAcc = resultantAcc;

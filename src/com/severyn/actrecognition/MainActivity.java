@@ -116,9 +116,12 @@ public class MainActivity extends FragmentActivity implements
 	AccMonitorFragment monitorTab;
 	ActRecognitionFragment recognitionTab;
 	ActRecordingFragment recordingTab;
-
+	private boolean constantRecordingEnabled=false;
+	
 	private final SensorEventListener mSensorListener = new SensorEventListener() {
 		private int counter = 0;
+		private int cc = 1;
+
 
 		@Override
 		public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -133,15 +136,28 @@ public class MainActivity extends FragmentActivity implements
 				float x = event.values[0];
 				float y = event.values[1];
 				float z = event.values[2];
-				if (recordingEnabled) {
+				if (recordingEnabled||constantRecordingEnabled) {
 					recordedData.addX(x);
 					recordedData.addY(y);
 					recordedData.addZ(z);
 				}
 				if (recordedData != null && recordedData.size() > 511) {
-					recordingEnabled = false;
-					finishRecording();
+					
+					if(recordingEnabled){
+						recordingEnabled = false;
+						finishRecording();
+					}
+					else if(constantRecordingEnabled){
+						classify(recordedData);
+						toast("classification number: " + cc);
+						cc++;
+						recordedData.removeElements(256);
+					}
 				}
+				
+				
+				
+				
 				// if (recordingEnabled) {
 				// if (recordedData.getxData().size() <= 511) {
 				// recordedData.addX(x);
@@ -498,6 +514,32 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 
+	public void startConstantRecording(View view) {
+		boolean toggleOn = recordingTab.getRecordingToggleStatus();
+		if(!toggleOn){
+			toast("Stopping constant recording");
+			constantRecordingEnabled=false;
+		}else{
+			recordedData = new AccData();
+			recordedGData = new AccData();
+			toast("Starting constant recording");
+			constantRecordingEnabled=true;
+		}
+		
+//		
+//		if (!recordingEnabled) {
+//			recordedData = new AccData();
+//			recordedGData = new AccData();
+//			Toast.makeText(this, "Recording will start in 5 sec",
+//					Toast.LENGTH_SHORT).show();
+//			Runnable r = new dataRecording();
+//			new Thread(r).start();
+//		} else {
+//			toast("Recording in progress!");
+//		}
+	}
+
+	
 	public void toast(String string) {
 		Toast.makeText(this, string, Toast.LENGTH_SHORT).show();
 	}
@@ -718,47 +760,8 @@ public class MainActivity extends FragmentActivity implements
 		return txt;
 	}
 	
-	public void identify(View view) {
-		// finishRecording();
-		if (entropyDataLoaded) {
-			toast("identifying...");
-			Pair<ArrayList<Double>, String> classification = ng
-					.classify(FeatureExtractors2.calculateFeatures(tempActivity
-							.getData()));
-			recognitionTab.updateStatusText(classification.second, false);
-			ArrayList<Double> results = classification.first;
-			tempGNBC = results;
-
-			int maxindex = 0;
-			double maxvalue = results.get(0);
-
-			for (int i = 0; i < 9; i++) {
-				if (i != 1 && i != 4 && i != 5 && i != 6
-						&& !Double.isNaN(results.get(i))) {
-					maxvalue = results.get(i);
-					maxindex = i;
-					break;
-				}
-			}
-
-			for (int i = 0; i < 9; i++) {
-				if (!Double.isNaN(results.get(i))) {
-					if (results.get(i) > results.get(maxindex) && i != 1 && i != 4
-							&& i != 5 && i != 6) {
-						maxvalue = results.get(i);
-						maxindex = i;
-					}
-				}
-
-			}
-
-			recognitionTab.updateStatusText2(
-					FeatureExtractors2.getType(maxindex), true);
-			recognitionTab.drawData(classification.first);
-		} else {
-			toast("entropy data not loaded - loading data");
-			loadEntropyFromCloud();
-		}
+	public void idButtonClick(View view) {
+		classify(tempActivity.getData());
 		// AccActivity result = IdentificationEngine.findClosestMatch(
 		// tempActivity, activityLibrary);
 		//
@@ -766,8 +769,55 @@ public class MainActivity extends FragmentActivity implements
 		// Toast.LENGTH_LONG).show();
 	}
 
+	private void classify(AccData activity) {
+		// finishRecording();
+				if (entropyDataLoaded) {
+					toast("identifying...");
+					Pair<ArrayList<Double>, String> classification = ng
+							.classify(FeatureExtractors2.calculateFeatures(activity));
+					recognitionTab.updateStatusText(classification.second, false);
+					ArrayList<Double> results = classification.first;
+					tempGNBC = results;
+
+					int maxindex = 0;
+					double maxvalue = results.get(0);
+
+					for (int i = 0; i < 9; i++) {
+						if (i != 1 && i != 4 && i != 5 && i != 6
+								&& !Double.isNaN(results.get(i))) {
+							maxvalue = results.get(i);
+							maxindex = i;
+							break;
+						}
+					}
+
+					for (int i = 0; i < 9; i++) {
+						if (!Double.isNaN(results.get(i))) {
+							if (results.get(i) > results.get(maxindex) && i != 1 && i != 4
+									&& i != 5 && i != 6) {
+								maxvalue = results.get(i);
+								maxindex = i;
+							}
+						}
+
+					}
+
+					recognitionTab.updateStatusText2(
+							FeatureExtractors2.getType(maxindex), true);
+					recognitionTab.drawData(classification.first);
+					gnbcIndex = gnbcLibrary.size();
+					gnbcLibrary.add(tempGNBC);
+//					toast("GNBC result saved. Library size:" + gnbcLibrary.size());
+					gnbcIndex=gnbcLibrary.size()-1;
+				} else {
+					toast("entropy data not loaded - loading data");
+					loadEntropyFromCloud();
+				}
+		
+	}
+
 	public void saveActivity(View view) {
-		gnbcIndex = activityLibrary.size();
+		index = activityLibrary.size();
 		if (!activityLibrary.contains(tempActivity)) {
 			tempActivity.setType(recordingTab.getTypeSpinnerValue());
 			activityLibrary.add(tempActivity);
@@ -789,7 +839,7 @@ public class MainActivity extends FragmentActivity implements
 	}
 	
 	public void saveGNBC(View view) {
-		index = gnbcLibrary.size();
+		gnbcIndex = gnbcLibrary.size();
 		if (!gnbcLibrary.contains(tempGNBC)) {
 			gnbcLibrary.add(tempGNBC);
 			toast("GNBC result saved. Library size:" + gnbcLibrary.size());

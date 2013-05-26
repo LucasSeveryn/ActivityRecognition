@@ -1,6 +1,7 @@
 package com.severyn.actrecognition;
 
 
+
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -373,13 +374,20 @@ public final class FeatureExtractors2 {
 		temp.setFftHistogram(2, FeatureExtractors2.calcHistogram(
 				FeatureExtractors2.fftest(zData), 0, 100, 10));
 
-		temp.setHistogram(0,
-				FeatureExtractors2.calcHistogram(xData, -15, 15, 10));
-		temp.setHistogram(1,
-				FeatureExtractors2.calcHistogram(yData, -15, 15, 10));
-		temp.setHistogram(2,
-				FeatureExtractors2.calcHistogram(zData, -15, 15, 10));
+//		temp.setHistogram(0,
+//				FeatureExtractors2.calcHistogram(xData, -15, 15, 10));
+//		temp.setHistogram(1,
+//				FeatureExtractors2.calcHistogram(yData, -15, 15, 10));
+//		temp.setHistogram(2,
+//				FeatureExtractors2.calcHistogram(zData, -15, 15, 10));
 
+		temp.setHistogram(0,
+				FeatureExtractors2.calcHistogram(xData, -5, 5, 10));
+		temp.setHistogram(1,
+				FeatureExtractors2.calcHistogram(yData, 5, 15, 10));
+		temp.setHistogram(2,
+				FeatureExtractors2.calcHistogram(zData, -8, 2, 10));
+		
 		temp.setCrossingCount(0, FeatureExtractors2
 				.zeroCrossingCount(FeatureExtractors2.highPassFilter(lpfxData)));
 		temp.setCrossingCount(1, FeatureExtractors2
@@ -387,6 +395,11 @@ public final class FeatureExtractors2 {
 		temp.setCrossingCount(2, FeatureExtractors2
 				.zeroCrossingCount(FeatureExtractors2.highPassFilter(lpfzData)));
 
+		temp.setMaxDisplacementValue(0, Collections.max(xData)-Collections.min(xData));
+		temp.setMaxDisplacementValue(1, Collections.max(yData)-Collections.min(yData));
+		temp.setMaxDisplacementValue(2, Collections.max(zData)-Collections.min(zData));
+
+		
 		return temp;
 	}
 

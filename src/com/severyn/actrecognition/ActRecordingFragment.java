@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 public class ActRecordingFragment extends Fragment {
 	private SimpleXYSeries xPlotSeries = new SimpleXYSeries("x acceleration");
@@ -92,6 +93,12 @@ public class ActRecordingFragment extends Fragment {
 		}
 		return null;
 
+	}
+	
+	public boolean getRecordingToggleStatus(){
+		ToggleButton recordingToggle = (ToggleButton) this.getView().findViewById(
+				R.id.recordingToggle);
+		return recordingToggle.isChecked();
 	}
 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,

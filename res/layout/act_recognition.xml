@@ -15,11 +15,10 @@
 
     <TextView
         android:id="@+id/statusText"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/pPlot"
-        android:layout_toLeftOf="@+id/button3"
-        android:text="Saved data:"
+        android:text="Status text 1"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@android:color/black" />
 
@@ -44,22 +43,22 @@
         android:text="Next" />
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/saveButton"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/pPlot"
-        android:text="Save" 
-        android:onClick="saveGNBC"/>
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:onClick="saveGNBC"
+        android:text="Save" />
 
     <TextView
         android:id="@+id/statusText2"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/statusText"
-        android:layout_marginTop="46dp"
+        android:layout_alignBaseline="@+id/statusText"
+        android:layout_alignBottom="@+id/statusText"
+        android:layout_alignParentRight="true"
         android:text="Status text 2"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@android:color/black" />

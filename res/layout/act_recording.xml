@@ -179,15 +179,6 @@
         android:text="1" />
 
     <Button
-        android:id="@+id/nextAccActivityButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/purge"
-        android:layout_below="@+id/purge"
-        android:onClick="nextAccActivity"
-        android:text="Next >" />
-
-    <Button
         android:id="@+id/purge"
         android:layout_width="wrap_content"
         android:layout_height="42dp"
@@ -214,5 +205,14 @@
         android:layout_alignLeft="@+id/previousAccActivityButton"
         android:text="Save to library when constantly recording"
         android:textSize="12dp" />
+
+    <Button
+        android:id="@+id/nextAccActivityButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignRight="@+id/purge"
+        android:onClick="nextAccActivity"
+        android:text="Next >" />
 
 </RelativeLayout>

@@ -189,6 +189,13 @@ public class ActRecordingFragment extends Fragment {
 		progressBar.setProgress(i);
 	}
 
+	public void setTypeCombobox(int i){
+		Spinner typeSpinner = (Spinner) this.getView()
+				.findViewById(R.id.typeSpinner);
+		typeSpinner.setSelection(i);
+		
+	}
+	
 	public void updateActivityDetailText(AccActivity activity, AccFeat accFeat) {
 		TextView accActivityDetailText = (TextView) this.getView()
 				.findViewById(R.id.accActivityDetailText);

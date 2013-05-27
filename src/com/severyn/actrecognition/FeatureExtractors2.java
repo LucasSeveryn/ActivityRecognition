@@ -208,7 +208,7 @@ public final class FeatureExtractors2 {
 		ArrayList<Integer> distances = new ArrayList<Integer>();
 
 		// /peak detection methodology
-		ArrayList<Integer> maxtab = peakdet(v);
+		ArrayList<Integer> maxtab = peakdetN(v);
 
 		for (int i = 1; i < maxtab.size(); i++) {
 			distances.add(maxtab.get(i) - maxtab.get(i - 1));
@@ -384,9 +384,9 @@ public final class FeatureExtractors2 {
 		temp.setHistogram(0,
 				FeatureExtractors2.calcHistogram(xData, -5, 5, 10));
 		temp.setHistogram(1,
-				FeatureExtractors2.calcHistogram(yData, 5, 15, 10));
+				FeatureExtractors2.calcHistogram(yData, 3, 15, 10));
 		temp.setHistogram(2,
-				FeatureExtractors2.calcHistogram(zData, -8, 2, 10));
+				FeatureExtractors2.calcHistogram(zData, -12, 2, 10));
 		
 		temp.setCrossingCount(0, FeatureExtractors2
 				.zeroCrossingCount(FeatureExtractors2.highPassFilter(lpfxData)));

@@ -291,6 +291,7 @@ public class MainActivity extends FragmentActivity implements
 		// recordedGData.setNoise(averageGNoise);
 		tempActivity = new AccActivity(recordedData, recordedGData);
 		tempFeat = FeatureExtractors2.calculateFeatures(tempActivity.getData());
+		tempFeat.setType(9);
 		recordedData = new AccData();
 		recordedGData = new AccData();
 		recordingTab.updateActivityDetailText(tempActivity, tempFeat);
@@ -637,6 +638,7 @@ public class MainActivity extends FragmentActivity implements
 			tempActivity = activityLibrary.get(index + 1);
 			tempFeat = FeatureExtractors2.calculateFeatures(tempActivity
 					.getData());
+			tempFeat.setType(tempActivity.type);
 			recordingTab.updateActivityDetailText(tempActivity, tempFeat);
 			drawRecordingGraph();
 			index++;
@@ -708,6 +710,7 @@ public class MainActivity extends FragmentActivity implements
 			tempActivity = activityLibrary.get(index - 1);
 			tempFeat = FeatureExtractors2.calculateFeatures(tempActivity
 					.getData());
+			tempFeat.setType(tempActivity.type);
 			recordingTab.updateActivityDetailText(tempActivity, tempFeat);
 			drawRecordingGraph();
 			index--;
@@ -820,6 +823,7 @@ public class MainActivity extends FragmentActivity implements
 		index = activityLibrary.size();
 		if (!activityLibrary.contains(tempActivity)) {
 			tempActivity.setType(recordingTab.getTypeSpinnerValue());
+			tempFeat.setType(recordingTab.getTypeSpinnerValue());
 			activityLibrary.add(tempActivity);
 			Toast.makeText(this,
 					"Activity saved. Library size:" + activityLibrary.size(),
@@ -903,6 +907,7 @@ public class MainActivity extends FragmentActivity implements
 		} else {
 			if (tempActivity != null) {
 				tempActivity.setType(recordingTab.getTypeSpinnerValue());
+				tempFeat.setType(recordingTab.getTypeSpinnerValue());
 
 				int prevDisplayType = displayType;
 				displayType = recordingTab.getdisplaySpinnerValue();

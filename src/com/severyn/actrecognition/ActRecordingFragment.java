@@ -152,7 +152,8 @@ public class ActRecordingFragment extends Fragment {
 		TextView accActivityDetailText = (TextView) this.getView().findViewById(
 				R.id.accActivityDetailText);
 		accActivityDetailText
-				.setText("Type: " + FeatureExtractors2.getType(accFeat.getType())
+				.setText("Type: " + (activity.getType())
+//						+ "\nAccFeat Type: " + FeatureExtractors2.getType(accFeat.getType())
 						+ "\nAcc data points: " + activity.getData().getxData().size() + " Gyro data points: " + activity.getGyroData().getxData().size()
 						+ "\nMean: X: " + f(accFeat.getMean(0)) + " Y: " + f(accFeat.getMean(1)) + " Z: " + f(accFeat.getMean(2))
 						+ "\nStandard deviation: X: " + f(accFeat.getSd(0)) + " Y: " + f(accFeat.getSd(1)) + " Z: " + f(accFeat.getSd(2))

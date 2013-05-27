@@ -15,6 +15,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -77,6 +78,12 @@ public class ActRecordingFragment extends Fragment {
 				.getSelectedItemPosition();
 	}
 
+	public boolean getConstantSavingCheckBoxValue() {
+		CheckBox constantSavingCheckBox = (CheckBox) this.getView().findViewById(
+				R.id.constantRecordingSaveCheckBox);
+		return constantSavingCheckBox.isChecked();
+	}
+	
 	public int getdisplaySpinnerValue() {
 		return ((Spinner) getView().findViewById(R.id.displaySpinner))
 				.getSelectedItemPosition();
@@ -109,7 +116,7 @@ public class ActRecordingFragment extends Fragment {
 		xyzPlot = (XYPlot) rootView.findViewById(R.id.xyzPlot);
 		((MainActivity) getActivity()).setTabFragment(2, getTag());
 
-		xyzPlot.setRangeBoundaries(-15, 15, BoundaryMode.FIXED);
+		xyzPlot.setRangeBoundaries(-12, 15, BoundaryMode.FIXED);
 		xyzPlot.setRangeStep(XYStepMode.INCREMENT_BY_VAL, 1);
 		xyzPlot.setDomainStep(XYStepMode.INCREMENT_BY_VAL, 50);
 		xyzPlot.setDomainBoundaries(0, 512, BoundaryMode.FIXED);

@@ -18,7 +18,7 @@
     <com.androidplot.xy.XYPlot
         android:id="@+id/xyzPlot"
         android:layout_width="fill_parent"
-        android:layout_height="240dp"
+        android:layout_height="220dp"
         android:layout_below="@id/xAccPlotLabel" />
 
     <!--
@@ -81,70 +81,63 @@
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <Button
-        android:id="@+id/nextAccActivityButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignRight="@+id/saveButton"
-        android:onClick="nextAccActivity"
-        android:text="Next >" />
-
-    <Button
         android:id="@+id/startRecordingButton"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="42dp"
         android:layout_alignRight="@+id/xyzPlot"
         android:layout_below="@+id/xyzPlot"
         android:onClick="startRecording"
-        android:text="Rec." />
+        android:text="Rec 1"
+        android:textSize="16dp" />
 
     <Button
-        android:id="@+id/saveButton"
+        android:id="@+id/addActButton"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="42dp"
         android:layout_alignRight="@+id/xyzPlot"
         android:layout_below="@+id/startRecordingButton"
-        android:onClick="saveActivity"
+        android:onClick="addActivity"
+           android:textSize="16dp" 
+        android:text="Add" />
+    
+    <Button
+        android:id="@+id/saveLibButton"
+        android:layout_width="wrap_content"
+        android:layout_height="42dp"
+        android:layout_alignRight="@+id/xyzPlot"
+        android:layout_below="@+id/addActButton"
+        android:onClick="saveLibrary"
+        android:textSize="16dp" 
         android:text="Save" />
 
     <Button
         android:id="@+id/idButton"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/saveButton"
+        android:layout_height="42dp"
+        android:layout_below="@+id/saveLibButton"
         android:layout_toRightOf="@+id/typeSpinner"
         android:onClick="idButtonClick"
+           android:textSize="16dp" 
         android:text="Id" />
 
     <Button
         android:id="@+id/delete"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="42dp"
         android:layout_below="@+id/idButton"
         android:layout_toRightOf="@+id/typeSpinner"
         android:onClick="remove"
+           android:textSize="16dp" 
         android:text="Del" />
 
     <Button
         android:id="@+id/send"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="42dp"
         android:layout_below="@+id/delete"
         android:layout_toRightOf="@+id/typeSpinner"
         android:onClick="send"
         android:text="Send"
-        android:textSize="15sp" />
-
-    <Button
-        android:id="@+id/purge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/send"
-                android:layout_above="@+id/nextAccActivityButton"
-        
-        android:layout_toRightOf="@+id/typeSpinner"
-        android:onClick="purge"
-        android:text="Purge"
         android:textSize="15sp" />
 
     <Spinner
@@ -153,7 +146,6 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/typeSpinner"
         android:layout_alignParentBottom="true"
-
         android:layout_toLeftOf="@+id/nextAccActivityButton"
         android:entries="@array/displayType" />
 
@@ -169,5 +161,33 @@
         android:entries="@array/actTypeArray"
         android:inputType="number"
         android:text="1" />
+
+    <CheckBox
+        android:id="@+id/constantRecordingSaveCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/previousAccActivityButton"
+        android:layout_alignParentLeft="true"
+        android:text="Save to library when constantly recording"
+        android:textSize="12dp" />
+
+    <Button
+        android:id="@+id/purge"
+        android:layout_width="wrap_content"
+        android:layout_height="42dp"
+        android:layout_below="@+id/send"
+        android:layout_toRightOf="@+id/typeSpinner"
+        android:onClick="purge"
+        android:text="Purge"
+        android:textSize="15sp" />
+
+    <Button
+        android:id="@+id/nextAccActivityButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/purge"
+        android:layout_below="@+id/purge"
+        android:onClick="nextAccActivity"
+        android:text="Next >" />
 
 </RelativeLayout>

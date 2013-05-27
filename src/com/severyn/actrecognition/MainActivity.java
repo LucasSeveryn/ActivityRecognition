@@ -117,10 +117,12 @@ public class MainActivity extends FragmentActivity implements
 	ActRecognitionFragment recognitionTab;
 	ActRecordingFragment recordingTab;
 	private boolean constantRecordingEnabled=false;
+	private boolean constantSavingEnabled=false;
 	
 	private final SensorEventListener mSensorListener = new SensorEventListener() {
 		private int counter = 0;
 		private int cc = 1;
+		private int burstCounter=0;
 
 
 		@Override
@@ -151,7 +153,16 @@ public class MainActivity extends FragmentActivity implements
 						classify(recordedData);
 						toast("classification number: " + cc);
 						cc++;
+						if(constantSavingEnabled){
+							burstCounter++;
+							if(burstCounter%2==0&burstCounter<16){
+								AccActivity tempBurstActivity = new AccActivity(recordedData, recordedGData);
+								saveBurstActivity(tempBurstActivity);
+							}
+							
+						}
 						recordedData.removeElements(256);
+
 					}
 				}
 				
@@ -205,6 +216,8 @@ public class MainActivity extends FragmentActivity implements
 				counter++;
 			}
 		}
+
+
 
 	};
 	private final SensorEventListener mGSensorListener = new SensorEventListener() {
@@ -523,8 +536,9 @@ public class MainActivity extends FragmentActivity implements
 		}else{
 			recordedData = new AccData();
 			recordedGData = new AccData();
-			toast("Starting constant recording");
 			constantRecordingEnabled=true;
+			constantSavingEnabled=recordingTab.getConstantSavingCheckBoxValue();
+			toast("Starting constant recording. Constant saving: " + constantRecordingEnabled);
 		}
 		
 //		
@@ -553,7 +567,10 @@ public class MainActivity extends FragmentActivity implements
 		purgeCounter++;
 		if (purgeCounter > 3) {
 			activityLibrary.clear();
+			toast("Local libary purged. activityLibrary size:" + activityLibrary.size());
+			purgeCounter=0;
 		}
+		toast("Press " + (4-purgeCounter) + " more times to purge the library");
 	}
 
 	public void send(View view) {
@@ -662,16 +679,16 @@ public class MainActivity extends FragmentActivity implements
 	public void drawRecognitionGraph() {
 		switch (displayType) {
 		case 0:
-			recordingTab.drawData(tempActivity.getData(), -15, 15, 512);
+			recordingTab.drawData(tempActivity.getData(), -12, 15, 512);
 			break;
 		case 1:
-			recordingTab.drawData(tempActivity.getlpfData(), -15, 15, 512);
+			recordingTab.drawData(tempActivity.getlpfData(), -12, 15, 512);
 			break;
 		case 2:
-			recordingTab.drawData(tempActivity.gethpfData(), -15, 15, 512);
+			recordingTab.drawData(tempActivity.gethpfData(), -12, 15, 512);
 			break;
 		case 3:
-			recordingTab.drawData(tempActivity.getbpfData(), -15, 15, 512);
+			recordingTab.drawData(tempActivity.getbpfData(), -12, 15, 512);
 			break;
 		case 4:
 			recordingTab.drawData(tempActivity.getfData(), -1, 100, 512);
@@ -684,16 +701,16 @@ public class MainActivity extends FragmentActivity implements
 	public void drawRecordingGraph() {
 		switch (displayType) {
 		case 0:
-			recordingTab.drawData(tempActivity.getData(), -15, 15, 512);
+			recordingTab.drawData(tempActivity.getData(), -12, 15, 512);
 			break;
 		case 1:
-			recordingTab.drawData(tempActivity.getlpfData(), -15, 15, 512);
+			recordingTab.drawData(tempActivity.getlpfData(), -12, 15, 512);
 			break;
 		case 2:
-			recordingTab.drawData(tempActivity.gethpfData(), -15, 15, 512);
+			recordingTab.drawData(tempActivity.gethpfData(), -12, 15, 512);
 			break;
 		case 3:
-			recordingTab.drawData(tempActivity.getbpfData(), -15, 15, 512);
+			recordingTab.drawData(tempActivity.getbpfData(), -12, 15, 512);
 			break;
 		case 4:
 			recordingTab.drawData(tempActivity.getfData(), -1, 100, 512);
@@ -818,16 +835,23 @@ public class MainActivity extends FragmentActivity implements
 				}
 		
 	}
-
-	public void saveActivity(View view) {
+	private void saveBurstActivity(AccActivity tempBurstActivity) {
 		index = activityLibrary.size();
-		if (!activityLibrary.contains(tempActivity)) {
-			tempActivity.setType(recordingTab.getTypeSpinnerValue());
-			tempFeat.setType(recordingTab.getTypeSpinnerValue());
-			activityLibrary.add(tempActivity);
+		if (!activityLibrary.contains(tempBurstActivity)) {
+			tempBurstActivity.setType(9);
+			activityLibrary.add(tempBurstActivity);
 			Toast.makeText(this,
 					"Activity saved. Library size:" + activityLibrary.size(),
 					Toast.LENGTH_SHORT).show();
+
+
+		} else {
+			Toast.makeText(this, "Activity already in the library.",
+					Toast.LENGTH_SHORT).show();
+		}
+	}
+	public void saveLibrary(View view) {
+	
 			String ser = SerializeObject.objectToString(activityLibrary);
 			if (ser != null && !ser.equalsIgnoreCase("")) {
 				SerializeObject.WriteSettings(this, ser, "activityLibrary.dat");
@@ -835,12 +859,25 @@ public class MainActivity extends FragmentActivity implements
 				SerializeObject.WriteSettings(this, "", "activityLibrary.dat");
 			}
 
+	}
+	
+	public void addActivity(View view) {
+		index = activityLibrary.size();
+		if (!activityLibrary.contains(tempActivity)) {
+			tempActivity.setType(recordingTab.getTypeSpinnerValue());
+			activityLibrary.add(tempActivity);
+			Toast.makeText(this,
+					"Activity saved. Library size:" + activityLibrary.size(),
+					Toast.LENGTH_SHORT).show();
+
+
 		} else {
 			Toast.makeText(this, "Activity already in the library.",
 					Toast.LENGTH_SHORT).show();
 		}
 
 	}
+	
 	
 	public void saveGNBC(View view) {
 		gnbcIndex = gnbcLibrary.size();
@@ -994,6 +1031,8 @@ public class MainActivity extends FragmentActivity implements
 			e.printStackTrace();
 		}
 	}
+	
+
 
 	protected void writeEntropyData(String result) {
 		recognitionTab.updateStatusText(

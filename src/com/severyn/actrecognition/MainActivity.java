@@ -46,7 +46,10 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.RadioGroup;
+import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,7 +60,7 @@ import com.google.gson.JsonElement;
 
 public class MainActivity extends FragmentActivity implements
 		ActionBar.TabListener, CompoundButton.OnCheckedChangeListener,
-		TextWatcher, OnItemSelectedListener {
+		TextWatcher, OnItemSelectedListener{
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
 	private Sensor mGyro;
@@ -88,8 +91,8 @@ public class MainActivity extends FragmentActivity implements
 	ViewPager mViewPager;
 	private boolean recordingEnabled = false;
 
-	float[] averageNoise = { 0, 0, 0 };
-	float[] averageGNoise = { 0, 0, 0 };
+	double[] averageNoise = { 0, 0, 0 };
+//	float[] averageGNoise = { 0, 0, 0 };
 
 	boolean showfft;
 
@@ -118,11 +121,13 @@ public class MainActivity extends FragmentActivity implements
 	ActRecordingFragment recordingTab;
 	private boolean constantRecordingEnabled=false;
 	private boolean constantSavingEnabled=false;
+	private boolean constantIdentifying=false;
 	
 	private final SensorEventListener mSensorListener = new SensorEventListener() {
 		private int counter = 0;
 		private int cc = 1;
 		private int burstCounter=0;
+		AccActivity tempBurstActivity;
 
 
 		@Override
@@ -135,13 +140,14 @@ public class MainActivity extends FragmentActivity implements
 		public void onSensorChanged(SensorEvent event) {
 
 			if (monitorTab != null) {
-				float x = event.values[0];
-				float y = event.values[1];
-				float z = event.values[2];
+				double x = event.values[0];
+				double y = event.values[1];
+				double z = event.values[2];
 				if (recordingEnabled||constantRecordingEnabled) {
 					recordedData.addX(x);
 					recordedData.addY(y);
 					recordedData.addZ(z);
+					recordingTab.updateProgressBar(recordedData.size());
 				}
 				if (recordedData != null && recordedData.size() > 511) {
 					
@@ -150,37 +156,26 @@ public class MainActivity extends FragmentActivity implements
 						finishRecording();
 					}
 					else if(constantRecordingEnabled){
-						classify(recordedData);
-						toast("classification number: " + cc);
-						cc++;
+						if(constantIdentifying){
+							classify(recordedData);
+							toast("classification number: " + cc);
+							cc++;
+						}
+						
 						if(constantSavingEnabled){
 							burstCounter++;
-							if(burstCounter%2==0&burstCounter<16){
-								AccActivity tempBurstActivity = new AccActivity(recordedData, recordedGData);
-								saveBurstActivity(tempBurstActivity);
+							if(burstCounter%2==0&burstCounter<100){
+								
+								tempBurstActivity = new AccActivity(recordedData, recordedGData);
+								toast("Adding data. Size: " + tempBurstActivity.getData().size() );
+								addBurstActivity(tempBurstActivity);
 							}
 							
 						}
-						recordedData.removeElements(256);
+						recordedData = recordedData.removeHalfOfElements();
 
 					}
 				}
-				
-				
-				
-				
-				// if (recordingEnabled) {
-				// if (recordedData.getxData().size() <= 511) {
-				// recordedData.addX(x);
-				// recordedData.addY(y);
-				// recordedData.addZ(z);
-				// } else {
-				// Log.d("****Accelero****",
-				// "Accelerometer finished recording");
-				// recordedData.setNoise(averageNoise);
-				// finishRecording();
-				// }
-				// }
 
 				monitorTab.updatePlot(monitorPlotData.getxData(), xPlotSeries,
 						monitorTab.xPlot, x);
@@ -190,7 +185,7 @@ public class MainActivity extends FragmentActivity implements
 						monitorTab.zPlot, z);
 
 				if (monitorPlotData.getxData().size() == 119) {
-					float[] newAverageNoise = {
+					double[] newAverageNoise = {
 							FeatureExtractors.average(monitorPlotData
 									.getxData()),
 							FeatureExtractors.average(monitorPlotData
@@ -220,78 +215,78 @@ public class MainActivity extends FragmentActivity implements
 
 
 	};
-	private final SensorEventListener mGSensorListener = new SensorEventListener() {
-		private int counter = 0;
-
-		@Override
-		public void onAccuracyChanged(Sensor sensor, int accuracy) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void onSensorChanged(SensorEvent event) {
-
-			if (monitorTab != null) {
-				float x = event.values[0];
-				float y = event.values[1];
-				float z = event.values[2];
-
-				if (recordingEnabled && recordedGData != null
-						&& recordedGData.size() < 512) {
-					recordedGData.addX(x);
-					recordedGData.addY(y);
-					recordedGData.addZ(z);
-				}
-
-				// if (recordingEnabled) {
-				// if (recordedGData.getxData().size() <= 511) {
-				// recordedGData.addX(x);
-				// recordedGData.addY(y);
-				// recordedGData.addZ(z);
-				// } else {
-				// Log.d("****Gyro****", "Gyro finished recording");
-				// recordedGData.setNoise(averageGNoise);
-				// finishRecording();
-				// }
-				// }
-
-				monitorTab.updatePlot(monitorPlotData.getxData(), xPlotSeries,
-						monitorTab.xPlot, x);
-				monitorTab.updatePlot(monitorPlotData.getyData(), yPlotSeries,
-						monitorTab.yPlot, y);
-				monitorTab.updatePlot(monitorPlotData.getzData(), zPlotSeries,
-						monitorTab.zPlot, z);
-
-				if (monitorPlotData.getxData().size() == 119) {
-					float[] newAverageNoise = {
-							FeatureExtractors.average(monitorPlotData
-									.getxData()),
-							FeatureExtractors.average(monitorPlotData
-									.getyData()),
-							FeatureExtractors.average(monitorPlotData
-									.getzData()) };
-					averageGNoise = newAverageNoise;
-				}
-
-				if (counter % 25 == 0) {
-					((TextView) findViewById(R.id.xAccPlotLabel))
-							.setText("x-plane acc. Error: " + averageGNoise[0]
-									+ " Current value: " + x);
-					((TextView) findViewById(R.id.yAccPlotLabel))
-							.setText("y-plane acc. Error: " + averageGNoise[1]
-									+ " Current value: " + y);
-					((TextView) findViewById(R.id.zAccPlotLabel))
-							.setText("z-plane acc. Error: " + averageGNoise[2]
-									+ " Current value: " + z);
-					counter = 1;
-				}
-
-				counter++;
-			}
-		}
-
-	};
+//	private final SensorEventListener mGSensorListener = new SensorEventListener() {
+//		private int counter = 0;
+//
+//		@Override
+//		public void onAccuracyChanged(Sensor sensor, int accuracy) {
+//			// TODO Auto-generated method stub
+//
+//		}
+//
+//		@Override
+//		public void onSensorChanged(SensorEvent event) {
+//
+//			if (monitorTab != null) {
+//				float x = event.values[0];
+//				float y = event.values[1];
+//				float z = event.values[2];
+//
+//				if (recordingEnabled && recordedGData != null
+//						&& recordedGData.size() < 512) {
+//					recordedGData.addX(x);
+//					recordedGData.addY(y);
+//					recordedGData.addZ(z);
+//				}
+//
+//				// if (recordingEnabled) {
+//				// if (recordedGData.getxData().size() <= 511) {
+//				// recordedGData.addX(x);
+//				// recordedGData.addY(y);
+//				// recordedGData.addZ(z);
+//				// } else {
+//				// Log.d("****Gyro****", "Gyro finished recording");
+//				// recordedGData.setNoise(averageGNoise);
+//				// finishRecording();
+//				// }
+//				// }
+//
+//				monitorTab.updatePlot(monitorPlotData.getxData(), xPlotSeries,
+//						monitorTab.xPlot, x);
+//				monitorTab.updatePlot(monitorPlotData.getyData(), yPlotSeries,
+//						monitorTab.yPlot, y);
+//				monitorTab.updatePlot(monitorPlotData.getzData(), zPlotSeries,
+//						monitorTab.zPlot, z);
+//
+//				if (monitorPlotData.getxData().size() == 119) {
+//					double[] newAverageNoise = {
+//							FeatureExtractors.average(monitorPlotData
+//									.getxData()),
+//							FeatureExtractors.average(monitorPlotData
+//									.getyData()),
+//							FeatureExtractors.average(monitorPlotData
+//									.getzData()) };
+//					averageGNoise = newAverageNoise;
+//				}
+//
+//				if (counter % 25 == 0) {
+//					((TextView) findViewById(R.id.xAccPlotLabel))
+//							.setText("x-plane acc. Error: " + averageGNoise[0]
+//									+ " Current value: " + x);
+//					((TextView) findViewById(R.id.yAccPlotLabel))
+//							.setText("y-plane acc. Error: " + averageGNoise[1]
+//									+ " Current value: " + y);
+//					((TextView) findViewById(R.id.zAccPlotLabel))
+//							.setText("z-plane acc. Error: " + averageGNoise[2]
+//									+ " Current value: " + z);
+//					counter = 1;
+//				}
+//
+//				counter++;
+//			}
+//		}
+//
+//	};
 
 	private boolean spinnerFirstInvoke = true;
 	private AccData recordedGData;
@@ -401,10 +396,10 @@ public class MainActivity extends FragmentActivity implements
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
-				.permitAll().build();
-
-		StrictMode.setThreadPolicy(policy);
+//		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
+//				.permitAll().build();
+//
+//		StrictMode.setThreadPolicy(policy);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
@@ -471,6 +466,7 @@ public class MainActivity extends FragmentActivity implements
 		// mGyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 		// mSensorManager.registerListener(mGSensorListener, mGyro,
 		// sensorDelayMicrosecondsG);
+		
 	}
 
 	@Override
@@ -538,9 +534,11 @@ public class MainActivity extends FragmentActivity implements
 			recordedGData = new AccData();
 			constantRecordingEnabled=true;
 			constantSavingEnabled=recordingTab.getConstantSavingCheckBoxValue();
-			toast("Starting constant recording. Constant saving: " + constantRecordingEnabled);
+			constantIdentifying=recordingTab.getConstantIdentificationCheckboxValue();
+			toast("Starting constant recording. Constant: saving: " + constantSavingEnabled + " /identifying: " + constantIdentifying);
 		}
-		
+		recordingTab.toggleCheckboxes();
+
 //		
 //		if (!recordingEnabled) {
 //			recordedData = new AccData();
@@ -569,8 +567,9 @@ public class MainActivity extends FragmentActivity implements
 			activityLibrary.clear();
 			toast("Local libary purged. activityLibrary size:" + activityLibrary.size());
 			purgeCounter=0;
+		}else{
+			toast("Press " + (3-purgeCounter) + " more times to purge the library");
 		}
-		toast("Press " + (4-purgeCounter) + " more times to purge the library");
 	}
 
 	public void send(View view) {
@@ -770,7 +769,6 @@ public class MainActivity extends FragmentActivity implements
 	            DecimalFormat df = new DecimalFormat("000E00");
 
 				if (d != 0.0) {
-//					txt += ("\n[" + i + "] " + String.format("%.5f", Math.exp(array.get(i)))+ " log:" + String.format("%.5f", array.get(i)));
 					txt += ("\n[" + i + "] " +df.format( Math.exp(array.get(i))) + " log:" + String.format("%.5f", array.get(i)));
 
 				}
@@ -835,7 +833,7 @@ public class MainActivity extends FragmentActivity implements
 				}
 		
 	}
-	private void saveBurstActivity(AccActivity tempBurstActivity) {
+	public void addBurstActivity(AccActivity tempBurstActivity) {
 		index = activityLibrary.size();
 		if (!activityLibrary.contains(tempBurstActivity)) {
 			tempBurstActivity.setType(9);
@@ -900,6 +898,7 @@ public class MainActivity extends FragmentActivity implements
 
 	@Override
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//		toast("checkedchanged" + isChecked);
 		if (isChecked) {
 			showfft = true;
 		} else {
@@ -924,7 +923,6 @@ public class MainActivity extends FragmentActivity implements
 	public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
 		if (arg0.length() > 0) {
 			tempActivity.setRate(Integer.parseInt(arg0.toString()));
-			tempActivity.recalculate();
 			recordingTab.updateActivityDetailText(tempActivity, tempFeat);
 			Toast.makeText(this, "Rate changed to:" + tempActivity.getRate(),
 					Toast.LENGTH_SHORT).show();
@@ -1099,4 +1097,6 @@ public class MainActivity extends FragmentActivity implements
 	public void getEntropyData(View view) {
 		loadEntropyFromCloud();
 	}
+
+
 }

@@ -1,10 +1,13 @@
 package com.severyn.actrecognition;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import com.androidplot.xy.BoundaryMode;
 import com.androidplot.xy.LineAndPointFormatter;
 import com.androidplot.xy.SimpleXYSeries;
 import com.androidplot.xy.XYPlot;
+import com.androidplot.Plot;
 import com.androidplot.xy.XYStepMode;
 import com.example.actrecognition.R;
 
@@ -17,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -31,9 +35,9 @@ public class ActRecordingFragment extends Fragment {
 	public void drawData(AccData data, int lowerBound, int upperBound,
 			int upperXBound) {
 
-		ArrayList<Float> xDataRecording = data.getxData();
-		ArrayList<Float> yDataRecording = data.getyData();
-		ArrayList<Float> zDataRecording = data.getzData();
+		List<Double> xDataRecording = data.getxData();
+		List<Double> yDataRecording = data.getyData();
+		List<Double> zDataRecording = data.getzData();
 
 		xPlotSeries.setModel(xDataRecording,
 				SimpleXYSeries.ArrayFormat.Y_VALS_ONLY);
@@ -79,11 +83,17 @@ public class ActRecordingFragment extends Fragment {
 	}
 
 	public boolean getConstantSavingCheckBoxValue() {
-		CheckBox constantSavingCheckBox = (CheckBox) this.getView().findViewById(
-				R.id.constantRecordingSaveCheckBox);
+		CheckBox constantSavingCheckBox = (CheckBox) this.getView()
+				.findViewById(R.id.constantRecordingSaveCheckBox);
 		return constantSavingCheckBox.isChecked();
 	}
-	
+
+	public boolean getConstantIdentificationCheckboxValue() {
+		CheckBox constantIdentificationCheckbox = (CheckBox) this.getView()
+				.findViewById(R.id.constantIdentificationCheckbox);
+		return constantIdentificationCheckbox.isChecked();
+	}
+
 	public int getdisplaySpinnerValue() {
 		return ((Spinner) getView().findViewById(R.id.displaySpinner))
 				.getSelectedItemPosition();
@@ -101,10 +111,10 @@ public class ActRecordingFragment extends Fragment {
 		return null;
 
 	}
-	
-	public boolean getRecordingToggleStatus(){
-		ToggleButton recordingToggle = (ToggleButton) this.getView().findViewById(
-				R.id.recordingToggle);
+
+	public boolean getRecordingToggleStatus() {
+		ToggleButton recordingToggle = (ToggleButton) this.getView()
+				.findViewById(R.id.recordingToggle);
 		return recordingToggle.isChecked();
 	}
 
@@ -126,11 +136,18 @@ public class ActRecordingFragment extends Fragment {
 		xyzPlot.setRangeLabel("Acceleration");
 		xyzPlot.getRangeLabelWidget().pack();
 		xyzPlot.setTitle("Recording");
+		xyzPlot.setBorderStyle(Plot.BorderStyle.SQUARE, null, null);
 
 		xyzPlot.redraw();
 
-//		EditText rateText = (EditText) rootView.findViewById(R.id.rateText);
-//		rateText.addTextChangedListener((MainActivity) getActivity());
+		// EditText rateText = (EditText) rootView.findViewById(R.id.rateText);
+		// rateText.addTextChangedListener((MainActivity) getActivity());
+
+		// CheckBox constantSavingCheckBox = (CheckBox)
+		// this.getView().findViewById(
+		// R.id.constantRecordingSaveCheckBox);
+		// constantSavingCheckBox.setOnCheckedChangeListener((MainActivity)
+		// getActivity());
 
 		Spinner typeSpinner = (Spinner) rootView.findViewById(R.id.typeSpinner);
 		typeSpinner.setOnItemSelectedListener((MainActivity) getActivity());
@@ -142,40 +159,65 @@ public class ActRecordingFragment extends Fragment {
 		return rootView;
 	}
 
-	private String printHistogram(int[] array){
+	public void toggleCheckboxes() {
+		CheckBox constantSavingCheckBox = (CheckBox) this.getView()
+				.findViewById(R.id.constantRecordingSaveCheckBox);
+		CheckBox constantIdentificationCheckbox = (CheckBox) this.getView()
+				.findViewById(R.id.constantIdentificationCheckbox);
+
+		constantSavingCheckBox.setEnabled(!constantSavingCheckBox.isEnabled());
+		constantIdentificationCheckbox
+				.setEnabled(!constantIdentificationCheckbox.isEnabled());
+	}
+
+	private String printHistogram(int[] array) {
 		String result = "";
-		for(int i : array){
+		for (int i : array) {
 			result += (" | " + i);
 		}
-		result +="|";
+		result += "|";
 		return result;
 	}
-	
-	public String f(Double d){
+
+	public String f(Double d) {
 		return String.format("%.3f", d);
 	}
-	
+
+	public void updateProgressBar(int i) {
+		ProgressBar progressBar = (ProgressBar) this.getView().findViewById(
+				R.id.recordingProgressBar);
+		progressBar.setProgress(i);
+	}
+
 	public void updateActivityDetailText(AccActivity activity, AccFeat accFeat) {
-		TextView accActivityDetailText = (TextView) this.getView().findViewById(
-				R.id.accActivityDetailText);
-		accActivityDetailText
-				.setText("Type: " + (activity.getType())
-//						+ "\nAccFeat Type: " + FeatureExtractors2.getType(accFeat.getType())
-						+ "\nAcc data points: " + activity.getData().getxData().size() + " Gyro data points: " + activity.getGyroData().getxData().size()
-						+ "\nMean: X: " + f(accFeat.getMean(0)) + " Y: " + f(accFeat.getMean(1)) + " Z: " + f(accFeat.getMean(2))
-						+ "\nStandard deviation: X: " + f(accFeat.getSd(0)) + " Y: " + f(accFeat.getSd(1)) + " Z: " + f(accFeat.getSd(2))
-						+ "\nAverage peak distance: X: " + f(accFeat.getAvPeakDistance(0)) + " Y: " + f(accFeat.getAvPeakDistance(1)) + " Z: " + f(accFeat.getAvPeakDistance(2))
-						+ "\nZero crossing count: X: " + accFeat.getCrossingCount(0) + " Y: " + accFeat.getCrossingCount(1) + " Z: " + accFeat.getCrossingCount(2)
-						+ "\nAverage resultant acceleration: " + f(accFeat.getResultantAcc())
-						+ "\nAcceleration histograms:"
-						+ "\n    X: " + printHistogram(accFeat.getHistogramArray(0))
-						+ "\n    Y: " + printHistogram(accFeat.getHistogramArray(1))
-						+ "\n    Z: " + printHistogram(accFeat.getHistogramArray(2))
-						+ "\nFFT histograms:"
-						+ "\n    X: " + printHistogram(accFeat.getFFTHistogramArray(0))
-						+ "\n    Y: " + printHistogram(accFeat.getFFTHistogramArray(1))
-						+ "\n    Z: " + printHistogram(accFeat.getFFTHistogramArray(2))
-						);
+		TextView accActivityDetailText = (TextView) this.getView()
+				.findViewById(R.id.accActivityDetailText);
+		accActivityDetailText.setText("Type: "
+				+ (activity.getType())
+				// + "\nAccFeat Type: " +
+				// FeatureExtractors2.getType(accFeat.getType())
+				+ "\nAcc data points: " + activity.getData().getxData().size()
+				+ " Gyro data points: "
+				+ activity.getGyroData().getxData().size() + "\nMean: X: "
+				+ f(accFeat.getMean(0)) + " Y: " + f(accFeat.getMean(1))
+				+ " Z: " + f(accFeat.getMean(2)) + "\nStandard deviation: X: "
+				+ f(accFeat.getSd(0)) + " Y: " + f(accFeat.getSd(1)) + " Z: "
+				+ f(accFeat.getSd(2)) + "\nAverage peak distance: X: "
+				+ f(accFeat.getAvPeakDistance(0)) + " Y: "
+				+ f(accFeat.getAvPeakDistance(1)) + " Z: "
+				+ f(accFeat.getAvPeakDistance(2))
+				+ "\nZero crossing count: X: " + accFeat.getCrossingCount(0)
+				+ " Y: " + accFeat.getCrossingCount(1) + " Z: "
+				+ accFeat.getCrossingCount(2)
+				+ "\nAverage resultant acceleration: "
+				+ f(accFeat.getResultantAcc()) + "\nAcceleration histograms:"
+				+ "\n    X: " + printHistogram(accFeat.getHistogramArray(0))
+				+ "\n    Y: " + printHistogram(accFeat.getHistogramArray(1))
+				+ "\n    Z: " + printHistogram(accFeat.getHistogramArray(2))
+				+ "\nFFT histograms:" + "\n    X: "
+				+ printHistogram(accFeat.getFFTHistogramArray(0)) + "\n    Y: "
+				+ printHistogram(accFeat.getFFTHistogramArray(1)) + "\n    Z: "
+				+ printHistogram(accFeat.getFFTHistogramArray(2)));
 
 	}
 }

@@ -3,32 +3,33 @@ package com.severyn.actrecognition;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class AccData implements Serializable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 4027578149606001414L;
-	private ArrayList<Float> xData;
-	private ArrayList<Float> yData;
-	private ArrayList<Float> zData;
+	private List<Double> xData;
+	private List<Double> yData;
+	private List<Double> zData;
 //	private float[] averageNoise;
 
 	public AccData() {
-		xData = new ArrayList<Float>();
-		yData = new ArrayList<Float>();
-		zData = new ArrayList<Float>();
+		xData = new ArrayList<Double>();
+		yData = new ArrayList<Double>();
+		zData = new ArrayList<Double>();
 	}
 	
-	public float getXMiddleValue(){
+	public double getXMiddleValue(){
 		return (Collections.max(xData) + Collections.min(xData))/2;
 	}
 	
-	public float getYMiddleValue(){
+	public double getYMiddleValue(){
 		return (Collections.max(yData) + Collections.min(yData))/2;
 	}
 	
-	public float getZMiddleValue(){
+	public double getZMiddleValue(){
 		return (Collections.max(zData) + Collections.min(zData))/2;
 	}
 	
@@ -41,58 +42,36 @@ public class AccData implements Serializable {
 //
 //	}
 
-	public AccData(ArrayList<Float> xData, ArrayList<Float> yData,
-			ArrayList<Float> zData) {
+	public AccData(List<Double> xData, List<Double> yData,
+			List<Double> zData) {
 		this.xData = xData;
 		this.yData = yData;
 		this.zData = zData;
 	}
 
-	public ArrayList<Float> getDenoisedxData() {
-		ArrayList<Float> clonexData = (ArrayList<Float>) xData.clone();
-		for (int i = 0; i < clonexData.size(); i++) {
-	//		clonexData.set(i, clonexData.get(i) - averageNoise[0]);
-		}
-		return clonexData;
-	}
 
-	public ArrayList<Float> getDenoisedyData() {
-		ArrayList<Float> clonexData = (ArrayList<Float>) yData.clone();
-		for (int i = 0; i < clonexData.size(); i++) {
-	//		clonexData.set(i, clonexData.get(i) - averageNoise[1]);
-		}
-		return clonexData;
-	}
 	
-	public ArrayList<Float> getDenoisedzData() {
-		ArrayList<Float> clonexData = (ArrayList<Float>) zData.clone();
-		for (int i = 0; i < clonexData.size(); i++) {
-	//		clonexData.set(i, clonexData.get(i) - averageNoise[2]);
-		}
-		return clonexData;
-	}
-	
-	public ArrayList<Float> getxData() {
+	public List<Double> getxData() {
 		return xData;
 	}
 
-	public void setxData(ArrayList<Float> xData) {
+	public void setxData(List<Double> xData) {
 		this.xData = xData;
 	}
 
-	public ArrayList<Float> getyData() {
+	public List<Double> getyData() {
 		return yData;
 	}
 
-	public void setyData(ArrayList<Float> yData) {
+	public void setyData(List<Double> yData) {
 		this.yData = yData;
 	}
 
-	public ArrayList<Float> getzData() {
+	public List<Double> getzData() {
 		return zData;
 	}
 
-	public void setzData(ArrayList<Float> zData) {
+	public void setzData(List<Double> zData) {
 		this.zData = zData;
 	}
 
@@ -102,24 +81,24 @@ public class AccData implements Serializable {
 		zData.clear();
 	}
 
-	public void addX(float x) {
+	public void addX(double x) {
 		xData.add(x);
 	}
 
-	public void addZ(float z) {
+	public void addZ(double z) {
 		zData.add(z);
 	}
 
-	public void addY(float y) {
+	public void addY(double y) {
 		yData.add(y);
 	}
 	
-	public void removeElements(int n){
-		for(int i=0;i<n;i++){
-			xData.remove(0);
-			yData.remove(0);
-			zData.remove(0);
-		}
+	public AccData removeHalfOfElements(){
+		List<Double> xDatar = this.xData.subList(256, xData.size());
+		List<Double> yDatar = this.yData.subList(256, xData.size());
+		List<Double> zDatar = this.zData.subList(256, xData.size());
+		AccData result = new AccData(xDatar, yDatar, zDatar);
+		return result;
 	}
 
 //	public void setNoise(float[] averageNoise) {

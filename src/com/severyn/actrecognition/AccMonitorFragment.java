@@ -1,6 +1,6 @@
 package com.severyn.actrecognition;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -25,8 +25,8 @@ public class AccMonitorFragment extends Fragment {
 	XYPlot yPlot;
 	XYPlot zPlot;
 
-	public void updatePlot(ArrayList<Float> dataHistory, SimpleXYSeries series,
-			XYPlot plot, Float value) {
+	public void updatePlot(List<Double> dataHistory, SimpleXYSeries series,
+			XYPlot plot, Double value) {
 		if (dataHistory.size() < 120) {
 			dataHistory.add(value);
 		} else {

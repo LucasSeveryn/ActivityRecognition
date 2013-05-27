@@ -55,11 +55,11 @@ public class AccActivity implements Serializable {
 //				Data.getNoise()[2]);
 //	}
 
-	public void calculateBinnedDistribution() {
-		binX = FeatureExtractors.binnedDistribution(Data.getxData());
-		binY = FeatureExtractors.binnedDistribution(Data.getyData());
-		binZ = FeatureExtractors.binnedDistribution(Data.getzData());
-	}
+//	public void calculateBinnedDistribution() {
+//		binX = FeatureExtractors.binnedDistribution(Data.getxData());
+//		binY = FeatureExtractors.binnedDistribution(Data.getyData());
+//		binZ = FeatureExtractors.binnedDistribution(Data.getzData());
+//	}
 
 	public float getAvResAcceleration() {
 		return avResAcc;
@@ -73,10 +73,7 @@ public class AccActivity implements Serializable {
 		peakDistances = newPeakDistances;
 	}
 
-	private void calculateAvResAcceleration() {
-		avResAcc = FeatureExtractors.averageResultantAcceleration(
-				Data.getxData(), Data.getyData(), Data.getzData());
-	}
+
 
 	public AccActivity(AccData recordedData, AccData recordedGData) {
 		Data = recordedData;
@@ -85,22 +82,17 @@ public class AccActivity implements Serializable {
 //				Data.getDenoisedxData(), 1), FeatureExtractors.iterativeFFT(
 //				Data.getDenoisedyData(), 1), FeatureExtractors.iterativeFFT(
 //				Data.getDenoisedzData(), 1));
-		lpfData = new AccData(FeatureExtractors.lowPassFilter(Data.getxData(),
-				alpha),
-				FeatureExtractors.lowPassFilter(Data.getyData(), alpha),
-				FeatureExtractors.lowPassFilter(Data.getzData(), alpha));
-		hpfData = new AccData(FeatureExtractors.highPassFilter(Data.getxData(),
-				alpha),
-				FeatureExtractors.highPassFilter(Data.getyData(), alpha),
-				FeatureExtractors.highPassFilter(Data.getzData(), alpha));
-		bpfData = new AccData(FeatureExtractors.highPassFilter(
-				lpfData.getxData(), alpha), FeatureExtractors.highPassFilter(
-				lpfData.getyData(), alpha), FeatureExtractors.highPassFilter(
-				lpfData.getzData(), alpha));
-		calculateMaximumDisplacements();
-		calculateZeroCrossingCounts();
-		calculateStandardDeviation();
-		calculateAvResAcceleration();
+		lpfData = new AccData(FeatureExtractors2.lowPassFilter(Data.getxData()),
+				FeatureExtractors2.lowPassFilter(Data.getyData()),
+				FeatureExtractors2.lowPassFilter(Data.getzData()));
+		hpfData = new AccData(FeatureExtractors2.highPassFilter(Data.getxData()),
+				FeatureExtractors2.highPassFilter(Data.getyData()),
+				FeatureExtractors2.highPassFilter(Data.getzData()));
+		bpfData = new AccData(FeatureExtractors2.highPassFilter(
+				lpfData.getxData()), FeatureExtractors2.highPassFilter(
+				lpfData.getyData()), FeatureExtractors2.highPassFilter(
+				lpfData.getzData()));
+
 //		calculatePeakIndices();
 //		calculateAvPeakDistances();
 //		calculateBinnedDistribution();
@@ -110,42 +102,6 @@ public class AccActivity implements Serializable {
 		return sd;
 	}
 
-	private void calculateStandardDeviation() {
-		float[] sd = { FeatureExtractors.standardDeviation(Data.getxData()),
-				FeatureExtractors.standardDeviation(Data.getyData()),
-				FeatureExtractors.standardDeviation(Data.getzData()) };
-		this.sd = sd;
-	}
-
-	private void calculateMaximumDisplacements() {
-		float[] minMax = { Collections.max(Data.getxData()),
-				Collections.min(Data.getxData()),
-				Collections.max(Data.getyData()),
-				Collections.min(Data.getyData()),
-				Collections.max(Data.getzData()),
-				Collections.min(Data.getzData()) };
-		this.minMax = minMax;
-	}
-
-	public void recalculate() {
-		fData = new AccData(FeatureExtractors.iterativeFFT(
-				Data.getDenoisedxData(), 1), FeatureExtractors.iterativeFFT(
-				Data.getDenoisedyData(), 1), FeatureExtractors.iterativeFFT(
-				Data.getDenoisedzData(), 1));
-		calculateMaximumDisplacements();
-		calculateZeroCrossingCounts();
-	}
-
-	private void calculateZeroCrossingCounts() {
-		int[] crossings = {
-				FeatureExtractors.zeroCrossingCount(bpfData.getxData(), 0,
-						spread, rate),
-				FeatureExtractors.zeroCrossingCount(bpfData.getyData(), 0,
-						spread, rate),
-				FeatureExtractors.zeroCrossingCount(bpfData.getzData(), 0,
-						spread, rate) };
-		this.crossings = crossings;
-	}
 
 	public int[] getCrossings() {
 		return crossings;

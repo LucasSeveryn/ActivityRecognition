@@ -3,6 +3,7 @@ package com.severyn.actrecognition;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.TreeSet;
 
 import org.apache.commons.math3.stat.descriptive.*;
@@ -231,16 +232,16 @@ public final class FeatureExtractors {
 
 	}
 
-	public static float average(ArrayList<Float> v) {
-		Float sum = 0f;
-		for (Float number : v) {
+	public static double average(List<Double> v) {
+		Double sum = 0.0;
+		for (Double number : v) {
 			sum += number;
 		}
 		return sum / v.size();
 	}
 
-	public static ArrayList<Float> lowPassFilter(ArrayList<Float> v, float alpha) {
-		ArrayList<Float> output = new ArrayList<Float>();
+	public static ArrayList<Double> lowPassFilter(ArrayList<Double> v, float alpha) {
+		ArrayList<Double> output = new ArrayList<Double>();
 
 		output.add(v.get(0));
 		for (int i = 1; i < v.size(); i++) {

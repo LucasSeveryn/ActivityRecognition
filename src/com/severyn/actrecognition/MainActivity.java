@@ -63,7 +63,6 @@ public class MainActivity extends FragmentActivity implements
 		TextWatcher, OnItemSelectedListener {
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
-	// private Sensor mGyro;
 	private GaussianNaiveBayesClassifier ng;
 	private String apiKey = "Ix7evhXTw3uwk1gDHCvzz-uMNEhOy8ZN";
 	private boolean entropyDataLoaded = false;
@@ -72,9 +71,6 @@ public class MainActivity extends FragmentActivity implements
 	int sensorDelayMicroseconds = (int) (Math
 			.round(((1 / this.samplingRate) * 1000000.0)));
 
-	// private double samplingRateG = 40; // Hz
-	// int sensorDelayMicrosecondsG = (int) (Math
-	// .round(((1 / this.samplingRateG) * 1000000.0)));
 
 	/**
 	 * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -227,79 +223,7 @@ public class MainActivity extends FragmentActivity implements
 		}
 
 	};
-	// private final SensorEventListener mGSensorListener = new
-	// SensorEventListener() {
-	// private int counter = 0;
-	//
-	// @Override
-	// public void onAccuracyChanged(Sensor sensor, int accuracy) {
-	// // TODO Auto-generated method stub
-	//
-	// }
-	//
-	// @Override
-	// public void onSensorChanged(SensorEvent event) {
-	//
-	// if (monitorTab != null) {
-	// float x = event.values[0];
-	// float y = event.values[1];
-	// float z = event.values[2];
-	//
-	// if (recordingEnabled && recordedGData != null
-	// && recordedGData.size() < 512) {
-	// recordedGData.addX(x);
-	// recordedGData.addY(y);
-	// recordedGData.addZ(z);
-	// }
-	//
-	// // if (recordingEnabled) {
-	// // if (recordedGData.getxData().size() <= 511) {
-	// // recordedGData.addX(x);
-	// // recordedGData.addY(y);
-	// // recordedGData.addZ(z);
-	// // } else {
-	// // Log.d("****Gyro****", "Gyro finished recording");
-	// // recordedGData.setNoise(averageGNoise);
-	// // finishRecording();
-	// // }
-	// // }
-	//
-	// monitorTab.updatePlot(monitorPlotData.getxData(), xPlotSeries,
-	// monitorTab.xPlot, x);
-	// monitorTab.updatePlot(monitorPlotData.getyData(), yPlotSeries,
-	// monitorTab.yPlot, y);
-	// monitorTab.updatePlot(monitorPlotData.getzData(), zPlotSeries,
-	// monitorTab.zPlot, z);
-	//
-	// if (monitorPlotData.getxData().size() == 119) {
-	// double[] newAverageNoise = {
-	// FeatureExtractors.average(monitorPlotData
-	// .getxData()),
-	// FeatureExtractors.average(monitorPlotData
-	// .getyData()),
-	// FeatureExtractors.average(monitorPlotData
-	// .getzData()) };
-	// averageGNoise = newAverageNoise;
-	// }
-	//
-	// if (counter % 25 == 0) {
-	// ((TextView) findViewById(R.id.xAccPlotLabel))
-	// .setText("x-plane acc. Error: " + averageGNoise[0]
-	// + " Current value: " + x);
-	// ((TextView) findViewById(R.id.yAccPlotLabel))
-	// .setText("y-plane acc. Error: " + averageGNoise[1]
-	// + " Current value: " + y);
-	// ((TextView) findViewById(R.id.zAccPlotLabel))
-	// .setText("z-plane acc. Error: " + averageGNoise[2]
-	// + " Current value: " + z);
-	// counter = 1;
-	// }
-	//
-	// counter++;
-	// }
-	// }
-	//
-	// };
+	
 
 	private boolean spinnerFirstInvoke = true;
 	private AccData recordedGData;
@@ -428,10 +352,10 @@ public class MainActivity extends FragmentActivity implements
 				Toast.makeText(this, "Size: " + activityLibrary.size(),
 						Toast.LENGTH_SHORT).show();
 				tempActivity = activityLibrary.get(activityLibrary.size() - 1);
-				recordingTab.setTypeCombobox(tempActivity.type);
+//				recordingTab.setTypeCombobox(tempActivity.type);
 				tempFeat = FeatureExtractors2.calculateFeatures(tempActivity
 						.getData());
-				index = activityLibrary.size() - 1;
+				index = activityLibrary.size() ;
 			}
 		}
 
@@ -1119,6 +1043,14 @@ public class MainActivity extends FragmentActivity implements
 
 	public void getEntropyData(View view) {
 		loadEntropyFromCloud();
+	}
+
+	public AccActivity getTempActivity() {
+		return tempActivity;
+	}
+
+	public AccFeat getTempFeat() {
+		return tempFeat;
 	}
 
 }

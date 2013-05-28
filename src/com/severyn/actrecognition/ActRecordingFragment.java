@@ -30,6 +30,54 @@ public class ActRecordingFragment extends Fragment {
 	private SimpleXYSeries yPlotSeries = new SimpleXYSeries("y acceleration");
 	private SimpleXYSeries zPlotSeries = new SimpleXYSeries("z acceleration");
 	XYPlot xyzPlot;
+	View rootView;
+
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		 rootView = inflater.inflate(R.layout.act_recording, container,
+				false);
+	
+		xyzPlot = (XYPlot) rootView.findViewById(R.id.xyzPlot);
+		((MainActivity) getActivity()).setTabFragment(2, getTag());
+	
+		xyzPlot.setRangeBoundaries(-12, 15, BoundaryMode.FIXED);
+		xyzPlot.setRangeStep(XYStepMode.INCREMENT_BY_VAL, 1);
+		xyzPlot.setDomainStep(XYStepMode.INCREMENT_BY_VAL, 50);
+		xyzPlot.setDomainBoundaries(0, 512, BoundaryMode.FIXED);
+		xyzPlot.setTicksPerRangeLabel(1);
+		xyzPlot.setDomainLabel("Time");
+		xyzPlot.getDomainLabelWidget().pack();
+		xyzPlot.setRangeLabel("Acceleration");
+		xyzPlot.getRangeLabelWidget().pack();
+		xyzPlot.setTitle("Recording");
+		xyzPlot.setBorderStyle(Plot.BorderStyle.SQUARE, null, null);
+	
+		xyzPlot.redraw();
+	
+		Spinner typeSpinner = (Spinner) rootView.findViewById(R.id.typeSpinner);
+		typeSpinner.setOnItemSelectedListener((MainActivity) getActivity());
+		
+		TextView accActivityDetailText = (TextView) rootView.findViewById(R.id.accActDetailText);
+	
+		Spinner displaySpinner = (Spinner) rootView
+				.findViewById(R.id.displaySpinner);
+		displaySpinner.setOnItemSelectedListener((MainActivity) getActivity());
+		
+		
+		
+		
+		MainActivity m = (MainActivity) getActivity();
+	
+		
+		
+		if (MainActivity.activityLibrary.size() > 0 && !m.getTempActivity().equals(null) &&  !m.getTempFeat().equals(null)) {
+			typeSpinner.setSelection(m.getTempFeat().getType());
+			this.updateActivityDetailText(m.getTempActivity(), m.getTempFeat());
+			m.drawRecordingGraph();
+		}
+	
+		return rootView;
+	}
 
 	@SuppressWarnings("deprecation")
 	public void drawData(AccData data, int lowerBound, int upperBound,
@@ -118,47 +166,6 @@ public class ActRecordingFragment extends Fragment {
 		return recordingToggle.isChecked();
 	}
 
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.act_recording, container,
-				false);
-
-		xyzPlot = (XYPlot) rootView.findViewById(R.id.xyzPlot);
-		((MainActivity) getActivity()).setTabFragment(2, getTag());
-
-		xyzPlot.setRangeBoundaries(-12, 15, BoundaryMode.FIXED);
-		xyzPlot.setRangeStep(XYStepMode.INCREMENT_BY_VAL, 1);
-		xyzPlot.setDomainStep(XYStepMode.INCREMENT_BY_VAL, 50);
-		xyzPlot.setDomainBoundaries(0, 512, BoundaryMode.FIXED);
-		xyzPlot.setTicksPerRangeLabel(1);
-		xyzPlot.setDomainLabel("Time");
-		xyzPlot.getDomainLabelWidget().pack();
-		xyzPlot.setRangeLabel("Acceleration");
-		xyzPlot.getRangeLabelWidget().pack();
-		xyzPlot.setTitle("Recording");
-		xyzPlot.setBorderStyle(Plot.BorderStyle.SQUARE, null, null);
-
-		xyzPlot.redraw();
-
-		// EditText rateText = (EditText) rootView.findViewById(R.id.rateText);
-		// rateText.addTextChangedListener((MainActivity) getActivity());
-
-		// CheckBox constantSavingCheckBox = (CheckBox)
-		// this.getView().findViewById(
-		// R.id.constantRecordingSaveCheckBox);
-		// constantSavingCheckBox.setOnCheckedChangeListener((MainActivity)
-		// getActivity());
-
-		Spinner typeSpinner = (Spinner) rootView.findViewById(R.id.typeSpinner);
-		typeSpinner.setOnItemSelectedListener((MainActivity) getActivity());
-
-		Spinner displaySpinner = (Spinner) rootView
-				.findViewById(R.id.displaySpinner);
-		displaySpinner.setOnItemSelectedListener((MainActivity) getActivity());
-
-		return rootView;
-	}
-
 	public void toggleCheckboxes() {
 		CheckBox constantSavingCheckBox = (CheckBox) this.getView()
 				.findViewById(R.id.constantRecordingSaveCheckBox);
@@ -189,16 +196,15 @@ public class ActRecordingFragment extends Fragment {
 		progressBar.setProgress(i);
 	}
 
-	public void setTypeCombobox(int i){
-		Spinner typeSpinner = (Spinner) this.getView()
-				.findViewById(R.id.typeSpinner);
+	public void setTypeCombobox(int i) {
+		Spinner typeSpinner = (Spinner) this.getView().findViewById(
+				R.id.typeSpinner);
 		typeSpinner.setSelection(i);
-		
+
 	}
-	
+
 	public void updateActivityDetailText(AccActivity activity, AccFeat accFeat) {
-		TextView accActivityDetailText = (TextView) this.getView()
-				.findViewById(R.id.accActivityDetailText);
+		TextView accActivityDetailText = (TextView) rootView.findViewById(R.id.accActDetailText);
 		accActivityDetailText.setText("Type: "
 				+ (activity.getType())
 				// + "\nAccFeat Type: " +

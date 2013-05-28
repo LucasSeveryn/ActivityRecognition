@@ -5,8 +5,10 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.http.HttpEntity;
@@ -96,7 +98,7 @@ public class MainActivity extends FragmentActivity implements
 
 	int displayType = 0;
 
-	private AccActivity tempActivity;
+	private AccData tempData;
 	private AccFeat tempFeat;
 
 	private int index = 0;
@@ -108,7 +110,7 @@ public class MainActivity extends FragmentActivity implements
 	AccData recordedData;
 	AccData monitorPlotData = new AccData();
 
-	static ArrayList<AccActivity> activityLibrary;
+	static ArrayList<AccData> activityLibrary;
 	static ArrayList<ArrayList<Double>> gnbcLibrary;
 
 	public String f(Double d) {
@@ -126,7 +128,7 @@ public class MainActivity extends FragmentActivity implements
 		private int counter = 0;
 		private int cc = 1;
 		private int burstCounter = 0;
-		AccActivity tempBurstActivity;
+		AccData tempBurstActivity;
 
 		@Override
 		public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -162,18 +164,15 @@ public class MainActivity extends FragmentActivity implements
 						if (constantSavingEnabled) {
 							burstCounter++;
 							if (burstCounter % 2 == 0 & burstCounter < 100) {
-								AccData tempBurstData = new AccData(
+								AccData tempBurstActivityForAdd = new AccData(
 										new ArrayList<Double>(
 												recordedData.getxData()),
 										new ArrayList<Double>(recordedData
 												.getyData()),
 										new ArrayList<Double>(recordedData
-												.getzData()));
-								tempBurstActivity = new AccActivity(
-										tempBurstData, recordedGData);
-								
-								addBurstActivity(tempBurstActivity);
-
+												.getzData()));						
+								addBurstActivity(tempBurstActivityForAdd);
+								tempBurstActivity = new AccData();
 							}
 
 						}
@@ -191,11 +190,11 @@ public class MainActivity extends FragmentActivity implements
 
 				if (monitorPlotData.getxData().size() == 119) {
 					double[] newAverageNoise = {
-							FeatureExtractors.average(monitorPlotData
-									.getxData()),
-							FeatureExtractors.average(monitorPlotData
+							FeatureExtractors2.calculateMean((monitorPlotData
+									.getxData())),
+							FeatureExtractors2.calculateMean(monitorPlotData
 									.getyData()),
-							FeatureExtractors.average(monitorPlotData
+							FeatureExtractors2.calculateMean(monitorPlotData
 									.getzData()) };
 					averageNoise = newAverageNoise;
 				}
@@ -232,12 +231,12 @@ public class MainActivity extends FragmentActivity implements
 		recordingEnabled = false;
 		// recordedData.setNoise(averageNoise);
 		// recordedGData.setNoise(averageGNoise);
-		tempActivity = new AccActivity(recordedData, recordedGData);
-		tempFeat = FeatureExtractors2.calculateFeatures(tempActivity.getData());
+		tempData = recordedData;
+		tempFeat = FeatureExtractors2.calculateFeatures(recordedData);
 		tempFeat.setType(9);
 		recordedData = new AccData();
 		recordedGData = new AccData();
-		recordingTab.updateActivityDetailText(tempActivity, tempFeat);
+		recordingTab.updateActivityDetailText(recordedData, tempFeat);
 		drawRecordingGraph();
 	}
 
@@ -339,20 +338,19 @@ public class MainActivity extends FragmentActivity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		activityLibrary = new ArrayList<AccActivity>();
+		activityLibrary = new ArrayList<AccData>();
 		gnbcLibrary = new ArrayList<ArrayList<Double>>();
 
 		String ser = SerializeObject.ReadSettings(this, "activityLibrary.dat");
 		if (ser != null && !ser.equalsIgnoreCase("")) {
 			Object obj = SerializeObject.stringToObject(ser);
 			if (obj instanceof ArrayList) {
-				activityLibrary = (ArrayList<AccActivity>) obj;
+				activityLibrary = (ArrayList<AccData>) obj;
 				Toast.makeText(this, "Size: " + activityLibrary.size(),
 						Toast.LENGTH_SHORT).show();
-				tempActivity = activityLibrary.get(activityLibrary.size() - 1);
-//				recordingTab.setTypeCombobox(tempActivity.type);
-				tempFeat = FeatureExtractors2.calculateFeatures(tempActivity
-						.getData());
+				tempData = activityLibrary.get(activityLibrary.size() - 1);
+//				recordingTab.setTypeCombobox(tempData.type);
+				tempFeat = FeatureExtractors2.calculateFeatures(tempData);
 				index = activityLibrary.size()-1;
 			}
 		}
@@ -529,12 +527,12 @@ public class MainActivity extends FragmentActivity implements
 			// StringEntity entity = new StringEntity(TestApp.toString());
 			Gson gson = new Gson();
 			Gson gson2 = new Gson();
-			JsonElement gyroReadings = gson.toJsonTree(tempActivity
-					.getGyroData());
-			JsonElement jsonElement = gson.toJsonTree(tempActivity.getData());
-			jsonElement.getAsJsonObject().add("gyro", gyroReadings);
+//			JsonElement gyroReadings = gson.toJsonTree(tempData
+//					.getGyroData());
+			JsonElement jsonElement = gson.toJsonTree(tempData);
+//			jsonElement.getAsJsonObject().add("gyro", gyroReadings);
 			jsonElement.getAsJsonObject()
-					.addProperty("type", tempActivity.type);
+					.addProperty("type", tempData.getType());
 
 			String json = gson.toJson(jsonElement);
 			StringEntity entity = new StringEntity(json);
@@ -593,12 +591,11 @@ public class MainActivity extends FragmentActivity implements
 
 	public void nextAccActivity(View view) {
 		if (index + 1 < activityLibrary.size()) {
-			tempActivity = activityLibrary.get(index + 1);
-			tempFeat = FeatureExtractors2.calculateFeatures(tempActivity
-					.getData());
-			tempFeat.setType(tempActivity.type);
-			recordingTab.setTypeCombobox(tempActivity.type);
-			recordingTab.updateActivityDetailText(tempActivity, tempFeat);
+			tempData = activityLibrary.get(index + 1);
+			tempFeat = FeatureExtractors2.calculateFeatures(tempData);
+			tempFeat.setType(tempData.getType());
+			recordingTab.setTypeCombobox(tempData.getType());
+			recordingTab.updateActivityDetailText(tempData, tempFeat);
 			drawRecordingGraph();
 			index++;
 			Toast.makeText(this, "Activity #" + index + " selected",
@@ -619,58 +616,50 @@ public class MainActivity extends FragmentActivity implements
 
 	}
 
-	public void drawRecognitionGraph() {
-		switch (displayType) {
-		case 0:
-			recordingTab.drawData(tempActivity.getData(), -12, 15, 512);
-			break;
-		case 1:
-			recordingTab.drawData(tempActivity.getlpfData(), -12, 15, 512);
-			break;
-		case 2:
-			recordingTab.drawData(tempActivity.gethpfData(), -12, 15, 512);
-			break;
-		case 3:
-			recordingTab.drawData(tempActivity.getbpfData(), -12, 15, 512);
-			break;
-		case 4:
-			recordingTab.drawData(tempActivity.getfData(), -1, 100, 512);
-			break;
-		default:
-			break;
+	public List<Double> fromDoubleArrayToArrayList(double[] array){
+		List<Double> result = new ArrayList<Double>();
+		for(double d : array){
+			result.add(d);
 		}
+		return result;
 	}
-
+	
 	public void drawRecordingGraph() {
 		switch (displayType) {
 		case 0:
-			recordingTab.drawData(tempActivity.getData(), -12, 15, 512);
+			recordingTab.drawData(tempData, -12, 15, 512);
 			break;
 		case 1:
-			recordingTab.drawData(tempActivity.getlpfData(), -12, 15, 512);
+			AccData lpfData = new AccData(FeatureExtractors2.lowPassFilter(tempData.getxData()), FeatureExtractors2.lowPassFilter(tempData.getyData()), FeatureExtractors2.lowPassFilter(tempData.getzData()));
+			recordingTab.drawData(lpfData, -12, 15, 512);
 			break;
 		case 2:
-			recordingTab.drawData(tempActivity.gethpfData(), -12, 15, 512);
+			AccData hpfData = new AccData(FeatureExtractors2.highPassFilter(tempData.getxData()), FeatureExtractors2.highPassFilter(tempData.getyData()), FeatureExtractors2.highPassFilter(tempData.getzData()));
+			recordingTab.drawData(hpfData, -12, 15, 512);
 			break;
 		case 3:
-			recordingTab.drawData(tempActivity.getbpfData(), -12, 15, 512);
+			AccData lpfData1 = new AccData(FeatureExtractors2.lowPassFilter(tempData.getxData()), FeatureExtractors2.lowPassFilter(tempData.getyData()), FeatureExtractors2.lowPassFilter(tempData.getzData()));
+			AccData bpfData = new AccData(FeatureExtractors2.highPassFilter(lpfData1.getxData()), FeatureExtractors2.highPassFilter(lpfData1.getyData()), FeatureExtractors2.highPassFilter(lpfData1.getzData()));
+			recordingTab.drawData(bpfData, -12, 15, 512);
 			break;
 		case 4:
-			recordingTab.drawData(tempActivity.getfData(), -1, 100, 512);
+			AccData fData = new AccData(fromDoubleArrayToArrayList(FeatureExtractors2.fftest(tempData.getxData())), fromDoubleArrayToArrayList(FeatureExtractors2.fftest(tempData.getyData())), fromDoubleArrayToArrayList(FeatureExtractors2.fftest(tempData.getzData())));
+			recordingTab.drawData(fData, -1, 100, 512);
 			break;
 		default:
 			break;
 		}
 	}
 
+
+
 	public void previousAccActivity(View view) {
 		if (index - 1 >= 0) {
-			tempActivity = activityLibrary.get(index - 1);
-			tempFeat = FeatureExtractors2.calculateFeatures(tempActivity
-					.getData());
-			tempFeat.setType(tempActivity.type);
-			recordingTab.updateActivityDetailText(tempActivity, tempFeat);
-			recordingTab.setTypeCombobox(tempActivity.type);
+			tempData = activityLibrary.get(index - 1);
+			tempFeat = FeatureExtractors2.calculateFeatures(tempData);
+			tempFeat.setType(tempData.getType());
+			recordingTab.updateActivityDetailText(tempData, tempFeat);
+			recordingTab.setTypeCombobox(tempData.getType());
 			drawRecordingGraph();
 			index--;
 			Toast.makeText(this, "Activity #" + index + " selected",
@@ -695,8 +684,8 @@ public class MainActivity extends FragmentActivity implements
 	public void remove(View view) {
 		activityLibrary.remove(index);
 		index = index - 1;
-		tempActivity = activityLibrary.get(index);
-		recordingTab.updateActivityDetailText(tempActivity, tempFeat);
+		tempData = activityLibrary.get(index);
+		recordingTab.updateActivityDetailText(tempData, tempFeat);
 		drawRecordingGraph();
 		String ser = SerializeObject.objectToString(activityLibrary);
 		if (ser != null && !ser.equalsIgnoreCase("")) {
@@ -727,7 +716,7 @@ public class MainActivity extends FragmentActivity implements
 
 	public void idButtonClick(View view) {
 		if (entropyDataLoaded) {
-			classify(tempActivity.getData());
+			classify(tempData);
 		} else {
 			toast("entropy data not loaded - loading data");
 			loadEntropyFromCloud();
@@ -779,7 +768,7 @@ public class MainActivity extends FragmentActivity implements
 
 	}
 
-	public void addBurstActivity(AccActivity tempBurstActivity) {
+	public void addBurstActivity(AccData tempBurstActivity) {
 		index = activityLibrary.size();
 		if (!activityLibrary.contains(tempBurstActivity)) {
 			tempBurstActivity.setType(9);
@@ -788,7 +777,7 @@ public class MainActivity extends FragmentActivity implements
 					this,
 					"Activity saved. Library size:" + activityLibrary.size()
 							+ " Data points: "
-							+ tempBurstActivity.getData().getxData().size(),
+							+ tempBurstActivity.getxData().size(),
 					Toast.LENGTH_SHORT).show();
 
 		} else {
@@ -816,9 +805,9 @@ public class MainActivity extends FragmentActivity implements
 
 	public void addActivity(View view) {
 		index = activityLibrary.size();
-		if (!activityLibrary.contains(tempActivity)) {
-			tempActivity.setType(recordingTab.getTypeSpinnerValue());
-			activityLibrary.add(tempActivity);
+		if (!activityLibrary.contains(tempData)) {
+			tempData.setType(recordingTab.getTypeSpinnerValue());
+			activityLibrary.add(tempData);
 			Toast.makeText(this,
 					"Activity saved. Library size:" + activityLibrary.size(),
 					Toast.LENGTH_SHORT).show();
@@ -874,16 +863,16 @@ public class MainActivity extends FragmentActivity implements
 
 	@Override
 	public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-		if (arg0.length() > 0) {
-			tempActivity.setRate(Integer.parseInt(arg0.toString()));
-			recordingTab.updateActivityDetailText(tempActivity, tempFeat);
-			Toast.makeText(this, "Rate changed to:" + tempActivity.getRate(),
-					Toast.LENGTH_SHORT).show();
-			if (activityLibrary.size() != 0
-					&& tempActivity == activityLibrary.get(index)) {
-				activityLibrary.set(index, tempActivity);
-			}
-		}
+//		if (arg0.length() > 0) {
+//			tempData.setRate(Integer.parseInt(arg0.toString()));
+//			recordingTab.updateActivityDetailText(tempData, tempFeat);
+//			Toast.makeText(this, "Rate changed to:" + tempData.getRate(),
+//					Toast.LENGTH_SHORT).show();
+//			if (activityLibrary.size() != 0
+//					&& tempData == activityLibrary.get(index)) {
+//				activityLibrary.set(index, tempData);
+//			}
+//		}
 
 	}
 
@@ -893,10 +882,10 @@ public class MainActivity extends FragmentActivity implements
 		if (spinnerFirstInvoke == true) {
 			spinnerFirstInvoke = false;
 		} else {
-			if (tempActivity != null) {
-				tempActivity.setType(recordingTab.getTypeSpinnerValue());
+			if (tempData != null) {
+				tempData.setType(recordingTab.getTypeSpinnerValue());
 				tempFeat.setType(recordingTab.getTypeSpinnerValue());
-
+				recordingTab.updateActivityDetailText(tempData, tempFeat);
 				int prevDisplayType = displayType;
 				displayType = recordingTab.getdisplaySpinnerValue();
 				if (displayType != prevDisplayType)
@@ -1049,8 +1038,8 @@ public class MainActivity extends FragmentActivity implements
 		loadEntropyFromCloud();
 	}
 
-	public AccActivity getTempActivity() {
-		return tempActivity;
+	public AccData getTempData() {
+		return tempData;
 	}
 
 	public AccFeat getTempFeat() {

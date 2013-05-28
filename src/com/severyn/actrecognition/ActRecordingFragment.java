@@ -70,9 +70,9 @@ public class ActRecordingFragment extends Fragment {
 	
 		
 		
-		if (MainActivity.activityLibrary.size() > 0 && !m.getTempActivity().equals(null) &&  !m.getTempFeat().equals(null)) {
+		if (MainActivity.activityLibrary.size() > 0 && !m.getTempData().equals(null) &&  !m.getTempFeat().equals(null)) {
 			typeSpinner.setSelection(m.getTempFeat().getType());
-			this.updateActivityDetailText(m.getTempActivity(), m.getTempFeat());
+			this.updateActivityDetailText(m.getTempData(), m.getTempFeat());
 			m.drawRecordingGraph();
 		}
 	
@@ -203,15 +203,16 @@ public class ActRecordingFragment extends Fragment {
 
 	}
 
-	public void updateActivityDetailText(AccActivity activity, AccFeat accFeat) {
+	public void updateActivityDetailText(AccData activity, AccFeat accFeat) {
 		TextView accActivityDetailText = (TextView) rootView.findViewById(R.id.accActDetailText);
 		accActivityDetailText.setText("Type: "
-				+ (activity.getType())
+				+ FeatureExtractors2.getType((accFeat.getType()))
 				// + "\nAccFeat Type: " +
 				// FeatureExtractors2.getType(accFeat.getType())
-				+ "\nAcc data points: " + activity.getData().getxData().size()
-				+ " Gyro data points: "
-				+ activity.getGyroData().getxData().size() + "\nMean: X: "
+				+ "\nAcc data points: " + activity.getxData().size()
+//				+ " Gyro data points: "
+//				+ activity.getGyroData().getxData().size() 
+				+ "\nMean: X: "
 				+ f(accFeat.getMean(0)) + " Y: " + f(accFeat.getMean(1))
 				+ " Z: " + f(accFeat.getMean(2)) + "\nStandard deviation: X: "
 				+ f(accFeat.getSd(0)) + " Y: " + f(accFeat.getSd(1)) + " Z: "

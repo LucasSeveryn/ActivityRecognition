@@ -13,6 +13,7 @@ public class AccData implements Serializable {
 	private List<Double> xData;
 	private List<Double> yData;
 	private List<Double> zData;
+	private int type=9;
 //	private float[] averageNoise;
 
 	public AccData() {
@@ -99,6 +100,14 @@ public class AccData implements Serializable {
 		List<Double> zDatar = this.zData.subList(256, xData.size());
 		AccData result = new AccData(xDatar, yDatar, zDatar);
 		return result;
+	}
+
+	public int getType() {
+		return type;
+	}
+
+	public void setType(int type) {
+		this.type = type;
 	}
 
 //	public void setNoise(float[] averageNoise) {

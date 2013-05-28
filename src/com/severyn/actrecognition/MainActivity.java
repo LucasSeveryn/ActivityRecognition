@@ -355,7 +355,7 @@ public class MainActivity extends FragmentActivity implements
 //				recordingTab.setTypeCombobox(tempActivity.type);
 				tempFeat = FeatureExtractors2.calculateFeatures(tempActivity
 						.getData());
-				index = activityLibrary.size() ;
+				index = activityLibrary.size()-1;
 			}
 		}
 

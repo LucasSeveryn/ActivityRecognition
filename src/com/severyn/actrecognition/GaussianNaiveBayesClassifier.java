@@ -28,7 +28,7 @@ public class GaussianNaiveBayesClassifier {
 		}
 
 		for (int i = 0; i < 9; i++) {
-			if (i != 1 && i != 4 && i != 5 && i != 6) { // debug
+			if (i != 4 && i != 5 && i != 6) { // debug
 			// result = 1;
 				result = 0;
 				for (int j = 0; j < entropyMean.get(i).size(); j++) {
@@ -48,7 +48,7 @@ public class GaussianNaiveBayesClassifier {
 		double maxvalue = results[0];
 
 		for (int i = 0; i < 9; i++) {
-			if (i != 1 && i != 4 && i != 5 && i != 6
+			if (i != 4 && i != 5 && i != 6
 					&& !Double.isNaN(results[i])) {
 				maxvalue = results[i];
 				maxindex = i;
@@ -60,11 +60,12 @@ public class GaussianNaiveBayesClassifier {
 			if (!Double.isNaN(results[i])) {
 	            DecimalFormat df = new DecimalFormat("000000E00");
 
-				if (results[i] != 0.0) {
+//				if (results[i] != 0.0) {
+	        	txt += ("\n[" + i + "] " + Math.exp(results[i]) + " log:" + String.format("%.5f", results[i]));
 //					txt += ("\n[" + i + "] " + String.format("%.5f", Math.exp(results[i]))+ " log:" + String.format("%.5f", results[i]));
-					txt += ("\n[" + i + "] " + df.format(Math.exp(results[i]))+ " log:" + String.format("%.5f", results[i]));
-				}
-				if (results[i] > results[maxindex] && i != 1 && i != 4
+//					txt += ("\n[" + i + "] " + df.format(Math.exp(results[i]))+ " log:" + String.format("%.5f", results[i]));
+//				}
+				if (results[i] > results[maxindex] && i != 4
 						&& i != 5 && i != 6) {
 					maxvalue = results[i];
 					maxindex = i;
@@ -74,7 +75,7 @@ public class GaussianNaiveBayesClassifier {
 		}
 
 		for (int i = 0; i < results.length; i++) {
-			if (i != maxindex && i != 1 && i != 4 && i != 5 && i != 6) {
+			if (i != maxindex && i != 4 && i != 5 && i != 6) {
 				txt += ("\n   Type #" + i + " : "
 						+ String.format("%.2f", results[i] / results[maxindex]) + " times less likely.");
 			}

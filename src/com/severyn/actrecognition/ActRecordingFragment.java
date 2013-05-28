@@ -206,7 +206,7 @@ public class ActRecordingFragment extends Fragment {
 	public void updateActivityDetailText(AccData activity, AccFeat accFeat, int index) {
 		TextView accActivityDetailText = (TextView) rootView.findViewById(R.id.accActDetailText);
 		accActivityDetailText.setText("Type: "
-				+ FeatureExtractors2.getType((accFeat.getType())) + "   Activity #" + index 
+				+ FeatureExtractors.getType((accFeat.getType())) + "   Activity #" + index 
 				// + "\nAccFeat Type: " +
 				// FeatureExtractors2.getType(accFeat.getType())
 				+ "\nAcc data points: " + activity.getxData().size()

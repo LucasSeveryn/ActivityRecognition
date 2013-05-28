@@ -72,7 +72,7 @@ public class ActRecognitionFragment extends Fragment {
 		ArrayList<Double> probabilityData = new ArrayList<Double>();
 		
 		for(int i=0;i<results.size();i++){
-			if (!Double.isInfinite(results.get(i)) && i != 1 && i != 4 && i != 5 && i != 6) {
+			if (!Double.isInfinite(results.get(i)) && i != 4 && i != 5 && i != 6) {
 				probabilityData.add(results.get(i));			
 				//probabilityData.add(Math.exp(results.get(i)));
 			}
@@ -90,7 +90,7 @@ public class ActRecognitionFragment extends Fragment {
 
 		}
 		
-		pPlot.setRangeBoundaries(Collections.max(probabilityData2)*1.5,0, BoundaryMode.FIXED);
+		pPlot.setRangeBoundaries(Collections.max(probabilityData2)*3,0, BoundaryMode.FIXED);
 //		pPlot.setRangeValueFormat(new DecimalFormat("0000E0"));
 		pSeries.setModel(probabilityData2,
 				SimpleXYSeries.ArrayFormat.Y_VALS_ONLY);

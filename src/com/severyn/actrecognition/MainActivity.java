@@ -803,14 +803,14 @@ public class MainActivity extends FragmentActivity implements
 
 	}
 
-	public void addActivity(View view) {
-		index = activityLibrary.size();
+	public void addActivity(View view) {		
 		if (!activityLibrary.contains(tempData)) {
 			tempData.setType(recordingTab.getTypeSpinnerValue());
 			activityLibrary.add(tempData);
 			Toast.makeText(this,
 					"Activity saved. Library size:" + activityLibrary.size(),
 					Toast.LENGTH_SHORT).show();
+			index = activityLibrary.size()-1;
 
 		} else {
 			Toast.makeText(this, "Activity already in the library.",

@@ -83,8 +83,8 @@
         android:layout_below="@+id/xyzPlot"
         android:onClick="startConstantRecording"
         android:text="Rec."
-        android:textOff="Not Rec"
-        android:textOn="Rec" />
+        android:textOff="Start Rec."
+        android:textOn="Stop Rec." />
 
     <TextView
         android:id="@+id/accActDetailText"
@@ -126,36 +126,6 @@
         android:text="Save"
         android:textSize="16dp" />
 
-    <Button
-        android:id="@+id/idButton"
-        android:layout_width="wrap_content"
-        android:layout_height="42dp"
-        android:layout_below="@+id/saveLibButton"
-        android:layout_toRightOf="@+id/typeSpinner"
-        android:onClick="idButtonClick"
-        android:text="Id"
-        android:textSize="16dp" />
-
-    <Button
-        android:id="@+id/delete"
-        android:layout_width="wrap_content"
-        android:layout_height="42dp"
-        android:layout_below="@+id/idButton"
-        android:layout_toRightOf="@+id/typeSpinner"
-        android:onClick="remove"
-        android:text="Del"
-        android:textSize="16dp" />
-
-    <Button
-        android:id="@+id/send"
-        android:layout_width="wrap_content"
-        android:layout_height="42dp"
-        android:layout_below="@+id/delete"
-        android:layout_toRightOf="@+id/typeSpinner"
-        android:onClick="send"
-        android:text="Send"
-        android:textSize="15sp" />
-
     <Spinner
         android:id="@+id/displaySpinner"
         android:layout_width="wrap_content"
@@ -188,24 +158,6 @@
         android:text="Purge"
         android:textSize="15sp" />
 
-    <CheckBox
-        android:id="@+id/constantIdentificationCheckbox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/constantRecordingSaveCheckBox"
-        android:layout_alignParentLeft="true"
-        android:text="Identify when constantly recording"
-        android:textSize="12dp" />
-
-    <CheckBox
-        android:id="@+id/constantRecordingSaveCheckBox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/previousAccActivityButton"
-        android:layout_alignLeft="@+id/previousAccActivityButton"
-        android:text="Save to library when constantly recording"
-        android:textSize="12dp" />
-
     <Button
         android:id="@+id/nextAccActivityButton"
         android:layout_width="wrap_content"
@@ -214,5 +166,82 @@
         android:layout_alignRight="@+id/purge"
         android:onClick="nextAccActivity"
         android:text="Next >" />
+
+    <Button
+        android:id="@+id/idButton"
+        android:layout_width="wrap_content"
+        android:layout_height="42dp"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/saveLibButton"
+        android:onClick="idButtonClick"
+        android:text="Id"
+        android:textSize="16dp" />
+
+    <Button
+        android:id="@+id/delete"
+        android:layout_width="wrap_content"
+        android:layout_height="42dp"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/idButton"
+        android:onClick="remove"
+        android:text="Del"
+        android:textSize="16dp" />
+
+    <Button
+        android:id="@+id/send"
+        android:layout_width="wrap_content"
+        android:layout_height="42dp"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/delete"
+        android:onClick="send"
+        android:text="Send"
+        android:textSize="15sp" />
+
+    <CheckBox
+        android:id="@+id/constantRecordingSaveCheckbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/previousAccActivityButton"
+        android:layout_alignLeft="@+id/previousAccActivityButton"
+        android:layout_marginTop="-10dp"
+                android:layout_marginBottom="-5dp"
+        
+        android:text="Save to library when constantly recording"
+        android:textSize="11dp" />
+
+    <CheckBox
+        android:id="@+id/constantIdentificationCheckbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/autoTagCheckbox"
+        android:layout_alignLeft="@+id/autoTagCheckbox"
+        android:layout_marginTop="-10dp"
+        android:layout_marginBottom="-5dp"
+        android:text="Identify when constantly recording"
+        android:textSize="11dp" />
+
+    <CheckBox
+        android:id="@+id/autoTagCheckbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/constantRecordingSaveCheckbox"
+        android:layout_alignLeft="@+id/constantRecordingSaveCheckbox"
+        android:layout_marginTop="-10dp"
+                android:layout_marginBottom="-5dp"
+        
+        android:text="Inherit type when constantly recording"
+        android:textSize="11dp" />
+
+    <TextView
+        android:id="@+id/indexTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/constantRecordingSaveCheckbox"
+
+        android:layout_alignRight="@+id/purge"
+        android:text="0/0"
+        android:layout_marginRight="5dp"
+        android:textSize="11dp"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
 </RelativeLayout>

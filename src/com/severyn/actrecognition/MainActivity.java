@@ -113,7 +113,7 @@ public class MainActivity extends FragmentActivity implements
 	AccData recordedData;
 	AccData monitorPlotData = new AccData();
 
-	static ArrayList<AccData> activityLibrary;
+	static ArrayList<AccData> accDataLibrary;
 	static ArrayList<ArrayList<Double>> gnbcLibrary;
 
 	public String f(Double d) {
@@ -126,11 +126,12 @@ public class MainActivity extends FragmentActivity implements
 	private boolean constantRecordingEnabled = false;
 	private boolean constantSavingEnabled = false;
 	private boolean constantIdentifying = false;
+	private int cc = 1;
+	private int burstCounter = 0;
 
 	private final SensorEventListener mSensorListener = new SensorEventListener() {
 		private int counter = 0;
-		private int cc = 1;
-		private int burstCounter = 0;
+
 		AccData tempBurstActivity;
 
 		@Override
@@ -174,6 +175,7 @@ public class MainActivity extends FragmentActivity implements
 												.getyData()),
 										new ArrayList<Double>(recordedData
 												.getzData()));
+	
 								addBurstActivity(tempBurstActivityForAdd);
 								tempBurstActivity = new AccData();
 							}
@@ -238,7 +240,7 @@ public class MainActivity extends FragmentActivity implements
 		tempFeat.setType(9);
 		recordedData = new AccData();
 		recordedGData = new AccData();
-		recordingTab.updateActivityDetailText(recordedData, tempFeat, index);
+		recordingTab.updateActivityDetailText(recordedData, tempFeat);
 		drawRecordingGraph();
 	}
 
@@ -340,7 +342,7 @@ public class MainActivity extends FragmentActivity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		activityLibrary = new ArrayList<AccData>();
+		accDataLibrary = new ArrayList<AccData>();
 		gnbcLibrary = new ArrayList<ArrayList<Double>>();
 
 		/*
@@ -351,13 +353,13 @@ public class MainActivity extends FragmentActivity implements
 		if (ser != null && !ser.equalsIgnoreCase("")) {
 			Object obj = SerializeObject.stringToObject(ser);
 			if (obj instanceof ArrayList) {
-				activityLibrary = (ArrayList<AccData>) obj;
-				Toast.makeText(this, "Size: " + activityLibrary.size(),
+				accDataLibrary = (ArrayList<AccData>) obj;
+				Toast.makeText(this, "Size: " + accDataLibrary.size(),
 						Toast.LENGTH_SHORT).show();
-				tempData = activityLibrary.get(activityLibrary.size() - 1);
+				tempData = accDataLibrary.get(accDataLibrary.size() - 1);
 				// recordingTab.setTypeCombobox(tempData.type);
 				tempFeat = FeatureExtractors.calculateFeatures(tempData);
-				index = activityLibrary.size() - 1;
+				index = accDataLibrary.size() - 1;
 			}
 		}
 
@@ -484,6 +486,8 @@ public class MainActivity extends FragmentActivity implements
 		if (!recordingEnabled) {
 			recordedData = new AccData();
 			recordedGData = new AccData();
+			cc = 1;
+			burstCounter = 0;
 			Toast.makeText(this, "Recording will start in 5 sec",
 					Toast.LENGTH_SHORT).show();
 			Runnable r = new dataRecording();
@@ -503,12 +507,12 @@ public class MainActivity extends FragmentActivity implements
 			recordedGData = new AccData();
 			constantRecordingEnabled = true;
 			constantSavingEnabled = recordingTab
-					.getConstantSavingCheckBoxValue();
+					.getConstantSavingCheckboxValue();
 			constantIdentifying = recordingTab
 					.getConstantIdentificationCheckboxValue();
-			toast("Starting constant recording.\nConstant: saving: "
-					+ constantSavingEnabled + " / identifying: "
-					+ constantIdentifying);
+			toast("Starting constant recording.\nSaving: "
+					+ constantSavingEnabled + ". Identifying: "
+					+ constantIdentifying + ". Tagging: " + recordingTab.getAutoTagCheckboxValue());
 		}
 		recordingTab.toggleCheckboxes();
 
@@ -536,10 +540,12 @@ public class MainActivity extends FragmentActivity implements
 	public void purge(View view) {
 		purgeCounter++;
 		if (purgeCounter > 3) {
-			activityLibrary.clear();
+			accDataLibrary.clear();
 			toast("Local libary purged. activityLibrary size:"
-					+ activityLibrary.size());
+					+ accDataLibrary.size());
 			purgeCounter = 0;
+			index = 0;
+			
 		} else {
 			toast("Press " + (3 - purgeCounter)
 					+ " more times to purge the library");
@@ -624,13 +630,14 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	public void nextAccActivity(View view) {
-		if (index + 1 < activityLibrary.size()) {
-			tempData = activityLibrary.get(index + 1);
+		if (index + 1 < accDataLibrary.size()) {
+			tempData = accDataLibrary.get(index + 1);
 			tempFeat = FeatureExtractors.calculateFeatures(tempData);
 			tempFeat.setType(tempData.getType());
 			recordingTab.setTypeCombobox(tempData.getType());
 			index++;
-			recordingTab.updateActivityDetailText(tempData, tempFeat, index);
+			recordingTab.updateActivityDetailText(tempData, tempFeat);
+			recordingTab.setIndexTextView(index+1, accDataLibrary.size());
 			drawRecordingGraph();
 
 			// Toast.makeText(this, "Activity #" + index + " selected",
@@ -706,11 +713,12 @@ public class MainActivity extends FragmentActivity implements
 
 	public void previousAccActivity(View view) {
 		if (index - 1 >= 0) {
-			tempData = activityLibrary.get(index - 1);
+			tempData = accDataLibrary.get(index - 1);
 			tempFeat = FeatureExtractors.calculateFeatures(tempData);
 			tempFeat.setType(tempData.getType());
 			index--;
-			recordingTab.updateActivityDetailText(tempData, tempFeat, index);
+			recordingTab.setIndexTextView(index+1, accDataLibrary.size());
+			recordingTab.updateActivityDetailText(tempData, tempFeat);
 			recordingTab.setTypeCombobox(tempData.getType());
 			drawRecordingGraph();
 			// Toast.makeText(this, "Activity #" + index + " selected",
@@ -733,12 +741,12 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	public void remove(View view) {
-		activityLibrary.remove(index);
+		accDataLibrary.remove(index);
 		index = index - 1;
-		tempData = activityLibrary.get(index);
-		recordingTab.updateActivityDetailText(tempData, tempFeat, index);
+		tempData = accDataLibrary.get(index);
+		recordingTab.updateActivityDetailText(tempData, tempFeat);
 		drawRecordingGraph();
-		String ser = SerializeObject.objectToString(activityLibrary);
+		String ser = SerializeObject.objectToString(accDataLibrary);
 		if (ser != null && !ser.equalsIgnoreCase("")) {
 			SerializeObject.WriteSettings(this, ser, "activityLibrary.dat");
 		} else {
@@ -819,16 +827,21 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	public void addBurstActivity(AccData tempBurstActivity) {
-		index = activityLibrary.size();
-		if (!activityLibrary.contains(tempBurstActivity)) {
-			tempBurstActivity.setType(9);
-			activityLibrary.add(tempBurstActivity);
+		if (!accDataLibrary.contains(tempBurstActivity)) {
+			
+			if(recordingTab.getAutoTagCheckboxValue()){
+				tempBurstActivity.setType(recordingTab.getTypeSpinnerValue());
+			}else{
+				tempBurstActivity.setType(9);
+			}
+			
+			accDataLibrary.add(tempBurstActivity);
 			Toast.makeText(
 					this,
-					"Activity saved. Library size:" + activityLibrary.size()
-							+ " Data points: "
-							+ tempBurstActivity.getxData().size(),
+					"Activity saved. Library size:" + accDataLibrary.size(),
 					Toast.LENGTH_SHORT).show();
+//			index = accDataLibrary.size()-1;
+			recordingTab.setIndexTextView(index+1, accDataLibrary.size());
 
 		} else {
 			Toast.makeText(this, "Activity already in the library.",
@@ -841,7 +854,7 @@ public class MainActivity extends FragmentActivity implements
 
 			@Override
 			protected Void doInBackground(Context... params) {
-				String ser = SerializeObject.objectToString(activityLibrary);
+				String ser = SerializeObject.objectToString(accDataLibrary);
 				if (ser != null && !ser.equalsIgnoreCase("")) {
 					SerializeObject.WriteSettings(params[0], ser,
 							"activityLibrary.dat");
@@ -872,13 +885,13 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	public void addActivity(View view) {
-		if (!activityLibrary.contains(tempData)) {
+		if (!accDataLibrary.contains(tempData)) {
 			tempData.setType(recordingTab.getTypeSpinnerValue());
-			activityLibrary.add(tempData);
+			accDataLibrary.add(tempData);
 			Toast.makeText(this,
-					"Activity saved. Library size:" + activityLibrary.size(),
+					"Activity saved. Library size:" + accDataLibrary.size(),
 					Toast.LENGTH_SHORT).show();
-			index = activityLibrary.size() - 1;
+			index = accDataLibrary.size() - 1;
 
 		} else {
 			Toast.makeText(this, "Activity already in the library.",
@@ -953,7 +966,7 @@ public class MainActivity extends FragmentActivity implements
 				tempData.setType(recordingTab.getTypeSpinnerValue());
 				tempFeat.setType(recordingTab.getTypeSpinnerValue());
 				recordingTab
-						.updateActivityDetailText(tempData, tempFeat, index);
+						.updateActivityDetailText(tempData, tempFeat);
 				int prevDisplayType = displayType;
 				displayType = recordingTab.getdisplaySpinnerValue();
 				if (displayType != prevDisplayType)

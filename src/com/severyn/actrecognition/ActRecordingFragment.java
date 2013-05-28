@@ -57,7 +57,7 @@ public class ActRecordingFragment extends Fragment {
 		Spinner typeSpinner = (Spinner) rootView.findViewById(R.id.typeSpinner);
 		typeSpinner.setOnItemSelectedListener((MainActivity) getActivity());
 		
-		TextView accActivityDetailText = (TextView) rootView.findViewById(R.id.accActDetailText);
+		
 	
 		Spinner displaySpinner = (Spinner) rootView
 				.findViewById(R.id.displaySpinner);
@@ -69,16 +69,22 @@ public class ActRecordingFragment extends Fragment {
 		MainActivity m = (MainActivity) getActivity();
 	
 		
-		
-		if (MainActivity.activityLibrary.size() > 0 && !m.getTempData().equals(null) &&  !m.getTempFeat().equals(null)) {
+		int size = m.accDataLibrary.size();
+		if (size > 0 && !m.getTempData().equals(null) &&  !m.getTempFeat().equals(null)) {
+			this.setIndexTextView(size, size);
 			typeSpinner.setSelection(m.getTempFeat().getType());
-			this.updateActivityDetailText(m.getTempData(), m.getTempFeat(), MainActivity.activityLibrary.size()-1);
+			this.updateActivityDetailText(m.getTempData(), m.getTempFeat());
 			m.drawRecordingGraph();
 		}
 	
 		return rootView;
 	}
 
+	public void setIndexTextView(int index,int size){
+		TextView indexTextView = (TextView) rootView.findViewById(R.id.indexTextView);
+		indexTextView.setText(index +"/"+size);
+	}
+	
 	@SuppressWarnings("deprecation")
 	public void drawData(AccData data, int lowerBound, int upperBound,
 			int upperXBound) {
@@ -130,12 +136,18 @@ public class ActRecordingFragment extends Fragment {
 				.getSelectedItemPosition();
 	}
 
-	public boolean getConstantSavingCheckBoxValue() {
+	public boolean getConstantSavingCheckboxValue() {
 		CheckBox constantSavingCheckBox = (CheckBox) this.getView()
-				.findViewById(R.id.constantRecordingSaveCheckBox);
+				.findViewById(R.id.constantRecordingSaveCheckbox);
 		return constantSavingCheckBox.isChecked();
 	}
 
+	public boolean getAutoTagCheckboxValue() {
+		CheckBox autoTagCheckbox = (CheckBox) this.getView()
+				.findViewById(R.id.autoTagCheckbox);
+		return autoTagCheckbox.isChecked();
+	}
+	
 	public boolean getConstantIdentificationCheckboxValue() {
 		CheckBox constantIdentificationCheckbox = (CheckBox) this.getView()
 				.findViewById(R.id.constantIdentificationCheckbox);
@@ -168,10 +180,13 @@ public class ActRecordingFragment extends Fragment {
 
 	public void toggleCheckboxes() {
 		CheckBox constantSavingCheckBox = (CheckBox) this.getView()
-				.findViewById(R.id.constantRecordingSaveCheckBox);
+				.findViewById(R.id.constantRecordingSaveCheckbox);
 		CheckBox constantIdentificationCheckbox = (CheckBox) this.getView()
 				.findViewById(R.id.constantIdentificationCheckbox);
-
+		CheckBox autoTagCheckbox = (CheckBox) this.getView()
+				.findViewById(R.id.autoTagCheckbox);
+		
+		autoTagCheckbox.setEnabled(!autoTagCheckbox.isEnabled());
 		constantSavingCheckBox.setEnabled(!constantSavingCheckBox.isEnabled());
 		constantIdentificationCheckbox
 				.setEnabled(!constantIdentificationCheckbox.isEnabled());
@@ -203,10 +218,10 @@ public class ActRecordingFragment extends Fragment {
 
 	}
 
-	public void updateActivityDetailText(AccData activity, AccFeat accFeat, int index) {
+	public void updateActivityDetailText(AccData activity, AccFeat accFeat) {
 		TextView accActivityDetailText = (TextView) rootView.findViewById(R.id.accActDetailText);
 		accActivityDetailText.setText("Type: "
-				+ FeatureExtractors.getType((accFeat.getType())) + "   Activity #" + index 
+				+ FeatureExtractors.getType((accFeat.getType()))
 				// + "\nAccFeat Type: " +
 				// FeatureExtractors2.getType(accFeat.getType())
 				+ "\nAcc data points: " + activity.getxData().size()

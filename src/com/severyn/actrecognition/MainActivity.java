@@ -639,8 +639,8 @@ public class MainActivity extends FragmentActivity implements
 			recordingTab.updateActivityDetailText(tempData, tempFeat,index);
 			drawRecordingGraph();
 			
-			Toast.makeText(this, "Activity #" + index + " selected",
-					Toast.LENGTH_SHORT).show();
+//			Toast.makeText(this, "Activity #" + index + " selected",
+//					Toast.LENGTH_SHORT).show();
 		}
 
 	}
@@ -703,8 +703,8 @@ public class MainActivity extends FragmentActivity implements
 			recordingTab.updateActivityDetailText(tempData, tempFeat, index);
 			recordingTab.setTypeCombobox(tempData.getType());
 			drawRecordingGraph();
-			Toast.makeText(this, "Activity #" + index + " selected",
-					Toast.LENGTH_SHORT).show();
+//			Toast.makeText(this, "Activity #" + index + " selected",
+//					Toast.LENGTH_SHORT).show();
 
 		}
 
@@ -768,7 +768,7 @@ public class MainActivity extends FragmentActivity implements
 	private void classify(AccData activity) {
 		// finishRecording();
 		if (entropyDataLoaded) {
-			toast("identifying...");
+//			toast("identifying...");
 			Pair<ArrayList<Double>, String> classification = ng
 					.classify(FeatureExtractors2.calculateFeatures(activity));
 			recognitionTab.updateStatusText(classification.second, false);

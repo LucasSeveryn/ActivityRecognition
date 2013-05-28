@@ -171,9 +171,7 @@ public class MainActivity extends FragmentActivity implements
 												.getzData()));
 								tempBurstActivity = new AccActivity(
 										tempBurstData, recordedGData);
-								toast("Adding data. Size: "
-										+ tempBurstActivity.getData()
-												.getxData().size());
+								
 								addBurstActivity(tempBurstActivity);
 
 							}
@@ -476,7 +474,7 @@ public class MainActivity extends FragmentActivity implements
 					.getConstantSavingCheckBoxValue();
 			constantIdentifying = recordingTab
 					.getConstantIdentificationCheckboxValue();
-			toast("Starting constant recording./nConstant: saving: "
+			toast("Starting constant recording.\nConstant: saving: "
 					+ constantSavingEnabled + " / identifying: "
 					+ constantIdentifying);
 		}
@@ -800,13 +798,19 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	public void saveLibrary(View view) {
+		new AsyncTask<Context, Void, Void>() {
 
-		String ser = SerializeObject.objectToString(activityLibrary);
-		if (ser != null && !ser.equalsIgnoreCase("")) {
-			SerializeObject.WriteSettings(this, ser, "activityLibrary.dat");
-		} else {
-			SerializeObject.WriteSettings(this, "", "activityLibrary.dat");
-		}
+			@Override
+			protected Void doInBackground(Context... params) {
+				String ser = SerializeObject.objectToString(activityLibrary);
+				if (ser != null && !ser.equalsIgnoreCase("")) {
+					SerializeObject.WriteSettings(params[0], ser, "activityLibrary.dat");
+				} else {
+					SerializeObject.WriteSettings(params[0], "", "activityLibrary.dat");
+				}
+				return null;
+			}
+		}.execute(getApplicationContext());
 
 	}
 

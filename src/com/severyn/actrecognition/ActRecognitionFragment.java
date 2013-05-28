@@ -46,7 +46,7 @@ public class ActRecognitionFragment extends Fragment {
 		
 //		pPlot.setRangeBoundaries(, 15, BoundaryMode.FIXED);
 //		xyzPlot.setRangeStep(XYStepMode.INCREMENT_BY_VAL, 2);
-		pPlot.setDomainBoundaries(-0.5, 8.5, BoundaryMode.FIXED);
+		pPlot.setDomainBoundaries(0, 8, BoundaryMode.FIXED);
 		pPlot.setDomainStep(XYStepMode.INCREMENT_BY_VAL, 1);
 //		xyzPlot.setTicksPerRangeLabel(1);
 		pPlot.setDomainLabel("Type");

@@ -58,7 +58,7 @@ public class GaussianNaiveBayesClassifier {
 
 		for (int i = 0; i < 9; i++) {
 			if (!Double.isNaN(results[i])) {
-	            DecimalFormat df = new DecimalFormat("000E00");
+	            DecimalFormat df = new DecimalFormat("000000E00");
 
 				if (results[i] != 0.0) {
 //					txt += ("\n[" + i + "] " + String.format("%.5f", Math.exp(results[i]))+ " log:" + String.format("%.5f", results[i]));

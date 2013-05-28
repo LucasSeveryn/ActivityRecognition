@@ -43,14 +43,14 @@
         android:text="Next" />
 
     <Button
-        android:id="@+id/saveButton"
+        android:id="@+id/addButton"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:onClick="saveGNBC"
-        android:text="Save" />
+        android:onClick="addGNBC"
+        android:text="Add" />
 
     <TextView
         android:id="@+id/statusText2"

@@ -1,6 +1,10 @@
 package com.severyn.actrecognition;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
@@ -236,7 +240,7 @@ public class MainActivity extends FragmentActivity implements
 		tempFeat.setType(9);
 		recordedData = new AccData();
 		recordedGData = new AccData();
-		recordingTab.updateActivityDetailText(recordedData, tempFeat);
+		recordingTab.updateActivityDetailText(recordedData, tempFeat, index);
 		drawRecordingGraph();
 	}
 
@@ -341,6 +345,11 @@ public class MainActivity extends FragmentActivity implements
 		activityLibrary = new ArrayList<AccData>();
 		gnbcLibrary = new ArrayList<ArrayList<Double>>();
 
+		/*
+		 * LOADING SERIALIZED ACTIVITY LIBRARY v.1
+		 */
+		
+		
 		String ser = SerializeObject.ReadSettings(this, "activityLibrary.dat");
 		if (ser != null && !ser.equalsIgnoreCase("")) {
 			Object obj = SerializeObject.stringToObject(ser);
@@ -354,6 +363,37 @@ public class MainActivity extends FragmentActivity implements
 				index = activityLibrary.size()-1;
 			}
 		}
+		
+		/*
+		 * LOADING SERIALIZED ACTIVITY LIBRARY v.2
+		 */
+		
+		
+//	    String line;
+//	    ArrayList<AccData> list = new ArrayList<AccData>();
+//	    StringBuilder fullText = new StringBuilder();
+//
+//	    try {
+//	        FileInputStream stream = this.openFileInput("activityLibrary.dat");
+//	        InputStreamReader inputStreamReader = new InputStreamReader(stream); 
+//	        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+//	        while ((line = bufferedReader.readLine()) != null) 
+//	        {
+//	            fullText.append(line);
+//	        }
+//	        if (fullText.length() > 0) 
+//	        {
+//	            String[] myActivities = fullText.toString().split(",");
+//	            for (String activityString : myActivities)
+//	            {
+//	                list.add((AccData) activityString));
+//	            }
+//	        }
+//	    } catch (Exception e) {}
+//	    return list;
+		
+		
+		
 
 		// Set up the action bar.
 		final ActionBar actionBar = getActionBar();
@@ -595,9 +635,10 @@ public class MainActivity extends FragmentActivity implements
 			tempFeat = FeatureExtractors2.calculateFeatures(tempData);
 			tempFeat.setType(tempData.getType());
 			recordingTab.setTypeCombobox(tempData.getType());
-			recordingTab.updateActivityDetailText(tempData, tempFeat);
-			drawRecordingGraph();
 			index++;
+			recordingTab.updateActivityDetailText(tempData, tempFeat,index);
+			drawRecordingGraph();
+			
 			Toast.makeText(this, "Activity #" + index + " selected",
 					Toast.LENGTH_SHORT).show();
 		}
@@ -658,10 +699,10 @@ public class MainActivity extends FragmentActivity implements
 			tempData = activityLibrary.get(index - 1);
 			tempFeat = FeatureExtractors2.calculateFeatures(tempData);
 			tempFeat.setType(tempData.getType());
-			recordingTab.updateActivityDetailText(tempData, tempFeat);
+			index--;
+			recordingTab.updateActivityDetailText(tempData, tempFeat, index);
 			recordingTab.setTypeCombobox(tempData.getType());
 			drawRecordingGraph();
-			index--;
 			Toast.makeText(this, "Activity #" + index + " selected",
 					Toast.LENGTH_SHORT).show();
 
@@ -685,7 +726,7 @@ public class MainActivity extends FragmentActivity implements
 		activityLibrary.remove(index);
 		index = index - 1;
 		tempData = activityLibrary.get(index);
-		recordingTab.updateActivityDetailText(tempData, tempFeat);
+		recordingTab.updateActivityDetailText(tempData, tempFeat, index);
 		drawRecordingGraph();
 		String ser = SerializeObject.objectToString(activityLibrary);
 		if (ser != null && !ser.equalsIgnoreCase("")) {
@@ -798,6 +839,21 @@ public class MainActivity extends FragmentActivity implements
 					SerializeObject.WriteSettings(params[0], "", "activityLibrary.dat");
 				}
 				return null;
+				
+//				
+//				 FileOutputStream fos;
+//				    try
+//				    {
+//				        fos = params[0].openFileOutput("activityLibrary.dat", Context.MODE_PRIVATE);
+//				        for (AccData a : activityLibrary)
+//				        {
+//				            fos.write((a.toString() + ",").getBytes());
+//				        }
+//				        fos.close();
+//				    } catch (FileNotFoundException e){} 
+//				    catch (IOException e){}
+//				    
+//				return null;
 			}
 		}.execute(getApplicationContext());
 
@@ -819,8 +875,7 @@ public class MainActivity extends FragmentActivity implements
 
 	}
 
-	public void saveGNBC(View view) {
-		gnbcIndex = gnbcLibrary.size();
+	public void addGNBC(View view) {
 		if (!gnbcLibrary.contains(tempGNBC)) {
 			gnbcLibrary.add(tempGNBC);
 			toast("GNBC result saved. Library size:" + gnbcLibrary.size());
@@ -831,7 +886,7 @@ public class MainActivity extends FragmentActivity implements
 			// } else {
 			// SerializeObject.WriteSettings(this, "", "activityLibrary.dat");
 			// }
-
+			gnbcIndex = gnbcLibrary.size()-1;
 		} else {
 			toast("GNBC result already in the library.");
 		}
@@ -885,7 +940,7 @@ public class MainActivity extends FragmentActivity implements
 			if (tempData != null) {
 				tempData.setType(recordingTab.getTypeSpinnerValue());
 				tempFeat.setType(recordingTab.getTypeSpinnerValue());
-				recordingTab.updateActivityDetailText(tempData, tempFeat);
+				recordingTab.updateActivityDetailText(tempData, tempFeat,index);
 				int prevDisplayType = displayType;
 				displayType = recordingTab.getdisplaySpinnerValue();
 				if (displayType != prevDisplayType)

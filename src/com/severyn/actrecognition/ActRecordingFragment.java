@@ -72,7 +72,7 @@ public class ActRecordingFragment extends Fragment {
 		
 		if (MainActivity.activityLibrary.size() > 0 && !m.getTempData().equals(null) &&  !m.getTempFeat().equals(null)) {
 			typeSpinner.setSelection(m.getTempFeat().getType());
-			this.updateActivityDetailText(m.getTempData(), m.getTempFeat());
+			this.updateActivityDetailText(m.getTempData(), m.getTempFeat(), MainActivity.activityLibrary.size()-1);
 			m.drawRecordingGraph();
 		}
 	
@@ -203,10 +203,10 @@ public class ActRecordingFragment extends Fragment {
 
 	}
 
-	public void updateActivityDetailText(AccData activity, AccFeat accFeat) {
+	public void updateActivityDetailText(AccData activity, AccFeat accFeat, int index) {
 		TextView accActivityDetailText = (TextView) rootView.findViewById(R.id.accActDetailText);
 		accActivityDetailText.setText("Type: "
-				+ FeatureExtractors2.getType((accFeat.getType()))
+				+ FeatureExtractors2.getType((accFeat.getType())) + "   Activity #" + index 
 				// + "\nAccFeat Type: " +
 				// FeatureExtractors2.getType(accFeat.getType())
 				+ "\nAcc data points: " + activity.getxData().size()

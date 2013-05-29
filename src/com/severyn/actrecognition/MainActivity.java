@@ -8,9 +8,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -230,6 +232,7 @@ public class MainActivity extends FragmentActivity implements
 	private AccData recordedGData;
 	private ArrayList<Double> tempGNBC;
 	private int gnbcIndex;
+	private int cpurgeCounter=0;
 
 	public void finishRecording() {
 		recordingEnabled = false;
@@ -503,6 +506,8 @@ public class MainActivity extends FragmentActivity implements
 			toast("Stopping constant recording");
 			constantRecordingEnabled = false;
 		} else {
+			cc = 1;
+			burstCounter = 0;
 			recordedData = new AccData();
 			recordedGData = new AccData();
 			constantRecordingEnabled = true;
@@ -547,11 +552,31 @@ public class MainActivity extends FragmentActivity implements
 			index = 0;
 			
 		} else {
-			toast("Press " + (3 - purgeCounter)
+			toast("Press " + (4 - purgeCounter)
 					+ " more times to purge the library");
 		}
 	}
 
+	
+	
+	
+	public void clearClassificationResults(View view) {
+		cpurgeCounter++;
+		if (cpurgeCounter > 3) {
+			gnbcLibrary.clear();
+			toast("Classifcation results cleared. gnbcLibrary size:"
+					+ gnbcLibrary.size());
+			recognitionTab.updateStatusText("", false);
+			recognitionTab.updateStatusText2("", false);
+			cpurgeCounter = 0;
+			gnbcIndex = 0;			
+		} else {
+			toast("Press " + (4 - purgeCounter)
+					+ " more times to clear results");
+		}
+	}
+	
+	
 	public void send(View view) {
 		String apiURI = "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data?apiKey=Ix7evhXTw3uwk1gDHCvzz-uMNEhOy8ZN";
 		try {
@@ -797,7 +822,7 @@ public class MainActivity extends FragmentActivity implements
 			double maxvalue = results.get(0);
 
 			for (int i = 0; i < 9; i++) {
-				if (i != 4 && i != 5 && i != 6 && !Double.isNaN(results.get(i))) {
+				if (i != 5 && i != 6 && !Double.isNaN(results.get(i))) {
 					maxvalue = results.get(i);
 					maxindex = i;
 					break;
@@ -806,7 +831,7 @@ public class MainActivity extends FragmentActivity implements
 
 			for (int i = 0; i < 9; i++) {
 				if (!Double.isNaN(results.get(i))) {
-					if (results.get(i) > results.get(maxindex) && i != 4
+					if (results.get(i) > results.get(maxindex) 
 							&& i != 5 && i != 6) {
 						maxvalue = results.get(i);
 						maxindex = i;
@@ -814,8 +839,9 @@ public class MainActivity extends FragmentActivity implements
 				}
 
 			}
-
-			recognitionTab.updateStatusText2(
+			SimpleDateFormat sdf = new SimpleDateFormat(gnbcLibrary.size() + ": [HH:mm:ss] ");
+			String currentDateandTime = sdf.format(new Date());
+			recognitionTab.updateStatusText2(currentDateandTime+
 					FeatureExtractors.getType(maxindex), true);
 			recognitionTab.drawData(classification.first);
 			gnbcIndex = gnbcLibrary.size();
@@ -1054,12 +1080,7 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	protected void writeEntropyData(String result) {
-		recognitionTab.updateStatusText(
-				"Entropy data loaded succefully.\nFirst 128 characters:"
-						+ result.substring(0, Math.min(result.length(), 128))
-						+ "...", false);
-		toast("Entropy data loaded succesfully.");
-		entropyDataLoaded = true;
+		
 		JSONArray jsonArray;
 		try {
 			jsonArray = new JSONArray(result);
@@ -1107,6 +1128,12 @@ public class MainActivity extends FragmentActivity implements
 
 			}
 			ng = new GaussianNaiveBayesClassifier(entropyMean, entropyVar);
+			recognitionTab.updateStatusText(
+					"Entropy data loaded succefully.\nFirst 128 characters:"
+							+ result.substring(0, Math.min(result.length(), 128))
+							+ "...", false);
+			toast("Entropy data loaded succesfully.");
+			entropyDataLoaded = true;
 
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block

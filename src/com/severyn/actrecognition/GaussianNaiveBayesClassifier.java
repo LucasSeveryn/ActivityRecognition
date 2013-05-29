@@ -28,7 +28,7 @@ public class GaussianNaiveBayesClassifier {
 		}
 
 		for (int i = 0; i < 9; i++) {
-			if (i != 4 && i != 5 && i != 6) { // debug
+			if ( i != 5 && i != 6) { // debug
 			// result = 1;
 				result = 0;
 				for (int j = 0; j < entropyMean.get(i).size(); j++) {
@@ -48,7 +48,7 @@ public class GaussianNaiveBayesClassifier {
 		double maxvalue = results[0];
 
 		for (int i = 0; i < 9; i++) {
-			if (i != 4 && i != 5 && i != 6
+			if ( i != 5 && i != 6
 					&& !Double.isNaN(results[i])) {
 				maxvalue = results[i];
 				maxindex = i;
@@ -58,14 +58,15 @@ public class GaussianNaiveBayesClassifier {
 
 		for (int i = 0; i < 9; i++) {
 			if (!Double.isNaN(results[i])) {
-	            DecimalFormat df = new DecimalFormat("000000E00");
+	            DecimalFormat df = new DecimalFormat("0.00E000");
+//	            DecimalFormat df = new DecimalFormat("#.######");
 
 //				if (results[i] != 0.0) {
-	        	txt += ("\n[" + i + "] " + Math.exp(results[i]) + " log:" + String.format("%.5f", results[i]));
+//	        	txt += ("\n[" + i + "] " + Math.exp(results[i]) + " log:" + String.format("%.5f", results[i]));
 //					txt += ("\n[" + i + "] " + String.format("%.5f", Math.exp(results[i]))+ " log:" + String.format("%.5f", results[i]));
-//					txt += ("\n[" + i + "] " + df.format(Math.exp(results[i]))+ " log:" + String.format("%.5f", results[i]));
+					txt += ("\n[" + i + "] " + df.format(Math.exp(results[i]))+ " log:" + String.format("%.5f", results[i]));
 //				}
-				if (results[i] > results[maxindex] && i != 4
+				if (results[i] > results[maxindex] 
 						&& i != 5 && i != 6) {
 					maxvalue = results[i];
 					maxindex = i;
@@ -75,9 +76,11 @@ public class GaussianNaiveBayesClassifier {
 		}
 
 		for (int i = 0; i < results.length; i++) {
-			if (i != maxindex && i != 4 && i != 5 && i != 6) {
+			if (i != maxindex  && i != 5 && i != 6) {
+				String value = String.format("%.2f", results[i] / results[maxindex]);
+				if(value.equals("Infinity")) value = "inf.";
 				txt += ("\n   Type #" + i + " : "
-						+ String.format("%.2f", results[i] / results[maxindex]) + " times less likely.");
+						+ value + " times less likely.");
 			}
 		}
 		txt += ("\n");

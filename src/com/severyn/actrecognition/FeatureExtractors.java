@@ -1,7 +1,6 @@
 package com.severyn.actrecognition;
 
 
-
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -125,6 +124,37 @@ public final class FeatureExtractors {
 		return result;
 	}
 
+	
+	public static int relativeZeroCrossingCount(List<Double> data){
+		DescriptiveStatistics stats = new DescriptiveStatistics();
+
+		// Add the data from the array
+		for (int i = 0; i < data.size(); i++) {
+			stats.addValue(data.get(i));
+		}
+		
+		double max = stats.getPercentile(80);
+		double min = stats.getPercentile(20);
+		if(max-min<0.2) return 0;
+		double zero = (max + min) /2;
+		int rate=2;
+		int count=0;
+		
+		double x;
+		double previous = data.get(0);
+		for (int i=rate;i<data.size();i= i + rate){
+			x = data.get(i);
+			if (previous < zero && x > zero || previous > zero && x < zero) {
+				count++;
+			}
+			previous = x;
+		}
+		
+		return count;
+		
+		
+	}
+	
 	public static int zeroCrossingCount(ArrayList<Double> data2) {
 		float spread = 0.30f;
 		int rate = 8;
@@ -226,7 +256,7 @@ public final class FeatureExtractors {
 		List<Integer> distances = new ArrayList<Integer>();
 
 		// /peak detection methodology
-		List<Integer> maxtab = peakdetN(v);
+		List<Integer> maxtab = peakdet(v);
 
 		for (int i = 1; i < maxtab.size(); i++) {
 			distances.add(maxtab.get(i) - maxtab.get(i - 1));
@@ -259,7 +289,7 @@ public final class FeatureExtractors {
 		return v;
 	}
 
-	public static ArrayList<Integer> peakdet(ArrayList<Double> v) {
+	public static ArrayList<Integer> peakdet(List<Double> v) {
 		ArrayList<Integer> peakIndices = new ArrayList<Integer>();
 		double max = Collections.max(v);
 		double cutoff = max * 0.85;
@@ -288,7 +318,7 @@ public final class FeatureExtractors {
 
 	}
 
-	public static ArrayList<Integer> peakdet2(ArrayList<Double> v) {
+	public static ArrayList<Integer> peakdet2(List<Double> v) {
 		double delta = (Collections.max(v) - Collections.min(v)) * 0.5;
 		ArrayList<Integer> maxtab = new ArrayList<Integer>();
 		ArrayList<Integer> mintab = new ArrayList<Integer>();
@@ -375,8 +405,10 @@ public final class FeatureExtractors {
 
 		//
 
+//		temp.setAvPeakDistance(0,
+//				FeatureExtractors.averageDistanceBetweenPeaks(lpfxData));
 		temp.setAvPeakDistance(0,
-				FeatureExtractors.averageDistanceBetweenPeaks(lpfxData));
+				0);
 		temp.setAvPeakDistance(1,
 				FeatureExtractors.averageDistanceBetweenPeaks(lpfyData));
 		temp.setAvPeakDistance(2,
@@ -400,18 +432,42 @@ public final class FeatureExtractors {
 //				FeatureExtractors2.calcHistogram(zData, -15, 15, 10));
 
 		temp.setHistogram(0,
-				FeatureExtractors.calcHistogram(xData, -5, 5, 10));
-		temp.setHistogram(1,
-				FeatureExtractors.calcHistogram(yData, 3, 15, 10));
-		temp.setHistogram(2,
-				FeatureExtractors.calcHistogram(zData, -12, 2, 10));
+		FeatureExtractors.calcHistogram(xData, -5, 5, 10));
+temp.setHistogram(1,
+		FeatureExtractors.calcHistogram(yData, 5, 15, 10));
+temp.setHistogram(2,
+		FeatureExtractors.calcHistogram(zData, -8, 2, 10));
+
 		
-		temp.setCrossingCount(0, FeatureExtractors
-				.zeroCrossingCount(FeatureExtractors.highPassFilter(lpfxData)));
+		
+//		temp.setHistogram(0,
+//				FeatureExtractors.calcHistogram(xData, -7, 7, 10));
+//		temp.setHistogram(1,
+//				FeatureExtractors.calcHistogram(yData, 1, 16, 10));
+//		temp.setHistogram(2,
+//				FeatureExtractors.calcHistogram(zData, -14, 4, 10));
+		
+//		temp.setCrossingCount(0, FeatureExtractors
+//				.zeroCrossingCount(FeatureExtractors.highPassFilter(lpfxData)));
+//		temp.setCrossingCount(1, FeatureExtractors
+//				.zeroCrossingCount(FeatureExtractors.highPassFilter(lpfyData)));
+//		temp.setCrossingCount(2, FeatureExtractors
+//				.zeroCrossingCount(FeatureExtractors.highPassFilter(lpfzData)));
+
+//		temp.setCrossingCount(0, FeatureExtractors
+//				.relativeZeroCrossingCount(lpfxData));
+//		temp.setCrossingCount(1, FeatureExtractors
+//				.relativeZeroCrossingCount(lpfyData));
+//		temp.setCrossingCount(2, FeatureExtractors
+//				.relativeZeroCrossingCount(lpfzData));
+//		
+//		temp.setCrossingCount(0, FeatureExtractors
+//				.relativeZeroCrossingCount(xData));
+		temp.setCrossingCount(0, 0);
 		temp.setCrossingCount(1, FeatureExtractors
-				.zeroCrossingCount(FeatureExtractors.highPassFilter(lpfyData)));
+				.relativeZeroCrossingCount(yData));
 		temp.setCrossingCount(2, FeatureExtractors
-				.zeroCrossingCount(FeatureExtractors.highPassFilter(lpfzData)));
+				.relativeZeroCrossingCount(zData));
 
 		temp.setMaxDisplacementValue(0, Collections.max(xData)-Collections.min(xData));
 		temp.setMaxDisplacementValue(1, Collections.max(yData)-Collections.min(yData));

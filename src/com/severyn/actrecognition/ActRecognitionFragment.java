@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 
+import com.androidplot.Plot;
 import com.androidplot.ui.AnchorPosition;
 import com.androidplot.xy.BarFormatter;
 import com.androidplot.xy.BarRenderer;
@@ -56,6 +57,8 @@ public class ActRecognitionFragment extends Fragment {
 		pPlot.setTitle("Classification Results");
 		pPlot.getLayoutManager().remove(pPlot.getLegendWidget());
 		pPlot.setRangeValueFormat(new DecimalFormat("#"));
+		pPlot.setBorderStyle(Plot.BorderStyle.SQUARE, null, null);
+
 
 	     BarRenderer barRenderer = (BarRenderer) pPlot.getRenderer(BarRenderer.class);
 	       if(barRenderer != null) {
@@ -72,7 +75,7 @@ public class ActRecognitionFragment extends Fragment {
 		ArrayList<Double> probabilityData = new ArrayList<Double>();
 		
 		for(int i=0;i<results.size();i++){
-			if (!Double.isInfinite(results.get(i)) && i != 4 && i != 5 && i != 6) {
+			if (!Double.isInfinite(results.get(i))  && i != 5 && i != 6) {
 				probabilityData.add(results.get(i));			
 				//probabilityData.add(Math.exp(results.get(i)));
 			}
@@ -116,7 +119,7 @@ public class ActRecognitionFragment extends Fragment {
 				R.id.statusText2);
 		if(append){
 //			String existing = 
-			statusText.setText(statusText.getText().toString() + "\n" + text);
+			statusText.setText(statusText.getText().toString() + text + "\n");
 		}else{
 			statusText.setText(text);
 		}

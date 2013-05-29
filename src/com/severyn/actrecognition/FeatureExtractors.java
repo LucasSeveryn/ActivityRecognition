@@ -1,6 +1,5 @@
 package com.severyn.actrecognition;
 
-
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,6 +16,34 @@ public final class FeatureExtractors {
 		// Exists only to defeat instantiation.
 	}
 
+	public static String getTypeNoNumber(int type) {
+		switch (type) {
+		case 0:
+			return "Walking";
+		case 1:
+			return "Fast Walking";
+		case 2:
+			return "Walking up the stairs";
+		case 3:
+			return "Walking down the stairs";
+		case 4:
+			return "Sitting";
+		case 5:
+			return "Standing up";
+		case 6:
+			return "Jumping";
+		case 7:
+			return "Wave Sideways";
+		case 8:
+			return "Wave Forward";
+		case 9:
+			return "Unidentified";
+		default:
+			return "Unspecified";
+
+		}
+	}
+	
 	public static String getType(int type) {
 		switch (type) {
 		case 0:
@@ -123,7 +150,7 @@ public final class FeatureExtractors {
 		}
 		return result;
 	}
-
+	
 	
 	public static int relativeZeroCrossingCount(List<Double> data){
 		DescriptiveStatistics stats = new DescriptiveStatistics();
@@ -151,8 +178,6 @@ public final class FeatureExtractors {
 		}
 		
 		return count;
-		
-		
 	}
 	
 	public static int zeroCrossingCount(ArrayList<Double> data2) {
@@ -262,7 +287,8 @@ public final class FeatureExtractors {
 			distances.add(maxtab.get(i) - maxtab.get(i - 1));
 		}
 
-		return calculateMeanInt(distances);
+		return 0;
+//		return calculateMeanInt(distances);
 
 	}
 
@@ -405,10 +431,9 @@ public final class FeatureExtractors {
 
 		//
 
-//		temp.setAvPeakDistance(0,
-//				FeatureExtractors.averageDistanceBetweenPeaks(lpfxData));
+		temp.setAvPeakDistance(0,0);
 		temp.setAvPeakDistance(0,
-				0);
+				FeatureExtractors.averageDistanceBetweenPeaks(lpfxData));
 		temp.setAvPeakDistance(1,
 				FeatureExtractors.averageDistanceBetweenPeaks(lpfyData));
 		temp.setAvPeakDistance(2,
@@ -418,11 +443,11 @@ public final class FeatureExtractors {
 				xData, yData, zData));
 
 		temp.setFftHistogram(0, FeatureExtractors.calcHistogram(
-				FeatureExtractors.fftest(xData), 0, 100, 10));
+				FeatureExtractors.fftest(xData), 0, 0, 10));
 		temp.setFftHistogram(1, FeatureExtractors.calcHistogram(
-				FeatureExtractors.fftest(yData), 0, 100, 10));
+				FeatureExtractors.fftest(yData), 0, 40, 10));
 		temp.setFftHistogram(2, FeatureExtractors.calcHistogram(
-				FeatureExtractors.fftest(zData), 0, 100, 10));
+				FeatureExtractors.fftest(zData), 0, 40, 10));
 
 //		temp.setHistogram(0,
 //				FeatureExtractors2.calcHistogram(xData, -15, 15, 10));
@@ -447,8 +472,10 @@ temp.setHistogram(2,
 //		temp.setHistogram(2,
 //				FeatureExtractors.calcHistogram(zData, -14, 4, 10));
 		
+
 //		temp.setCrossingCount(0, FeatureExtractors
-//				.zeroCrossingCount(FeatureExtractors.highPassFilter(lpfxData)));
+//			.zeroCrossingCount(FeatureExtractors.highPassFilter(lpfxData)));
+		temp.setCrossingCount(0, 0);
 //		temp.setCrossingCount(1, FeatureExtractors
 //				.zeroCrossingCount(FeatureExtractors.highPassFilter(lpfyData)));
 //		temp.setCrossingCount(2, FeatureExtractors
@@ -456,18 +483,10 @@ temp.setHistogram(2,
 
 //		temp.setCrossingCount(0, FeatureExtractors
 //				.relativeZeroCrossingCount(lpfxData));
-//		temp.setCrossingCount(1, FeatureExtractors
-//				.relativeZeroCrossingCount(lpfyData));
-//		temp.setCrossingCount(2, FeatureExtractors
-//				.relativeZeroCrossingCount(lpfzData));
-//		
-//		temp.setCrossingCount(0, FeatureExtractors
-//				.relativeZeroCrossingCount(xData));
-		temp.setCrossingCount(0, 0);
 		temp.setCrossingCount(1, FeatureExtractors
-				.relativeZeroCrossingCount(yData));
+				.relativeZeroCrossingCount(lpfyData));
 		temp.setCrossingCount(2, FeatureExtractors
-				.relativeZeroCrossingCount(zData));
+				.relativeZeroCrossingCount(lpfzData));
 
 		temp.setMaxDisplacementValue(0, Collections.max(xData)-Collections.min(xData));
 		temp.setMaxDisplacementValue(1, Collections.max(yData)-Collections.min(yData));

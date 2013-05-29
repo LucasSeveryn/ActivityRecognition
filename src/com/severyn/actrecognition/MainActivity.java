@@ -41,6 +41,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.os.Vibrator;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.OnInitListener;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -68,13 +70,13 @@ import com.google.gson.JsonElement;
 
 public class MainActivity extends FragmentActivity implements
 		ActionBar.TabListener, CompoundButton.OnCheckedChangeListener,
-		TextWatcher, OnItemSelectedListener {
+		TextWatcher, OnItemSelectedListener,OnInitListener {
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
 	private GaussianNaiveBayesClassifier ng;
 	private String apiKey = "Ix7evhXTw3uwk1gDHCvzz-uMNEhOy8ZN";
 	private boolean entropyDataLoaded = false;
-
+	private TextToSpeech tts;
 	private double samplingRate = 40; // Hz
 	int sensorDelayMicroseconds = (int) (Math
 			.round(((1 / this.samplingRate) * 1000000.0)));
@@ -441,8 +443,36 @@ public class MainActivity extends FragmentActivity implements
 		// mSensorManager.registerListener(mGSensorListener, mGyro,
 		// sensorDelayMicrosecondsG);
 
+		tts = new TextToSpeech(this, this);
+
+		
 	}
 
+	public void onInit(int status) {
+        // TODO Auto-generated method stub
+          //TTS is successfully initialized
+        if (status == TextToSpeech.SUCCESS) {
+                       //Setting speech language
+            int result = tts.setLanguage(Locale.US);
+           //If your device doesn't support language you set above
+            if (result == TextToSpeech.LANG_MISSING_DATA
+                    || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                           //Cook simple toast message with message
+                Toast.makeText(this, "Language not supported", Toast.LENGTH_LONG).show();
+                Log.e("TTS", "Language is not supported");
+            } 
+                 //Enable the button - It was disabled in main.xml (Go back and Check it)
+                        else {
+               
+            }
+            //TTS is not initialized properly
+        } else {
+                    Toast.makeText(this, "TTS Initilization Failed", Toast.LENGTH_LONG).show();
+            Log.e("TTS", "Initilization Failed");
+        }
+    }
+	
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -571,7 +601,7 @@ public class MainActivity extends FragmentActivity implements
 			cpurgeCounter = 0;
 			gnbcIndex = 0;			
 		} else {
-			toast("Press " + (4 - purgeCounter)
+			toast("Press " + (4 - cpurgeCounter)
 					+ " more times to clear results");
 		}
 	}
@@ -758,7 +788,7 @@ public class MainActivity extends FragmentActivity implements
 			tempGNBC = gnbcLibrary.get(gnbcIndex - 1);
 			recognitionTab.drawData(tempGNBC);
 			gnbcIndex--;
-			toast("GNBC result #" + index + " selected");
+			toast("GNBC result #" + gnbcIndex + " selected");
 			recognitionTab.updateStatusText("Selected GNBC result: "
 					+ gnbcIndex + "\n" + resultArrayToString(tempGNBC), false);
 		}
@@ -839,6 +869,8 @@ public class MainActivity extends FragmentActivity implements
 				}
 
 			}
+			tts.speak(FeatureExtractors.getTypeNoNumber(maxindex), TextToSpeech.QUEUE_FLUSH, null);
+			
 			SimpleDateFormat sdf = new SimpleDateFormat(gnbcLibrary.size() + ": [HH:mm:ss] ");
 			String currentDateandTime = sdf.format(new Date());
 			recognitionTab.updateStatusText2(currentDateandTime+

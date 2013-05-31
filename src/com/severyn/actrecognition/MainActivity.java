@@ -37,6 +37,10 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -70,7 +74,7 @@ import com.google.gson.JsonElement;
 
 public class MainActivity extends FragmentActivity implements
 		ActionBar.TabListener, CompoundButton.OnCheckedChangeListener,
-		TextWatcher, OnItemSelectedListener, OnInitListener {
+		TextWatcher, OnItemSelectedListener, OnInitListener, LocationListener {
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
 	private GaussianNaiveBayesClassifier ng;
@@ -132,7 +136,9 @@ public class MainActivity extends FragmentActivity implements
 	private boolean constantIdentifying = false;
 	private int cc = 1;
 	private int burstCounter = 0;
-
+	LocationManager lm;
+	
+	
 	private final SensorEventListener mSensorListener = new SensorEventListener() {
 		private int counter = 0;
 
@@ -445,6 +451,16 @@ public class MainActivity extends FragmentActivity implements
 
 		tts = new TextToSpeech(this, this);
 
+		
+//		lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+//		
+//		Criteria crit = new Criteria();
+//		crit.setAccuracy(Criteria.ACCURACY_FINE);
+//		String best = lm.getBestProvider(crit, false);
+//		lm.requestLocationUpdates(best, 0, 1, this);
+//	    lm.requestLocationUpdates(best, 10000, 1, this);
+
+		
 	}
 
 	public void onInit(int status) {
@@ -1185,6 +1201,33 @@ public class MainActivity extends FragmentActivity implements
 
 	public AccFeat getTempFeat() {
 		return tempFeat;
+	}
+
+	@Override
+	public void onLocationChanged(Location location) {
+		SimpleDateFormat sdf = new SimpleDateFormat("[HH:mm:ss] ");
+		String currentDateandTime = sdf.format(new Date());
+		recognitionTab.updateStatusText2(currentDateandTime
+				+ location.getAltitude(), true);
+		
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

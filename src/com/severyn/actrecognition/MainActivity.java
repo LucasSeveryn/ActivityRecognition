@@ -70,7 +70,7 @@ import com.google.gson.JsonElement;
 
 public class MainActivity extends FragmentActivity implements
 		ActionBar.TabListener, CompoundButton.OnCheckedChangeListener,
-		TextWatcher, OnItemSelectedListener,OnInitListener {
+		TextWatcher, OnItemSelectedListener, OnInitListener {
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
 	private GaussianNaiveBayesClassifier ng;
@@ -179,7 +179,7 @@ public class MainActivity extends FragmentActivity implements
 												.getyData()),
 										new ArrayList<Double>(recordedData
 												.getzData()));
-	
+
 								addBurstActivity(tempBurstActivityForAdd);
 								tempBurstActivity = new AccData();
 							}
@@ -234,14 +234,14 @@ public class MainActivity extends FragmentActivity implements
 	private AccData recordedGData;
 	private ArrayList<Double> tempGNBC;
 	private int gnbcIndex;
-	private int cpurgeCounter=0;
+	private int cpurgeCounter = 0;
 
 	public void finishRecording() {
 		recordingEnabled = false;
 		// recordedData.setNoise(averageNoise);
 		// recordedGData.setNoise(averageGNoise);
 		tempData = recordedData;
-		tempFeat = FeatureExtractors.calculateFeatures(recordedData);
+		tempFeat = FeatureExtractors.buildFeatureObject(recordedData);
 		tempFeat.setType(9);
 		recordedData = new AccData();
 		recordedGData = new AccData();
@@ -363,7 +363,7 @@ public class MainActivity extends FragmentActivity implements
 						Toast.LENGTH_SHORT).show();
 				tempData = accDataLibrary.get(accDataLibrary.size() - 1);
 				// recordingTab.setTypeCombobox(tempData.type);
-				tempFeat = FeatureExtractors.calculateFeatures(tempData);
+				tempFeat = FeatureExtractors.buildFeatureObject(tempData);
 				index = accDataLibrary.size() - 1;
 			}
 		}
@@ -445,34 +445,35 @@ public class MainActivity extends FragmentActivity implements
 
 		tts = new TextToSpeech(this, this);
 
-		
 	}
 
 	public void onInit(int status) {
-        // TODO Auto-generated method stub
-          //TTS is successfully initialized
-        if (status == TextToSpeech.SUCCESS) {
-                       //Setting speech language
-            int result = tts.setLanguage(Locale.US);
-           //If your device doesn't support language you set above
-            if (result == TextToSpeech.LANG_MISSING_DATA
-                    || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                           //Cook simple toast message with message
-                Toast.makeText(this, "Language not supported", Toast.LENGTH_LONG).show();
-                Log.e("TTS", "Language is not supported");
-            } 
-                 //Enable the button - It was disabled in main.xml (Go back and Check it)
-                        else {
-               
-            }
-            //TTS is not initialized properly
-        } else {
-                    Toast.makeText(this, "TTS Initilization Failed", Toast.LENGTH_LONG).show();
-            Log.e("TTS", "Initilization Failed");
-        }
-    }
-	
-	
+		// TODO Auto-generated method stub
+		// TTS is successfully initialized
+		if (status == TextToSpeech.SUCCESS) {
+			// Setting speech language
+			int result = tts.setLanguage(Locale.US);
+			// If your device doesn't support language you set above
+			if (result == TextToSpeech.LANG_MISSING_DATA
+					|| result == TextToSpeech.LANG_NOT_SUPPORTED) {
+				// Cook simple toast message with message
+				Toast.makeText(this, "Language not supported",
+						Toast.LENGTH_LONG).show();
+				Log.e("TTS", "Language is not supported");
+			}
+			// Enable the button - It was disabled in main.xml (Go back and
+			// Check it)
+			else {
+
+			}
+			// TTS is not initialized properly
+		} else {
+			Toast.makeText(this, "TTS Initilization Failed", Toast.LENGTH_LONG)
+					.show();
+			Log.e("TTS", "Initilization Failed");
+		}
+	}
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -547,7 +548,8 @@ public class MainActivity extends FragmentActivity implements
 					.getConstantIdentificationCheckboxValue();
 			toast("Starting constant recording.\nSaving: "
 					+ constantSavingEnabled + ". Identifying: "
-					+ constantIdentifying + ". Tagging: " + recordingTab.getAutoTagCheckboxValue());
+					+ constantIdentifying + ". Tagging: "
+					+ recordingTab.getAutoTagCheckboxValue());
 		}
 		recordingTab.toggleCheckboxes();
 
@@ -580,16 +582,13 @@ public class MainActivity extends FragmentActivity implements
 					+ accDataLibrary.size());
 			purgeCounter = 0;
 			index = 0;
-			
+
 		} else {
 			toast("Press " + (4 - purgeCounter)
 					+ " more times to purge the library");
 		}
 	}
 
-	
-	
-	
 	public void clearClassificationResults(View view) {
 		cpurgeCounter++;
 		if (cpurgeCounter > 3) {
@@ -599,16 +598,18 @@ public class MainActivity extends FragmentActivity implements
 			recognitionTab.updateStatusText("", false);
 			recognitionTab.updateStatusText2("", false);
 			cpurgeCounter = 0;
-			gnbcIndex = 0;			
+			gnbcIndex = 0;
 		} else {
 			toast("Press " + (4 - cpurgeCounter)
 					+ " more times to clear results");
 		}
 	}
-	
-	
+
 	public void send(View view) {
-		String apiURI = "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data?apiKey=Ix7evhXTw3uwk1gDHCvzz-uMNEhOy8ZN";
+		 String apiURI =
+		 "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data?apiKey=Ix7evhXTw3uwk1gDHCvzz-uMNEhOy8ZN";
+//		String apiURI = "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data_new?apiKey="
+//				+ apiKey;
 		try {
 
 			// make web service connection
@@ -687,12 +688,12 @@ public class MainActivity extends FragmentActivity implements
 	public void nextAccActivity(View view) {
 		if (index + 1 < accDataLibrary.size()) {
 			tempData = accDataLibrary.get(index + 1);
-			tempFeat = FeatureExtractors.calculateFeatures(tempData);
+			tempFeat = FeatureExtractors.buildFeatureObject(tempData);
 			tempFeat.setType(tempData.getType());
 			recordingTab.setTypeCombobox(tempData.getType());
 			index++;
 			recordingTab.updateActivityDetailText(tempData, tempFeat);
-			recordingTab.setIndexTextView(index+1, accDataLibrary.size());
+			recordingTab.setIndexTextView(index + 1, accDataLibrary.size());
 			drawRecordingGraph();
 
 			// Toast.makeText(this, "Activity #" + index + " selected",
@@ -769,10 +770,10 @@ public class MainActivity extends FragmentActivity implements
 	public void previousAccActivity(View view) {
 		if (index - 1 >= 0) {
 			tempData = accDataLibrary.get(index - 1);
-			tempFeat = FeatureExtractors.calculateFeatures(tempData);
+			tempFeat = FeatureExtractors.buildFeatureObject(tempData);
 			tempFeat.setType(tempData.getType());
 			index--;
-			recordingTab.setIndexTextView(index+1, accDataLibrary.size());
+			recordingTab.setIndexTextView(index + 1, accDataLibrary.size());
 			recordingTab.updateActivityDetailText(tempData, tempFeat);
 			recordingTab.setTypeCombobox(tempData.getType());
 			drawRecordingGraph();
@@ -843,7 +844,7 @@ public class MainActivity extends FragmentActivity implements
 		if (entropyDataLoaded) {
 			// toast("identifying...");
 			Pair<ArrayList<Double>, String> classification = ng
-					.classify(FeatureExtractors.calculateFeatures(activity));
+					.classify(FeatureExtractors.buildFeatureObject(activity));
 			recognitionTab.updateStatusText(classification.second, false);
 			ArrayList<Double> results = classification.first;
 			tempGNBC = results;
@@ -851,30 +852,31 @@ public class MainActivity extends FragmentActivity implements
 			int maxindex = 0;
 			double maxvalue = results.get(0);
 
-			for (int i = 0; i < 9; i++) {
-				if (i != 5 && i != 6 && !Double.isNaN(results.get(i))) {
+			for (int i = 0; i < 6; i++) {
+				if (!Double.isNaN(results.get(i))) {
 					maxvalue = results.get(i);
 					maxindex = i;
 					break;
 				}
 			}
 
-			for (int i = 0; i < 9; i++) {
+			for (int i = 0; i < 6; i++) {
 				if (!Double.isNaN(results.get(i))) {
-					if (results.get(i) > results.get(maxindex) 
-							&& i != 5 && i != 6) {
+					if (results.get(i) > results.get(maxindex)) {
 						maxvalue = results.get(i);
 						maxindex = i;
 					}
 				}
 
 			}
-			tts.speak(FeatureExtractors.getTypeNoNumber(maxindex), TextToSpeech.QUEUE_FLUSH, null);
-			
-			SimpleDateFormat sdf = new SimpleDateFormat(gnbcLibrary.size() + ": [HH:mm:ss] ");
+			tts.speak(FeatureExtractors.getTypeNoNumber(maxindex),
+					TextToSpeech.QUEUE_FLUSH, null);
+
+			SimpleDateFormat sdf = new SimpleDateFormat(gnbcLibrary.size()
+					+ ": [HH:mm:ss] ");
 			String currentDateandTime = sdf.format(new Date());
-			recognitionTab.updateStatusText2(currentDateandTime+
-					FeatureExtractors.getType(maxindex), true);
+			recognitionTab.updateStatusText2(currentDateandTime
+					+ FeatureExtractors.getType(maxindex), true);
 			recognitionTab.drawData(classification.first);
 			gnbcIndex = gnbcLibrary.size();
 			gnbcLibrary.add(tempGNBC);
@@ -886,20 +888,19 @@ public class MainActivity extends FragmentActivity implements
 
 	public void addBurstActivity(AccData tempBurstActivity) {
 		if (!accDataLibrary.contains(tempBurstActivity)) {
-			
-			if(recordingTab.getAutoTagCheckboxValue()){
+
+			if (recordingTab.getAutoTagCheckboxValue()) {
 				tempBurstActivity.setType(recordingTab.getTypeSpinnerValue());
-			}else{
+			} else {
 				tempBurstActivity.setType(9);
 			}
-			
+
 			accDataLibrary.add(tempBurstActivity);
-			Toast.makeText(
-					this,
+			Toast.makeText(this,
 					"Activity saved. Library size:" + accDataLibrary.size(),
 					Toast.LENGTH_SHORT).show();
-//			index = accDataLibrary.size()-1;
-			recordingTab.setIndexTextView(index+1, accDataLibrary.size());
+			// index = accDataLibrary.size()-1;
+			recordingTab.setIndexTextView(index + 1, accDataLibrary.size());
 
 		} else {
 			Toast.makeText(this, "Activity already in the library.",
@@ -1023,8 +1024,7 @@ public class MainActivity extends FragmentActivity implements
 			if (tempData != null) {
 				tempData.setType(recordingTab.getTypeSpinnerValue());
 				tempFeat.setType(recordingTab.getTypeSpinnerValue());
-				recordingTab
-						.updateActivityDetailText(tempData, tempFeat);
+				recordingTab.updateActivityDetailText(tempData, tempFeat);
 				int prevDisplayType = displayType;
 				displayType = recordingTab.getdisplaySpinnerValue();
 				if (displayType != prevDisplayType)
@@ -1112,7 +1112,7 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	protected void writeEntropyData(String result) {
-		
+
 		JSONArray jsonArray;
 		try {
 			jsonArray = new JSONArray(result);
@@ -1162,8 +1162,9 @@ public class MainActivity extends FragmentActivity implements
 			ng = new GaussianNaiveBayesClassifier(entropyMean, entropyVar);
 			recognitionTab.updateStatusText(
 					"Entropy data loaded succefully.\nFirst 128 characters:"
-							+ result.substring(0, Math.min(result.length(), 128))
-							+ "...", false);
+							+ result.substring(0,
+									Math.min(result.length(), 128)) + "...",
+					false);
 			toast("Entropy data loaded succesfully.");
 			entropyDataLoaded = true;
 

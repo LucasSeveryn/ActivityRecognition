@@ -75,7 +75,7 @@ public class ActRecognitionFragment extends Fragment {
 		ArrayList<Double> probabilityData = new ArrayList<Double>();
 		
 		for(int i=0;i<results.size();i++){
-			if (!Double.isInfinite(results.get(i))  && i != 5 && i != 6) {
+			if (!Double.isInfinite(results.get(i))  &&  i != 6 && i != 7 && i != 8) { //debug
 				probabilityData.add(results.get(i));			
 				//probabilityData.add(Math.exp(results.get(i)));
 			}

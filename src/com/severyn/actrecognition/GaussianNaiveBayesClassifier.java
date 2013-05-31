@@ -19,36 +19,39 @@ public class GaussianNaiveBayesClassifier {
 	public Pair<ArrayList<Double>, String> classify(AccFeat q) {
 		String txt = "";
 		txt += ("Gaussian Naive Bayes Classification");
-		double[] results = new double[9];
+		double[] results = new double[6];
 		double result;
 		ArrayList<Double> qf = new ArrayList<Double>();
 
-		for (int j = 0; j < 76; j++) {
+		for (int j = 0; j < 6; j++) {
 			qf.add(q.getFeature(j));
 		}
-
-		for (int i = 0; i < 9; i++) {
-			if ( i != 5 && i != 6) { // debug
-			// result = 1;
+		for (int j = 17; j < 24; j++) {
+			qf.add(q.getFeature(j));
+		}
+		for (int j = 84; j < 95; j++) {
+			qf.add(q.getFeature(j));
+		}
+		
+		
+		
+		for (int i = 0; i < 6; i++) {
 				result = 0;
 				for (int j = 0; j < entropyMean.get(i).size(); j++) {
-					// result = result * p(qf.get(j),
-					// entropyMean.get(i).get(j),entropyVar.get(i).get(j));
-					// result = result - Math.log(p(qf.get(j),
-					// entropyMean.get(i).get(j),entropyVar.get(i).get(j)));
+				
 					result += Math.log(p(qf.get(j), entropyMean.get(i).get(j),
 							entropyVar.get(i).get(j)));
 
 				}
 				results[i] = result;
-			}
+			
 		}
 
 		int maxindex = 0;
 		double maxvalue = results[0];
 
-		for (int i = 0; i < 9; i++) {
-			if ( i != 5 && i != 6
+		for (int i = 0; i < 6; i++) {
+			if ( i != 6 && i != 7 && i != 8
 					&& !Double.isNaN(results[i])) {
 				maxvalue = results[i];
 				maxindex = i;
@@ -56,7 +59,7 @@ public class GaussianNaiveBayesClassifier {
 			}
 		}
 
-		for (int i = 0; i < 9; i++) {
+		for (int i = 0; i < 6; i++) {
 			if (!Double.isNaN(results[i])) {
 	            DecimalFormat df = new DecimalFormat("0.00E000");
 //	            DecimalFormat df = new DecimalFormat("#.######");
@@ -66,8 +69,7 @@ public class GaussianNaiveBayesClassifier {
 //					txt += ("\n[" + i + "] " + String.format("%.5f", Math.exp(results[i]))+ " log:" + String.format("%.5f", results[i]));
 					txt += ("\n[" + i + "] " + df.format(Math.exp(results[i]))+ " log:" + String.format("%.5f", results[i]));
 //				}
-				if (results[i] > results[maxindex] 
-						&& i != 5 && i != 6) {
+				if (results[i] > results[maxindex]) {
 					maxvalue = results[i];
 					maxindex = i;
 				}
@@ -76,7 +78,7 @@ public class GaussianNaiveBayesClassifier {
 		}
 
 		for (int i = 0; i < results.length; i++) {
-			if (i != maxindex  && i != 5 && i != 6) {
+			if (i != maxindex) {
 				String value = String.format("%.2f", results[i] / results[maxindex]);
 				if(value.equals("Infinity")) value = "inf.";
 				txt += ("\n   Type #" + i + " : "

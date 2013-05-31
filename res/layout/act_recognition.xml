@@ -35,24 +35,14 @@
         android:onClick="nextGNBC"
         android:text="Next" />
 
-    <Button
-        android:id="@+id/addButton"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:onClick="addGNBC"
-        android:text="Add" />
-
     <ScrollView
         android:id="@+id/scrollView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/nextButton"
         android:layout_alignLeft="@+id/addButton"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/historyLabel" >
+        android:layout_below="@+id/historyLabel" 
+        android:layout_above="@+id/sendToServerCheckbox" >
         
        <LinearLayout
         android:layout_width="match_parent"
@@ -114,5 +104,32 @@
         android:layout_toLeftOf="@+id/nextButton"
         android:onClick="clearClassificationResults"
         android:text="Clear" />
+
+    <Button
+        android:id="@+id/button1"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/TextView01"
+        android:text="Send" />
+
+    <Button
+        android:id="@+id/addButton"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/button1"
+        android:onClick="addGNBC"
+        android:text="Add" />
+
+    <CheckBox
+        android:id="@+id/sendToServerCheckbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/clearButton"
+        android:layout_alignLeft="@+id/addButton"
+        android:text="Send results to cloud" />
 
 </RelativeLayout>

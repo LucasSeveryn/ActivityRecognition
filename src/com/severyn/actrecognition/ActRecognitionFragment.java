@@ -3,6 +3,7 @@ package com.severyn.actrecognition;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 
 import com.androidplot.Plot;
@@ -25,6 +26,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 public class ActRecognitionFragment extends Fragment {
@@ -70,8 +72,14 @@ public class ActRecognitionFragment extends Fragment {
 		
 		return rootView;
 	}
+	
+	public boolean getSendToServerCheckboxValue(){
+		CheckBox sendToServerCheckbox = (CheckBox) this.getView()
+				.findViewById(R.id.sendToServerCheckbox);
+		return sendToServerCheckbox.isChecked();
+	}
 
-	public void drawData(ArrayList<Double> results) {
+	public void drawData(List<Double> results) {
 		ArrayList<Double> probabilityData = new ArrayList<Double>();
 		
 		for(int i=0;i<results.size();i++){

@@ -122,7 +122,7 @@ public class MainActivity extends FragmentActivity implements
 	AccData monitorPlotData = new AccData();
 
 	static ArrayList<AccData> accDataLibrary;
-	static ArrayList<ArrayList<Double>> gnbcLibrary;
+	static ArrayList<ClassificationResult> gnbcLibrary;
 
 	public String f(Double d) {
 		return String.format("%.6f", d);
@@ -238,9 +238,10 @@ public class MainActivity extends FragmentActivity implements
 
 	private boolean spinnerFirstInvoke = true;
 	private AccData recordedGData;
-	private ArrayList<Double> tempGNBC;
+	private ClassificationResult tempGNBC;
 	private int gnbcIndex;
 	private int cpurgeCounter = 0;
+	private int userid=1337;
 
 	public void finishRecording() {
 		recordingEnabled = false;
@@ -354,7 +355,7 @@ public class MainActivity extends FragmentActivity implements
 		setContentView(R.layout.activity_main);
 
 		accDataLibrary = new ArrayList<AccData>();
-		gnbcLibrary = new ArrayList<ArrayList<Double>>();
+		gnbcLibrary = new ArrayList<ClassificationResult>();
 
 		/*
 		 * LOADING SERIALIZED ACTIVITY LIBRARY v.1
@@ -622,10 +623,10 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	public void send(View view) {
-		 String apiURI =
-		 "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data?apiKey=Ix7evhXTw3uwk1gDHCvzz-uMNEhOy8ZN";
-//		String apiURI = "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data_new?apiKey="
-//				+ apiKey;
+//		 String apiURI =
+//		 "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data?apiKey=Ix7evhXTw3uwk1gDHCvzz-uMNEhOy8ZN";
+		String apiURI = "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data_new?apiKey="
+				+ apiKey;
 		try {
 
 			// make web service connection
@@ -684,6 +685,66 @@ public class MainActivity extends FragmentActivity implements
 
 	}
 
+	public void sendClassificationResult(ClassificationResult result) {
+//		 String apiURI =
+//		 "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data?apiKey=Ix7evhXTw3uwk1gDHCvzz-uMNEhOy8ZN";
+		String apiURI = "https://api.mongolab.com/api/1/databases/activity_recognition/collections/classification_results?apiKey="
+				+ apiKey;
+		try {
+
+			// make web service connection
+			final HttpPost request = new HttpPost(apiURI);
+			request.setHeader("Accept", "application/json");
+			request.setHeader("Content-type", "application/json");
+
+			Gson gson = new Gson();
+			Gson gson2 = new Gson();
+
+			JsonElement jsonElement = gson.toJsonTree(new ClassificationResult(result));
+
+			// jsonElement.getAsJsonObject().add("gyro", gyroReadings);
+			jsonElement.getAsJsonObject().addProperty("userid",
+					userid);
+
+			String json = gson.toJson(jsonElement);
+			StringEntity entity = new StringEntity(json);
+
+			Log.d("****Parameter Input****", "Testing:" + json);
+			request.setEntity(entity);
+			// Send request to WCF service
+			final DefaultHttpClient httpClient = new DefaultHttpClient();
+
+			new AsyncTask<Void, Void, Void>() {
+				@Override
+				public Void doInBackground(Void... arg) {
+					try {
+						HttpResponse response = httpClient.execute(request);
+						Log.d("WebInvoke", "Saving: "
+								+ response.getStatusLine().toString());
+						// Get the status of web service
+						BufferedReader rd = new BufferedReader(
+								new InputStreamReader(response.getEntity()
+										.getContent()));
+						// print status in log
+						String line = "";
+						while ((line = rd.readLine()) != null) {
+							Log.d("****Status Line***", "Webservice: " + line);
+
+						}
+					} catch (Exception e) {
+						Log.e("SendMail", e.getMessage(), e);
+					}
+					return null;
+				}
+			}.execute();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+	
+	
 	void recalculateError() {
 		monitorPlotData.clear();
 	}
@@ -721,11 +782,11 @@ public class MainActivity extends FragmentActivity implements
 	public void nextGNBC(View view) {
 		if (gnbcIndex + 1 < gnbcLibrary.size()) {
 			tempGNBC = gnbcLibrary.get(gnbcIndex + 1);
-			recognitionTab.drawData(tempGNBC);
+			recognitionTab.drawData(tempGNBC.getV());
 			gnbcIndex++;
 			toast("GNBC result #" + gnbcIndex + " selected");
 			recognitionTab.updateStatusText("Selected GNBC result: "
-					+ gnbcIndex + "\n" + resultArrayToString(tempGNBC), false);
+					+ gnbcIndex + "\n" + resultArrayToString(tempGNBC.getV()), false);
 		}
 
 	}
@@ -803,11 +864,11 @@ public class MainActivity extends FragmentActivity implements
 	public void previousGNBC(View view) {
 		if (gnbcIndex - 1 >= 0 && gnbcLibrary.size() > 0) {
 			tempGNBC = gnbcLibrary.get(gnbcIndex - 1);
-			recognitionTab.drawData(tempGNBC);
+			recognitionTab.drawData(tempGNBC.getV());
 			gnbcIndex--;
 			toast("GNBC result #" + gnbcIndex + " selected");
 			recognitionTab.updateStatusText("Selected GNBC result: "
-					+ gnbcIndex + "\n" + resultArrayToString(tempGNBC), false);
+					+ gnbcIndex + "\n" + resultArrayToString(tempGNBC.getV()), false);
 		}
 
 	}
@@ -826,7 +887,7 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 
-	public String resultArrayToString(ArrayList<Double> array) {
+	public String resultArrayToString(List<Double> array) {
 		String txt = "";
 		for (int i = 0; i < array.size(); i++) {
 			double d = array.get(i);
@@ -863,36 +924,22 @@ public class MainActivity extends FragmentActivity implements
 					.classify(FeatureExtractors.buildFeatureObject(activity));
 			recognitionTab.updateStatusText(classification.second, false);
 			ArrayList<Double> results = classification.first;
-			tempGNBC = results;
+			Date date = new Date();
+			tempGNBC = new ClassificationResult(results,date);
 
-			int maxindex = 0;
-			double maxvalue = results.get(0);
-
-			for (int i = 0; i < 6; i++) {
-				if (!Double.isNaN(results.get(i))) {
-					maxvalue = results.get(i);
-					maxindex = i;
-					break;
-				}
+			
+			
+			if(recognitionTab.getSendToServerCheckboxValue()){
+				sendClassificationResult(tempGNBC);
 			}
-
-			for (int i = 0; i < 6; i++) {
-				if (!Double.isNaN(results.get(i))) {
-					if (results.get(i) > results.get(maxindex)) {
-						maxvalue = results.get(i);
-						maxindex = i;
-					}
-				}
-
-			}
-			tts.speak(FeatureExtractors.getTypeNoNumber(maxindex),
+			
+			tts.speak(FeatureExtractors.getTypeNoNumber(tempGNBC.GetMaxIndex()),
 					TextToSpeech.QUEUE_FLUSH, null);
 
-			SimpleDateFormat sdf = new SimpleDateFormat(gnbcLibrary.size()
-					+ ": [HH:mm:ss] ");
+			SimpleDateFormat sdf = new SimpleDateFormat();
 			String currentDateandTime = sdf.format(new Date());
 			recognitionTab.updateStatusText2(currentDateandTime
-					+ FeatureExtractors.getType(maxindex), true);
+					+ FeatureExtractors.getType(tempGNBC.GetMaxIndex()), true);
 			recognitionTab.drawData(classification.first);
 			gnbcIndex = gnbcLibrary.size();
 			gnbcLibrary.add(tempGNBC);

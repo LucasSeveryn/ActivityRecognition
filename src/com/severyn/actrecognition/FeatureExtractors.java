@@ -456,7 +456,7 @@ public final class FeatureExtractors {
 	public static AccFeat buildFeatureObject(AccData a) {
 		AccFeat temp = new AccFeat();
 
-		temp.setType(a.getType());
+//		temp.setType(a.getType());
 		List<Double> xData = a.getxData();
 		List<Double> yData = a.getyData();
 		List<Double> zData = a.getzData();
@@ -473,8 +473,6 @@ public final class FeatureExtractors {
 		temp.setSd(1, FeatureExtractors.calculateStandardDeviation(yData));
 		temp.setSd(2, FeatureExtractors.calculateStandardDeviation(zData));
 
-		//
-		
 		temp.setEnergy(0, FeatureExtractors.calculateEnergy(FeatureExtractors.fftest(xData)));
 		temp.setEnergy(1, FeatureExtractors.calculateEnergy(FeatureExtractors.fftest(yData)));
 		temp.setEnergy(2, FeatureExtractors.calculateEnergy(FeatureExtractors.fftest(zData)));
@@ -495,7 +493,7 @@ public final class FeatureExtractors {
 				xData, yData, zData));
 
 		temp.setFftHistogram(0, FeatureExtractors.calculateHistogram(
-				FeatureExtractors.fftest(xData), 0, 0, 10));
+				FeatureExtractors.fftest(xData), 0, 40, 10));
 		temp.setFftHistogram(1, FeatureExtractors.calculateHistogram(
 				FeatureExtractors.fftest(yData), 0, 40, 10));
 		temp.setFftHistogram(2, FeatureExtractors.calculateHistogram(
@@ -530,14 +528,16 @@ public final class FeatureExtractors {
 
 		// temp.setCrossingCount(0, FeatureExtractors
 		// .zeroCrossingCount(FeatureExtractors.highPassFilter(lpfxData)));
-		temp.setCrossingCount(0, 0);
+//		temp.setCrossingCount(0, 0);
 		// temp.setCrossingCount(1, FeatureExtractors
 		// .zeroCrossingCount(FeatureExtractors.highPassFilter(lpfyData)));
 		// temp.setCrossingCount(2, FeatureExtractors
 		// .zeroCrossingCount(FeatureExtractors.highPassFilter(lpfzData)));
 		//
-		// temp.setCrossingCount(0, FeatureExtractors
-		// .relativeZeroCrossingCount(lpfxData));
+		
+		
+		 temp.setCrossingCount(0, FeatureExtractors
+		 .relativeZeroCrossingCount(lpfxData));
 		temp.setCrossingCount(1,
 				FeatureExtractors.relativeZeroCrossingCount(lpfyData));
 		temp.setCrossingCount(2,

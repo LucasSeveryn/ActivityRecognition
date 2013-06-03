@@ -8,9 +8,16 @@ import android.util.Pair;
 public class GaussianNaiveBayesClassifier {
 	ArrayList<ArrayList<Double>> entropyMean;
 	ArrayList<ArrayList<Double>> entropyVar;
-
+	int[] attr = { 3, 4, 6, 12, 14, 20, 21, 22, 23, 24, 25, 32, 40, 46, 50, 51,
+	94 };
+	
 	public GaussianNaiveBayesClassifier(ArrayList<ArrayList<Double>> entropyMean,
 			ArrayList<ArrayList<Double>> entropyVar) {
+		
+		for (int j = 0; j < attr.length; j++) {
+			attr[j] = attr[j] - 2;
+		}
+		
 		this.entropyMean = entropyMean;
 		this.entropyVar = entropyVar;
 
@@ -23,16 +30,9 @@ public class GaussianNaiveBayesClassifier {
 		double result;
 		ArrayList<Double> qf = new ArrayList<Double>();
 
-		for (int j = 0; j < 6; j++) {
-			qf.add(q.getFeature(j));
+		for (int k = 0; k < attr.length; k++) {
+			qf.add(q.getFeature(attr[k]));
 		}
-		for (int j = 17; j < 24; j++) {
-			qf.add(q.getFeature(j));
-		}
-		for (int j = 84; j < 95; j++) {
-			qf.add(q.getFeature(j));
-		}
-		
 		
 		
 		for (int i = 0; i < 6; i++) {
@@ -51,8 +51,7 @@ public class GaussianNaiveBayesClassifier {
 		double maxvalue = results[0];
 
 		for (int i = 0; i < 6; i++) {
-			if ( i != 6 && i != 7 && i != 8
-					&& !Double.isNaN(results[i])) {
+			if ( !Double.isNaN(results[i])) {
 				maxvalue = results[i];
 				maxindex = i;
 				break;
@@ -107,6 +106,7 @@ public class GaussianNaiveBayesClassifier {
 				- m, 2))
 				/ (2 * var))));
 
+//		if(p==0) return 1;
 		return p;
 	}
 

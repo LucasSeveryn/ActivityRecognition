@@ -936,15 +936,17 @@ public class MainActivity extends FragmentActivity implements
 			tts.speak(FeatureExtractors.getTypeNoNumber(tempGNBC.GetMaxIndex()),
 					TextToSpeech.QUEUE_FLUSH, null);
 
-			SimpleDateFormat sdf = new SimpleDateFormat();
-			String currentDateandTime = sdf.format(new Date());
-			recognitionTab.updateStatusText2(currentDateandTime
-					+ FeatureExtractors.getType(tempGNBC.GetMaxIndex()), true);
-			recognitionTab.drawData(classification.first);
 			gnbcIndex = gnbcLibrary.size();
 			gnbcLibrary.add(tempGNBC);
 			// toast("GNBC result saved. Library size:" + gnbcLibrary.size());
 			gnbcIndex = gnbcLibrary.size() - 1;
+			
+			SimpleDateFormat sdf = new SimpleDateFormat();
+			String currentDateandTime = sdf.format(new Date());
+			recognitionTab.updateStatusText2(currentDateandTime
+					+ " [" + gnbcIndex +"] " + FeatureExtractors.getType(tempGNBC.GetMaxIndex()), true);
+			recognitionTab.drawData(classification.first);
+
 		}
 
 	}

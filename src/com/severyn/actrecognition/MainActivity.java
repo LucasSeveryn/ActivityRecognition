@@ -350,7 +350,10 @@ public class MainActivity extends FragmentActivity implements
 			pause(500);
 			recordingEnabled = true;
 			t = System.currentTimeMillis();
-			if(!halfSizeMode) pause(13000); else pause(6500);
+			if (!halfSizeMode)
+				pause(13000);
+			else
+				pause(6500);
 			recordingEnabled = false;
 			v.vibrate(100);
 		}
@@ -940,6 +943,8 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	ArrayList<ClassificationResult> classificationBin = new ArrayList<ClassificationResult>();
+	private boolean heuristicsOn=true;
+	private ClassificationResult previousGNBC;
 
 	private void classify(AccData activity) {
 		// finishRecording();
@@ -951,31 +956,46 @@ public class MainActivity extends FragmentActivity implements
 			ArrayList<Double> results = classification.first;
 			Date date = new Date();
 			tempGNBC = new ClassificationResult(results, date);
+			double pValue =tempGNBC.getMaxProbabilityValue();
+			SimpleDateFormat sdf = new SimpleDateFormat();
+
+			if (!heuristicsOn || pValue> (-220) || (tempGNBC.getResult()!=3&&tempGNBC.getResult()!=2&&pValue>(-270))) { //HEURISTIC TIME!
+
+				
+				gnbcIndex = gnbcLibrary.size();
+				gnbcLibrary.add(tempGNBC);
+				// toast("GNBC result saved. Library size:" +
+				// gnbcLibrary.size());
+				gnbcIndex = gnbcLibrary.size() - 1;
+
+				
+				String currentDateandTime = sdf.format(new Date());
+				recognitionTab.updateStatusText2(
+						currentDateandTime
+								+ " ["
+								+ gnbcIndex
+								+ "] "
+								+ FeatureExtractors.getType(tempGNBC
+										.GetMaxIndex()), true);
+				recognitionTab.drawData(classification.first);
+				previousGNBC=tempGNBC;
+			}else{
+				if(previousGNBC!=null) tempGNBC=previousGNBC;
+			}
+			SimpleDateFormat sdfms = new SimpleDateFormat("dd-MM hh:mm:ss.SSS");
 
 			if (recognitionTab.getSendToServerCheckboxValue()) {
+				String currentDateandTimeMs = sdfms.format(new Date());
 				sendClassificationResult(tempGNBC);
+				recognitionTab.updateStatusText2(
+						currentDateandTimeMs
+								+ " [!] "
+								+ FeatureExtractors
+										.getTypeNoNumber(tempGNBC.getResult()), true);
 			}
 
-			tts.speak(
-					FeatureExtractors.getTypeNoNumber(tempGNBC.GetMaxIndex()),
-					TextToSpeech.QUEUE_FLUSH, null);
-
-			gnbcIndex = gnbcLibrary.size();
-			gnbcLibrary.add(tempGNBC);
-			// toast("GNBC result saved. Library size:" + gnbcLibrary.size());
-			gnbcIndex = gnbcLibrary.size() - 1;
-
-			SimpleDateFormat sdf = new SimpleDateFormat();
-			String currentDateandTime = sdf.format(new Date());
-			recognitionTab
-					.updateStatusText2(
-							currentDateandTime
-									+ " ["
-									+ gnbcIndex
-									+ "] "
-									+ FeatureExtractors.getType(tempGNBC
-											.GetMaxIndex()), true);
-			recognitionTab.drawData(classification.first);
+			tts.speak(FeatureExtractors.getTypeNoNumber(tempGNBC
+					.GetMaxIndex()), TextToSpeech.QUEUE_FLUSH, null);
 
 		}
 

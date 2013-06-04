@@ -142,4 +142,10 @@ public class ClassificationResult {
 	public void setDate(Date date) {
 		this.date = date;
 	}
+
+	public int getResult() {
+		return result;
+	}
+
+
 }

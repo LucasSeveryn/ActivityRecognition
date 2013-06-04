@@ -191,7 +191,7 @@ public class MainActivity extends FragmentActivity implements
 							}
 
 						}
-						recordedData = recordedData.removeHalfOfElements();
+						recordedData = recordedData.removeQuarterOfElements();
 
 					}
 				}
@@ -916,6 +916,9 @@ public class MainActivity extends FragmentActivity implements
 
 	}
 
+	
+	ArrayList<ClassificationResult> classificationBin = new ArrayList<ClassificationResult>();
+	
 	private void classify(AccData activity) {
 		// finishRecording();
 		if (entropyDataLoaded) {
@@ -927,15 +930,6 @@ public class MainActivity extends FragmentActivity implements
 			Date date = new Date();
 			tempGNBC = new ClassificationResult(results,date);
 
-			
-			
-			if(recognitionTab.getSendToServerCheckboxValue()){
-				sendClassificationResult(tempGNBC);
-			}
-			
-			tts.speak(FeatureExtractors.getTypeNoNumber(tempGNBC.GetMaxIndex()),
-					TextToSpeech.QUEUE_FLUSH, null);
-
 			gnbcIndex = gnbcLibrary.size();
 			gnbcLibrary.add(tempGNBC);
 			// toast("GNBC result saved. Library size:" + gnbcLibrary.size());
@@ -946,6 +940,33 @@ public class MainActivity extends FragmentActivity implements
 			recognitionTab.updateStatusText2(currentDateandTime
 					+ " [" + gnbcIndex +"] " + FeatureExtractors.getType(tempGNBC.GetMaxIndex()), true);
 			recognitionTab.drawData(classification.first);
+			
+			if(classificationBin.size()<3){
+				classificationBin.add(tempGNBC);
+			}
+			
+			if(classificationBin.size()==3){
+				//need to decide which one is best
+				double one = classificationBin.get(0).getDifferenceBetweenTopAndRunupP();
+				double two = classificationBin.get(1).getDifferenceBetweenTopAndRunupP();
+				double three = classificationBin.get(2).getDifferenceBetweenTopAndRunupP();
+				int selected = 99;
+				
+				if(one>=two&&one>=three){selected=0;}
+				else if(two>=one&&two>=three){selected=1;}
+				else if(three>=one&three>=two){selected=2;}
+				else if(one==two&&two==three){selected=1;}
+				
+				if(recognitionTab.getSendToServerCheckboxValue()){
+					sendClassificationResult(classificationBin.get(selected));
+				}
+				
+				tts.speak(FeatureExtractors.getTypeNoNumber(classificationBin.get(selected).GetMaxIndex()),
+						TextToSpeech.QUEUE_FLUSH, null);
+				
+				classificationBin.remove(0);
+				classificationBin.remove(0);
+			}
 
 		}
 

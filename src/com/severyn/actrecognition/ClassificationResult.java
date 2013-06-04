@@ -52,6 +52,72 @@ public class ClassificationResult {
 		return maxindex;
 	}
 
+	public int GetSecondMaxIndex(){
+		int maxindex = 0;
+		double maxvalue = p.get(0);
+
+		for (int i = 0; i < 6; i++) {
+			if (!Double.isNaN(p.get(i))) {
+				maxvalue = p.get(i);
+				maxindex = i;
+				break;
+			}
+		}
+
+		for (int i = 0; i < 6; i++) {
+			if (!Double.isNaN(p.get(i))) {
+				if (p.get(i) > p.get(maxindex)) {
+					maxvalue = p.get(i);
+					maxindex = i;
+				}
+			}
+
+		}
+		ArrayList<Double> v = new ArrayList<Double>(p);
+		v.set(maxindex, Double.NaN);
+		maxindex = 0;
+		maxvalue = v.get(0);
+
+		for (int i = 0; i < 6; i++) {
+			if (!Double.isNaN(v.get(i))) {
+				maxvalue = v.get(i);
+				maxindex = i;
+				break;
+			}
+		}
+
+		for (int i = 0; i < 6; i++) {
+			if (!Double.isNaN(v.get(i))) {
+				if (v.get(i) > v.get(maxindex)) {
+					maxvalue = v.get(i);
+					maxindex = i;
+				}
+			}
+
+		}
+		
+		return maxindex;
+	}
+	
+	public double getMaxProbabilityValue(){
+		double r =  p.get(this.GetMaxIndex());
+		return r;
+	}
+	
+	public double getSecondMaxProbabilityValue(){
+		double r=p.get(this.GetSecondMaxIndex());
+		return r;
+	}
+	
+	public double getDifferenceBetweenTopAndRunupP(){
+		double max = getMaxProbabilityValue();
+		double snd = getSecondMaxProbabilityValue();
+		if(Double.isInfinite(snd)||Double.isInfinite(max)) return Double.POSITIVE_INFINITY;
+		else return snd/max;
+//		if (snd)
+//		return Math.abs()-);
+	}
+	
 	public List<Double> getV() {
 		return p;
 	}

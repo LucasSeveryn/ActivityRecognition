@@ -101,6 +101,16 @@ public class AccData implements Serializable {
 		AccData result = new AccData(xDatar, yDatar, zDatar);
 		return result;
 	}
+	
+	public AccData removeQuarterOfElements(){
+		List<Double> xDatar = this.xData.subList(128, xData.size());
+		List<Double> yDatar = this.yData.subList(128, xData.size());
+		List<Double> zDatar = this.zData.subList(128, xData.size());
+		AccData result = new AccData(xDatar, yDatar, zDatar);
+		return result;
+	}
+
+	
 
 	public int getType() {
 		return type;

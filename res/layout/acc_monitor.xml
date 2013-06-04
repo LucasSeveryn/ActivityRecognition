@@ -59,4 +59,17 @@
         android:onClick="recalculateError"
         android:layout_centerHorizontal="true"
         android:text="Recalculate Error" />
+
+    <ToggleButton
+        android:id="@+id/monitorToggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/zAccPlot"
+        android:layout_alignParentBottom="true"
+        android:layout_alignTop="@+id/recalculateErrorButton"
+        android:text="ToggleButton"
+        android:textOff="Disabled"
+        android:onClick="toggleMonitor"
+        android:textOn="Enabled" />
+
 </RelativeLayout>

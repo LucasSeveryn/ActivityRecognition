@@ -99,6 +99,7 @@ public class MainActivity extends FragmentActivity implements
 	 */
 	ViewPager mViewPager;
 	private boolean recordingEnabled = false;
+	private boolean monitorEnabled = false;
 
 	double[] averageNoise = { 0, 0, 0 };
 	// float[] averageGNoise = { 0, 0, 0 };
@@ -135,10 +136,11 @@ public class MainActivity extends FragmentActivity implements
 	private boolean constantSavingEnabled = false;
 	private boolean constantIdentifying = false;
 	private int cc = 1;
+	private int limit = 511;
 	private int burstCounter = 0;
+	private boolean halfSizeMode = false;
 	LocationManager lm;
-	
-	
+
 	private final SensorEventListener mSensorListener = new SensorEventListener() {
 		private int counter = 0;
 
@@ -163,7 +165,12 @@ public class MainActivity extends FragmentActivity implements
 					recordedData.addZ(z);
 					recordingTab.updateProgressBar(recordedData.size());
 				}
-				if (recordedData != null && recordedData.size() > 511) {
+
+				if (halfSizeMode)
+					limit = 255;
+				else
+					limit = 511;
+				if (recordedData != null && recordedData.size() > limit) {
 
 					if (recordingEnabled) {
 						recordingEnabled = false;
@@ -191,29 +198,34 @@ public class MainActivity extends FragmentActivity implements
 							}
 
 						}
-						recordedData = recordedData.removeQuarterOfElements();
-
+						if (halfSizeMode)
+							recordedData = recordedData
+									.removeQuarterOfElements();
+						else
+							recordedData = recordedData.removeHalfOfElements();
 					}
 				}
 
-				monitorTab.updatePlot(monitorPlotData.getxData(), xPlotSeries,
-						monitorTab.xPlot, x);
-				monitorTab.updatePlot(monitorPlotData.getyData(), yPlotSeries,
-						monitorTab.yPlot, y);
-				monitorTab.updatePlot(monitorPlotData.getzData(), zPlotSeries,
-						monitorTab.zPlot, z);
+				if (monitorEnabled) {
+					monitorTab.updatePlot(monitorPlotData.getxData(),
+							xPlotSeries, monitorTab.xPlot, x);
+					monitorTab.updatePlot(monitorPlotData.getyData(),
+							yPlotSeries, monitorTab.yPlot, y);
+					monitorTab.updatePlot(monitorPlotData.getzData(),
+							zPlotSeries, monitorTab.zPlot, z);
 
-				if (monitorPlotData.getxData().size() == 119) {
-					double[] newAverageNoise = {
-							FeatureExtractors.calculateMean((monitorPlotData
-									.getxData())),
-							FeatureExtractors.calculateMean(monitorPlotData
-									.getyData()),
-							FeatureExtractors.calculateMean(monitorPlotData
-									.getzData()) };
-					averageNoise = newAverageNoise;
+					if (monitorPlotData.getxData().size() == 119) {
+						double[] newAverageNoise = {
+								FeatureExtractors
+										.calculateMean((monitorPlotData
+												.getxData())),
+								FeatureExtractors.calculateMean(monitorPlotData
+										.getyData()),
+								FeatureExtractors.calculateMean(monitorPlotData
+										.getzData()) };
+						averageNoise = newAverageNoise;
+					}
 				}
-
 				if (counter % 25 == 0) {
 					((TextView) findViewById(R.id.xAccPlotLabel))
 							.setText("x-plane acc. Error: "
@@ -241,7 +253,7 @@ public class MainActivity extends FragmentActivity implements
 	private ClassificationResult tempGNBC;
 	private int gnbcIndex;
 	private int cpurgeCounter = 0;
-	private int userid=1337;
+	private int userid = 1337;
 
 	public void finishRecording() {
 		recordingEnabled = false;
@@ -338,7 +350,7 @@ public class MainActivity extends FragmentActivity implements
 			pause(500);
 			recordingEnabled = true;
 			t = System.currentTimeMillis();
-			pause(13000);
+			if(!halfSizeMode) pause(13000); else pause(6500);
 			recordingEnabled = false;
 			v.vibrate(100);
 		}
@@ -452,16 +464,14 @@ public class MainActivity extends FragmentActivity implements
 
 		tts = new TextToSpeech(this, this);
 
-		
-//		lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-//		
-//		Criteria crit = new Criteria();
-//		crit.setAccuracy(Criteria.ACCURACY_FINE);
-//		String best = lm.getBestProvider(crit, false);
-//		lm.requestLocationUpdates(best, 0, 1, this);
-//	    lm.requestLocationUpdates(best, 10000, 1, this);
+		// lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		//
+		// Criteria crit = new Criteria();
+		// crit.setAccuracy(Criteria.ACCURACY_FINE);
+		// String best = lm.getBestProvider(crit, false);
+		// lm.requestLocationUpdates(best, 0, 1, this);
+		// lm.requestLocationUpdates(best, 10000, 1, this);
 
-		
 	}
 
 	public void onInit(int status) {
@@ -548,6 +558,16 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 
+	public void toggleMonitor(View view) {
+		boolean toggleOn = monitorTab.getMonitorToggleStatus();
+		if (!toggleOn) {
+			monitorEnabled = false;
+		} else {
+			monitorEnabled = true;
+
+		}
+	}
+
 	public void startConstantRecording(View view) {
 		boolean toggleOn = recordingTab.getRecordingToggleStatus();
 		if (!toggleOn) {
@@ -563,10 +583,12 @@ public class MainActivity extends FragmentActivity implements
 					.getConstantSavingCheckboxValue();
 			constantIdentifying = recordingTab
 					.getConstantIdentificationCheckboxValue();
+			halfSizeMode = recordingTab.getHalfSizeCheckboxValue();
 			toast("Starting constant recording.\nSaving: "
 					+ constantSavingEnabled + ". Identifying: "
 					+ constantIdentifying + ". Tagging: "
-					+ recordingTab.getAutoTagCheckboxValue());
+					+ recordingTab.getAutoTagCheckboxValue() + ". Half size: "
+					+ recordingTab.getHalfSizeCheckboxValue() + ".");
 		}
 		recordingTab.toggleCheckboxes();
 
@@ -623,8 +645,8 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	public void send(View view) {
-//		 String apiURI =
-//		 "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data?apiKey=Ix7evhXTw3uwk1gDHCvzz-uMNEhOy8ZN";
+		// String apiURI =
+		// "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data?apiKey=Ix7evhXTw3uwk1gDHCvzz-uMNEhOy8ZN";
 		String apiURI = "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data_new?apiKey="
 				+ apiKey;
 		try {
@@ -686,8 +708,8 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	public void sendClassificationResult(ClassificationResult result) {
-//		 String apiURI =
-//		 "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data?apiKey=Ix7evhXTw3uwk1gDHCvzz-uMNEhOy8ZN";
+		// String apiURI =
+		// "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data?apiKey=Ix7evhXTw3uwk1gDHCvzz-uMNEhOy8ZN";
 		String apiURI = "https://api.mongolab.com/api/1/databases/activity_recognition/collections/classification_results?apiKey="
 				+ apiKey;
 		try {
@@ -700,11 +722,11 @@ public class MainActivity extends FragmentActivity implements
 			Gson gson = new Gson();
 			Gson gson2 = new Gson();
 
-			JsonElement jsonElement = gson.toJsonTree(new ClassificationResult(result));
+			JsonElement jsonElement = gson.toJsonTree(new ClassificationResult(
+					result));
 
 			// jsonElement.getAsJsonObject().add("gyro", gyroReadings);
-			jsonElement.getAsJsonObject().addProperty("userid",
-					userid);
+			jsonElement.getAsJsonObject().addProperty("userid", userid);
 
 			String json = gson.toJson(jsonElement);
 			StringEntity entity = new StringEntity(json);
@@ -743,8 +765,7 @@ public class MainActivity extends FragmentActivity implements
 		}
 
 	}
-	
-	
+
 	void recalculateError() {
 		monitorPlotData.clear();
 	}
@@ -786,7 +807,8 @@ public class MainActivity extends FragmentActivity implements
 			gnbcIndex++;
 			toast("GNBC result #" + gnbcIndex + " selected");
 			recognitionTab.updateStatusText("Selected GNBC result: "
-					+ gnbcIndex + "\n" + resultArrayToString(tempGNBC.getV()), false);
+					+ gnbcIndex + "\n" + resultArrayToString(tempGNBC.getV()),
+					false);
 		}
 
 	}
@@ -868,7 +890,8 @@ public class MainActivity extends FragmentActivity implements
 			gnbcIndex--;
 			toast("GNBC result #" + gnbcIndex + " selected");
 			recognitionTab.updateStatusText("Selected GNBC result: "
-					+ gnbcIndex + "\n" + resultArrayToString(tempGNBC.getV()), false);
+					+ gnbcIndex + "\n" + resultArrayToString(tempGNBC.getV()),
+					false);
 		}
 
 	}
@@ -916,9 +939,8 @@ public class MainActivity extends FragmentActivity implements
 
 	}
 
-	
 	ArrayList<ClassificationResult> classificationBin = new ArrayList<ClassificationResult>();
-	
+
 	private void classify(AccData activity) {
 		// finishRecording();
 		if (entropyDataLoaded) {
@@ -928,15 +950,14 @@ public class MainActivity extends FragmentActivity implements
 			recognitionTab.updateStatusText(classification.second, false);
 			ArrayList<Double> results = classification.first;
 			Date date = new Date();
-			tempGNBC = new ClassificationResult(results,date);
+			tempGNBC = new ClassificationResult(results, date);
 
-
-
-			if(recognitionTab.getSendToServerCheckboxValue()){
+			if (recognitionTab.getSendToServerCheckboxValue()) {
 				sendClassificationResult(tempGNBC);
 			}
 
-			tts.speak(FeatureExtractors.getTypeNoNumber(tempGNBC.GetMaxIndex()),
+			tts.speak(
+					FeatureExtractors.getTypeNoNumber(tempGNBC.GetMaxIndex()),
 					TextToSpeech.QUEUE_FLUSH, null);
 
 			gnbcIndex = gnbcLibrary.size();
@@ -946,14 +967,20 @@ public class MainActivity extends FragmentActivity implements
 
 			SimpleDateFormat sdf = new SimpleDateFormat();
 			String currentDateandTime = sdf.format(new Date());
-			recognitionTab.updateStatusText2(currentDateandTime
-					+ " [" + gnbcIndex +"] " + FeatureExtractors.getType(tempGNBC.GetMaxIndex()), true);
+			recognitionTab
+					.updateStatusText2(
+							currentDateandTime
+									+ " ["
+									+ gnbcIndex
+									+ "] "
+									+ FeatureExtractors.getType(tempGNBC
+											.GetMaxIndex()), true);
 			recognitionTab.drawData(classification.first);
 
 		}
 
 	}
-	
+
 	private void classify2(AccData activity) {
 		// finishRecording();
 		if (entropyDataLoaded) {
@@ -963,48 +990,67 @@ public class MainActivity extends FragmentActivity implements
 			recognitionTab.updateStatusText(classification.second, false);
 			ArrayList<Double> results = classification.first;
 			Date date = new Date();
-			tempGNBC = new ClassificationResult(results,date);
+			tempGNBC = new ClassificationResult(results, date);
 
 			gnbcIndex = gnbcLibrary.size();
 			gnbcLibrary.add(tempGNBC);
 			// toast("GNBC result saved. Library size:" + gnbcLibrary.size());
 			gnbcIndex = gnbcLibrary.size() - 1;
-			
-//			SimpleDateFormat sdf = new SimpleDateFormat();
-		    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM hh:mm:ss");
-		    SimpleDateFormat sdfms = new SimpleDateFormat("dd-MM hh:mm:ss.SSS");
+
+			// SimpleDateFormat sdf = new SimpleDateFormat();
+			SimpleDateFormat sdf = new SimpleDateFormat("dd-MM hh:mm:ss");
+			SimpleDateFormat sdfms = new SimpleDateFormat("dd-MM hh:mm:ss.SSS");
 
 			String currentDateandTime = sdf.format(new Date());
-			recognitionTab.updateStatusText2(currentDateandTime
-					+ " [" + gnbcIndex +"] " + FeatureExtractors.getType(tempGNBC.GetMaxIndex()), true);
+			recognitionTab
+					.updateStatusText2(
+							currentDateandTime
+									+ " ["
+									+ gnbcIndex
+									+ "] "
+									+ FeatureExtractors.getType(tempGNBC
+											.GetMaxIndex()), true);
 			recognitionTab.drawData(classification.first);
-			
-			if(classificationBin.size()<3){
+
+			if (classificationBin.size() < 3) {
 				classificationBin.add(tempGNBC);
 			}
-			
-			if(classificationBin.size()==3){
-				//need to decide which one is best
-				double one = classificationBin.get(0).getDifferenceBetweenTopAndRunupP();
-				double two = classificationBin.get(1).getDifferenceBetweenTopAndRunupP();
-				double three = classificationBin.get(2).getDifferenceBetweenTopAndRunupP();
+
+			if (classificationBin.size() == 3) {
+				// need to decide which one is best
+				double one = classificationBin.get(0)
+						.getDifferenceBetweenTopAndRunupP();
+				double two = classificationBin.get(1)
+						.getDifferenceBetweenTopAndRunupP();
+				double three = classificationBin.get(2)
+						.getDifferenceBetweenTopAndRunupP();
 				int selected = 99;
-				
-				if(one>=two&&one>=three){selected=0;}
-				else if(two>=one&&two>=three){selected=1;}
-				else if(three>=one&three>=two){selected=2;}
-				else if(one==two&&two==three){selected=1;}
-				
-				if(recognitionTab.getSendToServerCheckboxValue()){
+
+				if (one >= two && one >= three) {
+					selected = 0;
+				} else if (two >= one && two >= three) {
+					selected = 1;
+				} else if (three >= one & three >= two) {
+					selected = 2;
+				} else if (one == two && two == three) {
+					selected = 1;
+				}
+
+				if (recognitionTab.getSendToServerCheckboxValue()) {
 					sendClassificationResult(classificationBin.get(selected));
 				}
 				String currentDateandTimeMs = sdfms.format(new Date());
-				recognitionTab.updateStatusText2(currentDateandTimeMs + " [!] " 
-						 + FeatureExtractors.getTypeNoNumber(classificationBin.get(selected).result),true);
-				
-				tts.speak(FeatureExtractors.getTypeNoNumber(classificationBin.get(selected).GetMaxIndex()),
+				recognitionTab.updateStatusText2(
+						currentDateandTimeMs
+								+ " [!] "
+								+ FeatureExtractors
+										.getTypeNoNumber(classificationBin
+												.get(selected).result), true);
+
+				tts.speak(FeatureExtractors.getTypeNoNumber(classificationBin
+						.get(selected).GetMaxIndex()),
 						TextToSpeech.QUEUE_FLUSH, null);
-				
+
 				classificationBin.remove(0);
 				classificationBin.remove(0);
 			}
@@ -1318,27 +1364,27 @@ public class MainActivity extends FragmentActivity implements
 	public void onLocationChanged(Location location) {
 		SimpleDateFormat sdf = new SimpleDateFormat("[HH:mm:ss] ");
 		String currentDateandTime = sdf.format(new Date());
-		recognitionTab.updateStatusText2(currentDateandTime
-				+ location.getAltitude(), true);
-		
+		recognitionTab.updateStatusText2(
+				currentDateandTime + location.getAltitude(), true);
+
 	}
 
 	@Override
 	public void onProviderDisabled(String provider) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onProviderEnabled(String provider) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

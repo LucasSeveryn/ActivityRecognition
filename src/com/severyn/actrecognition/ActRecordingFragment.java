@@ -141,6 +141,12 @@ public class ActRecordingFragment extends Fragment {
 				.findViewById(R.id.constantRecordingSaveCheckbox);
 		return constantSavingCheckBox.isChecked();
 	}
+	
+	public boolean getHalfSizeCheckboxValue() {
+		CheckBox halfSizeCheckbox = (CheckBox) this.getView()
+				.findViewById(R.id.halfSizeCheckbox);
+		return halfSizeCheckbox.isChecked();
+	}
 
 	public boolean getAutoTagCheckboxValue() {
 		CheckBox autoTagCheckbox = (CheckBox) this.getView()
@@ -150,7 +156,7 @@ public class ActRecordingFragment extends Fragment {
 	
 	public boolean getConstantIdentificationCheckboxValue() {
 		CheckBox constantIdentificationCheckbox = (CheckBox) this.getView()
-				.findViewById(R.id.constantIdentificationCheckbox);
+				.findViewById(R.id.constantIdentyfyingCheckbox);
 		return constantIdentificationCheckbox.isChecked();
 	}
 
@@ -182,14 +188,17 @@ public class ActRecordingFragment extends Fragment {
 		CheckBox constantSavingCheckBox = (CheckBox) this.getView()
 				.findViewById(R.id.constantRecordingSaveCheckbox);
 		CheckBox constantIdentificationCheckbox = (CheckBox) this.getView()
-				.findViewById(R.id.constantIdentificationCheckbox);
+				.findViewById(R.id.constantIdentyfyingCheckbox);
 		CheckBox autoTagCheckbox = (CheckBox) this.getView()
 				.findViewById(R.id.autoTagCheckbox);
+		CheckBox halfSizeCheckbox = (CheckBox) this.getView()
+				.findViewById(R.id.halfSizeCheckbox);
 		
 		autoTagCheckbox.setEnabled(!autoTagCheckbox.isEnabled());
 		constantSavingCheckBox.setEnabled(!constantSavingCheckBox.isEnabled());
 		constantIdentificationCheckbox
 				.setEnabled(!constantIdentificationCheckbox.isEnabled());
+		halfSizeCheckbox.setEnabled(!halfSizeCheckbox.isEnabled());
 	}
 
 	private String printHistogram(int[] array) {

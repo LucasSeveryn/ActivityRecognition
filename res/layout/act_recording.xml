@@ -86,15 +86,34 @@
         android:textOff="Start Rec."
         android:textOn="Stop Rec." />
 
-    <TextView
+    <ScrollView
+        android:id="@+id/scrollView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/send"
+        android:layout_alignLeft="@+id/recordingToggle"
+        android:layout_alignRight="@+id/typeSpinner"
+        android:layout_below="@+id/recordingToggle" >
+        
+       <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <TextView
         android:id="@+id/accActDetailText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/recordingToggle"
-        android:layout_below="@+id/recordingToggle"
         android:text="Activity Details"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textSize="10dp" />
+        
+    	</LinearLayout>
+        
+        
+    </ScrollView>
+    
+    
 
     <Button
         android:id="@+id/startRecordingButton"
@@ -205,12 +224,24 @@
         android:layout_alignLeft="@+id/previousAccActivityButton"
         android:layout_marginTop="-10dp"
                 android:layout_marginBottom="-5dp"
-        
-        android:text="Save to library when constantly recording"
+        android:text="Add to library when constantly recording"
         android:textSize="11dp" />
 
     <CheckBox
-        android:id="@+id/constantIdentificationCheckbox"
+        android:id="@+id/halfSizeCheckbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/constantIdentyfyingCheckbox"
+        android:layout_alignLeft="@+id/constantIdentyfyingCheckbox"
+        android:layout_marginTop="-10dp"
+        android:layout_marginBottom="-5dp"
+        android:text="Use half size samples"
+        android:textSize="11dp" />
+    
+    
+    
+    <CheckBox
+        android:id="@+id/constantIdentyfyingCheckbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/autoTagCheckbox"
@@ -243,5 +274,7 @@
         android:layout_marginRight="5dp"
         android:textSize="11dp"
         android:textAppearance="?android:attr/textAppearanceSmall" />
+
+
 
 </RelativeLayout>

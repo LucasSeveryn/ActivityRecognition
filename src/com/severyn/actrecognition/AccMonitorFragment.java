@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ToggleButton;
 
 import com.androidplot.xy.BoundaryMode;
 import com.androidplot.xy.LineAndPointFormatter;
@@ -67,6 +68,12 @@ public class AccMonitorFragment extends Fragment {
 		plot.setRangeLabel("Acceleration");
 		plot.getRangeLabelWidget().pack();
 		plot.setTitle(series.getTitle());
+	}
+
+	public boolean getMonitorToggleStatus() {
+		ToggleButton monitorToggle = (ToggleButton) this.getView()
+				.findViewById(R.id.monitorToggle);
+		return monitorToggle.isChecked();
 	}
 
 }

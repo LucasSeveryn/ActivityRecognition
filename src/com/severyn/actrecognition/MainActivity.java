@@ -930,12 +930,50 @@ public class MainActivity extends FragmentActivity implements
 			Date date = new Date();
 			tempGNBC = new ClassificationResult(results,date);
 
+
+
+			if(recognitionTab.getSendToServerCheckboxValue()){
+				sendClassificationResult(tempGNBC);
+			}
+
+			tts.speak(FeatureExtractors.getTypeNoNumber(tempGNBC.GetMaxIndex()),
+					TextToSpeech.QUEUE_FLUSH, null);
+
+			gnbcIndex = gnbcLibrary.size();
+			gnbcLibrary.add(tempGNBC);
+			// toast("GNBC result saved. Library size:" + gnbcLibrary.size());
+			gnbcIndex = gnbcLibrary.size() - 1;
+
+			SimpleDateFormat sdf = new SimpleDateFormat();
+			String currentDateandTime = sdf.format(new Date());
+			recognitionTab.updateStatusText2(currentDateandTime
+					+ " [" + gnbcIndex +"] " + FeatureExtractors.getType(tempGNBC.GetMaxIndex()), true);
+			recognitionTab.drawData(classification.first);
+
+		}
+
+	}
+	
+	private void classify2(AccData activity) {
+		// finishRecording();
+		if (entropyDataLoaded) {
+			// toast("identifying...");
+			Pair<ArrayList<Double>, String> classification = ng
+					.classify(FeatureExtractors.buildFeatureObject(activity));
+			recognitionTab.updateStatusText(classification.second, false);
+			ArrayList<Double> results = classification.first;
+			Date date = new Date();
+			tempGNBC = new ClassificationResult(results,date);
+
 			gnbcIndex = gnbcLibrary.size();
 			gnbcLibrary.add(tempGNBC);
 			// toast("GNBC result saved. Library size:" + gnbcLibrary.size());
 			gnbcIndex = gnbcLibrary.size() - 1;
 			
-			SimpleDateFormat sdf = new SimpleDateFormat();
+//			SimpleDateFormat sdf = new SimpleDateFormat();
+		    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM hh:mm:ss");
+		    SimpleDateFormat sdfms = new SimpleDateFormat("dd-MM hh:mm:ss.SSS");
+
 			String currentDateandTime = sdf.format(new Date());
 			recognitionTab.updateStatusText2(currentDateandTime
 					+ " [" + gnbcIndex +"] " + FeatureExtractors.getType(tempGNBC.GetMaxIndex()), true);
@@ -960,6 +998,9 @@ public class MainActivity extends FragmentActivity implements
 				if(recognitionTab.getSendToServerCheckboxValue()){
 					sendClassificationResult(classificationBin.get(selected));
 				}
+				String currentDateandTimeMs = sdfms.format(new Date());
+				recognitionTab.updateStatusText2(currentDateandTimeMs + " [!] " 
+						 + FeatureExtractors.getTypeNoNumber(classificationBin.get(selected).result),true);
 				
 				tts.speak(FeatureExtractors.getTypeNoNumber(classificationBin.get(selected).GetMaxIndex()),
 						TextToSpeech.QUEUE_FLUSH, null);

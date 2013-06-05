@@ -724,12 +724,16 @@ public class MainActivity extends FragmentActivity implements
 
 			Gson gson = new Gson();
 			Gson gson2 = new Gson();
+			
+			SimpleDateFormat dateformat = new SimpleDateFormat("MMM d, yyyy");
+			String justDate = dateformat.format(result.getDate());
 
 			JsonElement jsonElement = gson.toJsonTree(new ClassificationResult(
 					result));
 
 			// jsonElement.getAsJsonObject().add("gyro", gyroReadings);
 			jsonElement.getAsJsonObject().addProperty("userid", userid);
+			jsonElement.getAsJsonObject().addProperty("day", justDate);
 
 			String json = gson.toJson(jsonElement);
 			StringEntity entity = new StringEntity(json);

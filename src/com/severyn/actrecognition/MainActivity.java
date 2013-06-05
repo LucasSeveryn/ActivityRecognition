@@ -138,7 +138,7 @@ public class MainActivity extends FragmentActivity implements
 	private int cc = 1;
 	private int limit = 511;
 	private int burstCounter = 0;
-	private boolean halfSizeMode = false;
+	private boolean halfSizeMode = true;
 	LocationManager lm;
 
 	private final SensorEventListener mSensorListener = new SensorEventListener() {
@@ -1195,16 +1195,10 @@ public class MainActivity extends FragmentActivity implements
 
 	@Override
 	public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-		// if (arg0.length() > 0) {
-		// tempData.setRate(Integer.parseInt(arg0.toString()));
-		// recordingTab.updateActivityDetailText(tempData, tempFeat);
-		// Toast.makeText(this, "Rate changed to:" + tempData.getRate(),
-		// Toast.LENGTH_SHORT).show();
-		// if (activityLibrary.size() != 0
-		// && tempData == activityLibrary.get(index)) {
-		// activityLibrary.set(index, tempData);
-		// }
-		// }
+		 if (arg0.length() > 0) {
+		 userid=(Integer.parseInt(arg0.toString()));
+		 toast("Userid changed to:" + userid);
+		 }
 
 	}
 

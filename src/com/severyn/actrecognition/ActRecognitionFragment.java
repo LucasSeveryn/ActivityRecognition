@@ -27,6 +27,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 public class ActRecognitionFragment extends Fragment {
@@ -61,7 +63,12 @@ public class ActRecognitionFragment extends Fragment {
 		pPlot.setRangeValueFormat(new DecimalFormat("#"));
 		pPlot.setBorderStyle(Plot.BorderStyle.SQUARE, null, null);
 
-
+		EditText useridEditText = (EditText) rootView
+				.findViewById(R.id.useridEditText);
+		useridEditText.addTextChangedListener((MainActivity) getActivity());
+		
+		
+		
 	     BarRenderer barRenderer = (BarRenderer) pPlot.getRenderer(BarRenderer.class);
 	       if(barRenderer != null) {
 	           // make our bars a little thicker than the default so they can be seen better:

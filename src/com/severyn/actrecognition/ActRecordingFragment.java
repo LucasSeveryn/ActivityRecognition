@@ -43,7 +43,7 @@ public class ActRecordingFragment extends Fragment {
 		xyzPlot.setRangeBoundaries(-12, 15, BoundaryMode.FIXED);
 		xyzPlot.setRangeStep(XYStepMode.INCREMENT_BY_VAL, 1);
 		xyzPlot.setDomainStep(XYStepMode.INCREMENT_BY_VAL, 50);
-		xyzPlot.setDomainBoundaries(0, 512, BoundaryMode.FIXED);
+//		xyzPlot.setDomainBoundaries(0, 512, BoundaryMode.FIXED);
 		xyzPlot.setTicksPerRangeLabel(1);
 		xyzPlot.setDomainLabel("Time");
 		xyzPlot.getDomainLabelWidget().pack();
@@ -72,8 +72,11 @@ public class ActRecordingFragment extends Fragment {
 		int size = m.accDataLibrary.size();
 		if (size > 0 && !m.getTempData().equals(null) &&  !m.getTempFeat().equals(null)) {
 			this.setIndexTextView(size, size);
+			xyzPlot.setDomainBoundaries(0, m.getTempData().size(), BoundaryMode.FIXED);
 			typeSpinner.setSelection(m.getTempFeat().getType());
 			this.updateActivityDetailText(m.getTempData(), m.getTempFeat());
+
+
 			m.drawRecordingGraph();
 		}
 	
@@ -142,10 +145,10 @@ public class ActRecordingFragment extends Fragment {
 		return constantSavingCheckBox.isChecked();
 	}
 	
-	public boolean getHalfSizeCheckboxValue() {
-		CheckBox halfSizeCheckbox = (CheckBox) this.getView()
+	public boolean getTwiceSizeCheckboxValue() {
+		CheckBox twiceSizeCheckbox = (CheckBox) this.getView()
 				.findViewById(R.id.halfSizeCheckbox);
-		return halfSizeCheckbox.isChecked();
+		return twiceSizeCheckbox.isChecked();
 	}
 
 	public boolean getAutoTagCheckboxValue() {

@@ -235,8 +235,8 @@
         android:layout_alignLeft="@+id/constantIdentyfyingCheckbox"
         android:layout_marginBottom="-5dp"
         android:layout_marginTop="-10dp"
-        android:checked="true"
-        android:text="Use half size samples"
+        android:checked="false"
+        android:text="Twice-the-size (512) samples"
         android:textSize="11dp" />
     
     <CheckBox

@@ -138,7 +138,7 @@ public class MainActivity extends FragmentActivity implements
 	private int cc = 1;
 	private int limit = 511;
 	private int burstCounter = 0;
-	private boolean halfSizeMode = true;
+	private boolean twiceSizeMode = true;
 	LocationManager lm;
 
 	private final SensorEventListener mSensorListener = new SensorEventListener() {
@@ -166,7 +166,7 @@ public class MainActivity extends FragmentActivity implements
 					recordingTab.updateProgressBar(recordedData.size());
 				}
 
-				if (halfSizeMode)
+				if (!twiceSizeMode)
 					limit = 255;
 				else
 					limit = 511;
@@ -198,7 +198,7 @@ public class MainActivity extends FragmentActivity implements
 							}
 
 						}
-						if (halfSizeMode)
+						if (!twiceSizeMode)
 							recordedData = recordedData
 									.removeQuarterOfElements();
 						else
@@ -350,7 +350,7 @@ public class MainActivity extends FragmentActivity implements
 			pause(500);
 			recordingEnabled = true;
 			t = System.currentTimeMillis();
-			if (!halfSizeMode)
+			if (twiceSizeMode)
 				pause(13000);
 			else
 				pause(6500);
@@ -586,12 +586,12 @@ public class MainActivity extends FragmentActivity implements
 					.getConstantSavingCheckboxValue();
 			constantIdentifying = recordingTab
 					.getConstantIdentificationCheckboxValue();
-			halfSizeMode = recordingTab.getHalfSizeCheckboxValue();
+			twiceSizeMode = recordingTab.getTwiceSizeCheckboxValue();
 			toast("Starting constant recording.\nSaving: "
 					+ constantSavingEnabled + ". Identifying: "
 					+ constantIdentifying + ". Tagging: "
-					+ recordingTab.getAutoTagCheckboxValue() + ". Half size: "
-					+ recordingTab.getHalfSizeCheckboxValue() + ".");
+					+ recordingTab.getAutoTagCheckboxValue() + ". Twice size: "
+					+ recordingTab.getTwiceSizeCheckboxValue() + ".");
 		}
 		recordingTab.toggleCheckboxes();
 
@@ -831,21 +831,21 @@ public class MainActivity extends FragmentActivity implements
 	public void drawRecordingGraph() {
 		switch (displayType) {
 		case 0:
-			recordingTab.drawData(tempData, -12, 15, 512);
+			recordingTab.drawData(tempData, -12, 15, tempData.size());
 			break;
 		case 1:
 			AccData lpfData = new AccData(
 					FeatureExtractors.lowPassFilter(tempData.getxData()),
 					FeatureExtractors.lowPassFilter(tempData.getyData()),
 					FeatureExtractors.lowPassFilter(tempData.getzData()));
-			recordingTab.drawData(lpfData, -12, 15, 512);
+			recordingTab.drawData(lpfData, -12, 15, lpfData.size());
 			break;
 		case 2:
 			AccData hpfData = new AccData(
 					FeatureExtractors.highPassFilter(tempData.getxData()),
 					FeatureExtractors.highPassFilter(tempData.getyData()),
 					FeatureExtractors.highPassFilter(tempData.getzData()));
-			recordingTab.drawData(hpfData, -12, 15, 512);
+			recordingTab.drawData(hpfData, -12, 15, hpfData.size());
 			break;
 		case 3:
 			AccData lpfData1 = new AccData(
@@ -856,7 +856,7 @@ public class MainActivity extends FragmentActivity implements
 					FeatureExtractors.highPassFilter(lpfData1.getxData()),
 					FeatureExtractors.highPassFilter(lpfData1.getyData()),
 					FeatureExtractors.highPassFilter(lpfData1.getzData()));
-			recordingTab.drawData(bpfData, -12, 15, 512);
+			recordingTab.drawData(bpfData, -12, 15, bpfData.size());
 			break;
 		case 4:
 			AccData fData = new AccData(
@@ -866,7 +866,7 @@ public class MainActivity extends FragmentActivity implements
 							.fftest(tempData.getyData())),
 					fromDoubleArrayToArrayList(FeatureExtractors
 							.fftest(tempData.getzData())));
-			recordingTab.drawData(fData, -1, 100, 512);
+			recordingTab.drawData(fData, -1, 100, fData.size());
 			break;
 		default:
 			break;

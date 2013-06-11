@@ -65,7 +65,7 @@ public class ActRecognitionFragment extends Fragment {
 		pPlot.setBorderStyle(Plot.BorderStyle.SQUARE, null, null);
 
 		EditText useridEditText = (EditText) rootView
-				.findViewById(R.id.useridEditText);
+				.findViewById(R.id.useridEdit);
 		useridEditText.addTextChangedListener((MainActivity) getActivity());
 		
 		
@@ -134,6 +134,17 @@ public class ActRecognitionFragment extends Fragment {
 		else statusText.setText(text);
 
 	}
+	
+	public void setCutoffText(String text) {
+		TextView cutoffText = (TextView) this.getView().findViewById(
+				R.id.cutoffText);
+
+		cutoffText.setText(text);		
+
+	}
+	
+	
+	
 	
 	public void updateStatusText2(String text, boolean append) {
 		TextView statusText = (TextView) this.getView().findViewById(

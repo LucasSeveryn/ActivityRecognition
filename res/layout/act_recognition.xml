@@ -39,7 +39,7 @@
         android:id="@+id/scrollView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/seekBar1"
+        android:layout_above="@+id/cutoffSeekBar"
         android:layout_alignLeft="@+id/addButton"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/historyLabel" >
@@ -52,7 +52,7 @@
         <TextView
             android:id="@+id/statusText2"
             android:layout_width="match_parent"
-            android:layout_height="136dp"
+            android:layout_height="match_parent"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@android:color/black"
             android:textSize="10dp" />
@@ -135,7 +135,7 @@
         android:text="Send results to cloud" />
 
     <EditText
-        android:id="@+id/useridEditText"
+        android:id="@+id/useridEdit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/sendToServerCheckbox"
@@ -145,8 +145,6 @@
         android:hint="userid"
         android:inputType="number"
         android:text="1337" >
-
-        <requestFocus />
     </EditText>
 
     <TextView
@@ -156,27 +154,26 @@
         android:layout_alignBaseline="@+id/sendToServerCheckbox"
         android:layout_alignBottom="@+id/sendToServerCheckbox"
         android:layout_alignParentLeft="true"
-        android:textSize="20dp"
+        android:textSize="18dp"
         android:text="UserID" />
+
+    <TextView
+        android:id="@+id/cutoffText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/sendToServerCheckbox"
+        android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/textView2"
+        android:text="Cutoff"
+        android:textSize="18dp" />
 
     <SeekBar
         android:id="@+id/cutoffSeekBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/useridEditText"
-        android:layout_alignLeft="@+id/useridEditText"
-        android:layout_alignRight="@+id/sendToServerCheckbox"
-        android:max="500"
-        android:minHeight="10dp"
-        android:progress="220" />
-
-    <TextView
-        android:id="@+id/TextView02"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_above="@+id/sendToServerCheckbox"
-        android:layout_alignParentLeft="true"
-        android:text="Cutoff"
-        android:textSize="20dp" />
+        android:layout_toRightOf="@+id/TextView01"
+        android:max="500"
+        android:progress="220" />
 
 </RelativeLayout>

@@ -232,6 +232,17 @@ public class ActRecordingFragment extends Fragment {
 		typeSpinner.setSelection(i);
 
 	}
+	
+	public void setTwiceSizeProgressBar(boolean twiceSize){
+		ProgressBar recordingProgressBar = (ProgressBar) this.getView().findViewById(
+				R.id.recordingProgressBar);
+		if(twiceSize) recordingProgressBar.setMax(512);else recordingProgressBar.setMax(256);
+	}
+	
+	public void clearActivityDetailText(){
+		TextView accActivityDetailText = (TextView) rootView.findViewById(R.id.accActDetailText);
+		accActivityDetailText.setText("");
+	}
 
 	public void updateActivityDetailText(AccData activity, AccFeat accFeat) {
 		TextView accActivityDetailText = (TextView) rootView.findViewById(R.id.accActDetailText);

@@ -385,10 +385,13 @@ public class MainActivity extends FragmentActivity implements
 				accDataLibrary = (ArrayList<AccData>) obj;
 				Toast.makeText(this, "Size: " + accDataLibrary.size(),
 						Toast.LENGTH_SHORT).show();
-				tempData = accDataLibrary.get(accDataLibrary.size() - 1);
-				// recordingTab.setTypeCombobox(tempData.type);
-				tempFeat = FeatureExtractors.buildFeatureObject(tempData);
-				index = accDataLibrary.size() - 1;
+				if(accDataLibrary.size()>0){
+					tempData = accDataLibrary.get(accDataLibrary.size() - 1);
+					// recordingTab.setTypeCombobox(tempData.type);
+					tempFeat = FeatureExtractors.buildFeatureObject(tempData);
+					index = accDataLibrary.size() - 1;
+				}
+				else index=0;
 			}
 		}
 
@@ -589,6 +592,7 @@ public class MainActivity extends FragmentActivity implements
 			constantIdentifying = recordingTab
 					.getConstantIdentificationCheckboxValue();
 			twiceSizeMode = recordingTab.getTwiceSizeCheckboxValue();
+			recordingTab.setTwiceSizeProgressBar(twiceSizeMode);
 			toast("Starting constant recording.\nSaving: "
 					+ constantSavingEnabled + ". Identifying: "
 					+ constantIdentifying + ". Tagging: "
@@ -626,6 +630,7 @@ public class MainActivity extends FragmentActivity implements
 					+ accDataLibrary.size());
 			purgeCounter = 0;
 			index = 0;
+			recordingTab.clearActivityDetailText();
 
 		} else {
 			toast("Press " + (4 - purgeCounter)
@@ -1412,7 +1417,7 @@ public class MainActivity extends FragmentActivity implements
 	@Override
 	public void onProgressChanged(SeekBar seekBar, int progress,
 			boolean fromUser) {
-
+		recognitionTab.setCutoffText("Cutoff: -" + progress);
 		
 	}
 

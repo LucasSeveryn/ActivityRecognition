@@ -39,19 +39,20 @@
         android:id="@+id/scrollView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/seekBar1"
         android:layout_alignLeft="@+id/addButton"
         android:layout_alignParentRight="true"
-        android:layout_below="@+id/historyLabel" 
-        android:layout_above="@+id/sendToServerCheckbox" >
+        android:layout_below="@+id/historyLabel" >
         
        <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical" >
-        <TextView
+
+        <TextView
             android:id="@+id/statusText2"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="136dp"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@android:color/black"
             android:textSize="10dp" />
@@ -76,6 +77,7 @@
         android:id="@+id/statusText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/seekBar1"
         android:layout_alignLeft="@+id/TextView01"
         android:layout_alignTop="@+id/scrollView1"
         android:layout_toLeftOf="@+id/scrollView1"
@@ -137,8 +139,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/sendToServerCheckbox"
-        android:layout_alignParentLeft="true"
         android:layout_toLeftOf="@+id/scrollView1"
+        android:layout_toRightOf="@+id/textView2"
         android:ems="10"
         android:hint="userid"
         android:inputType="number"
@@ -148,12 +150,33 @@
     </EditText>
 
     <TextView
-        android:id="@+id/textView1"
+        android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/editText1"
+        android:layout_alignBaseline="@+id/sendToServerCheckbox"
+        android:layout_alignBottom="@+id/sendToServerCheckbox"
         android:layout_alignParentLeft="true"
-        android:text="Send as:"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textSize="20dp"
+        android:text="UserID" />
+
+    <SeekBar
+        android:id="@+id/cutoffSeekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/useridEditText"
+        android:layout_alignLeft="@+id/useridEditText"
+        android:layout_alignRight="@+id/sendToServerCheckbox"
+        android:max="500"
+        android:minHeight="10dp"
+        android:progress="220" />
+
+    <TextView
+        android:id="@+id/TextView02"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/sendToServerCheckbox"
+        android:layout_alignParentLeft="true"
+        android:text="Cutoff"
+        android:textSize="20dp" />
 
 </RelativeLayout>

@@ -64,6 +64,8 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -74,7 +76,7 @@ import com.google.gson.JsonElement;
 
 public class MainActivity extends FragmentActivity implements
 		ActionBar.TabListener, CompoundButton.OnCheckedChangeListener,
-		TextWatcher, OnItemSelectedListener, OnInitListener, LocationListener {
+		TextWatcher, OnItemSelectedListener, OnInitListener, LocationListener, OnSeekBarChangeListener {
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
 	private GaussianNaiveBayesClassifier ng;
@@ -860,12 +862,12 @@ public class MainActivity extends FragmentActivity implements
 			break;
 		case 4:
 			AccData fData = new AccData(
-					fromDoubleArrayToArrayList(FeatureExtractors.fftest(tempData
+					fromDoubleArrayToArrayList(FeatureExtractors.calculateFFT(tempData
 							.getxData())),
 					fromDoubleArrayToArrayList(FeatureExtractors
-							.fftest(tempData.getyData())),
+							.calculateFFT(tempData.getyData())),
 					fromDoubleArrayToArrayList(FeatureExtractors
-							.fftest(tempData.getzData())));
+							.calculateFFT(tempData.getzData())));
 			recordingTab.drawData(fData, -1, 100, fData.size());
 			break;
 		default:
@@ -948,6 +950,8 @@ public class MainActivity extends FragmentActivity implements
 
 	ArrayList<ClassificationResult> classificationBin = new ArrayList<ClassificationResult>();
 	private boolean heuristicsOn=true;
+	private int cutoff=-220;
+	private int stairConfidenceModifier=-50;
 	private ClassificationResult previousGNBC;
 
 	private void classify(AccData activity) {
@@ -963,7 +967,7 @@ public class MainActivity extends FragmentActivity implements
 			double pValue =tempGNBC.getMaxProbabilityValue();
 			SimpleDateFormat sdf = new SimpleDateFormat();
 
-			if (!heuristicsOn || pValue> (-220) || (tempGNBC.getResult()!=3&&tempGNBC.getResult()!=2&&pValue>(-270))) { //HEURISTIC TIME!
+			if (!heuristicsOn || pValue> (cutoff) || (tempGNBC.getResult()!=3&&tempGNBC.getResult()!=2&&pValue>(cutoff+stairConfidenceModifier))) { //HEURISTIC TIME!
 
 				
 				gnbcIndex = gnbcLibrary.size();
@@ -1403,6 +1407,27 @@ public class MainActivity extends FragmentActivity implements
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void onProgressChanged(SeekBar seekBar, int progress,
+			boolean fromUser) {
+
+		
+	}
+
+	@Override
+	public void onStartTrackingTouch(SeekBar seekBar) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onStopTrackingTouch(SeekBar seekBar) {
+		// TODO Auto-generated method stub
+		this.cutoff=-seekBar.getProgress();
+		toast("Probability cutoff changed to: " + cutoff);
+		
 	}
 
 }

@@ -28,6 +28,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -67,6 +68,11 @@ public class ActRecognitionFragment extends Fragment {
 				.findViewById(R.id.useridEditText);
 		useridEditText.addTextChangedListener((MainActivity) getActivity());
 		
+		
+
+		SeekBar cutoffSeekBar = (SeekBar) rootView
+				.findViewById(R.id.cutoffSeekBar);
+		cutoffSeekBar.setOnSeekBarChangeListener((MainActivity) getActivity());
 		
 		
 	     BarRenderer barRenderer = (BarRenderer) pPlot.getRenderer(BarRenderer.class);

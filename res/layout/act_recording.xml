@@ -71,8 +71,10 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
+        android:layout_alignTop="@+id/nextAccActivityButton"
         android:onClick="previousAccActivity"
-        android:text="Prev" />
+        android:text="&lt; Prev"
+        android:textSize="15sp" />
 
     <ToggleButton
         android:id="@+id/recordingToggle"
@@ -90,30 +92,27 @@
         android:id="@+id/scrollView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/send"
+        android:layout_alignBottom="@+id/idButton"
         android:layout_alignLeft="@+id/recordingToggle"
         android:layout_alignRight="@+id/typeSpinner"
-        android:layout_below="@+id/recordingToggle" >
-        
-       <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical" >
+        android:layout_below="@+id/recordingToggle"
+        android:paddingBottom="10dp" >
 
-        <TextView
-        android:id="@+id/accActDetailText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Activity Details"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textSize="10dp" />
-        
-    	</LinearLayout>
-        
-        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="147dp"
+            android:orientation="vertical"
+            android:paddingBottom="10dp" >
+
+            <TextView
+                android:id="@+id/accActDetailText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Activity Details"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textSize="10dp" />
+        </LinearLayout>
     </ScrollView>
-    
-    
 
     <Button
         android:id="@+id/startRecordingButton"
@@ -181,10 +180,12 @@
         android:id="@+id/nextAccActivityButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+
         android:layout_alignParentBottom="true"
         android:layout_alignRight="@+id/purge"
         android:onClick="nextAccActivity"
-        android:text="Next >" />
+        android:text="Next >"
+        android:textSize="15sp" />
 
     <Button
         android:id="@+id/idButton"
@@ -217,36 +218,23 @@
         android:textSize="15sp" />
 
     <CheckBox
-        android:id="@+id/constantRecordingSaveCheckbox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/previousAccActivityButton"
-        android:layout_alignLeft="@+id/previousAccActivityButton"
-        android:layout_marginTop="-10dp"
-                android:layout_marginBottom="-5dp"
-        android:text="Add to library when constantly recording"
-        android:textSize="11dp" />
-
-    <CheckBox
+        android:layout_marginTop = "-5dp"
+		android:layout_marginRight = "-5dp"
         android:id="@+id/halfSizeCheckbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/constantIdentyfyingCheckbox"
-        android:layout_alignLeft="@+id/constantIdentyfyingCheckbox"
-        android:layout_marginBottom="-5dp"
-        android:layout_marginTop="-10dp"
+        android:layout_alignLeft="@+id/scrollView1"
+        android:layout_below="@+id/scrollView1"
         android:checked="false"
         android:text="Twice-the-size (512) samples"
         android:textSize="11dp" />
-    
+
     <CheckBox
         android:id="@+id/constantIdentyfyingCheckbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/autoTagCheckbox"
         android:layout_alignLeft="@+id/autoTagCheckbox"
-        android:layout_marginTop="-10dp"
-        android:layout_marginBottom="-5dp"
+        android:layout_below="@+id/halfSizeCheckbox"
         android:text="Identify when constantly recording"
         android:textSize="11dp" />
 
@@ -254,26 +242,29 @@
         android:id="@+id/autoTagCheckbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/constantRecordingSaveCheckbox"
-        android:layout_alignLeft="@+id/constantRecordingSaveCheckbox"
-        android:layout_marginTop="-10dp"
-                android:layout_marginBottom="-5dp"
-        
-        android:text="Inherit type when constantly recording"
+        android:layout_alignLeft="@+id/previousAccActivityButton"
+        android:layout_below="@+id/constantIdentyfyingCheckbox"
+        android:text="Inherit type! when constantly recording"
+        android:textSize="11dp" />
+
+    <CheckBox
+        android:id="@+id/constantRecordingSaveCheckbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/indexTextView"
+        android:layout_alignLeft="@+id/previousAccActivityButton"
+        android:layout_below="@+id/autoTagCheckbox"
+        android:text="Add to library when constantly recording"
         android:textSize="11dp" />
 
     <TextView
         android:id="@+id/indexTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/constantRecordingSaveCheckbox"
-
         android:layout_alignRight="@+id/purge"
+        android:layout_below="@+id/purge"
         android:text="0/0"
-        android:layout_marginRight="5dp"
-        android:textSize="11dp"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textSize="11dp" />
 
 </RelativeLayout>

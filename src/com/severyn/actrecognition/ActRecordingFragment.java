@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -63,8 +64,10 @@ public class ActRecordingFragment extends Fragment {
 				.findViewById(R.id.displaySpinner);
 		displaySpinner.setOnItemSelectedListener((MainActivity) getActivity());
 		
+		ScrollView featureScrollView = (ScrollView) rootView
+				.findViewById(R.id.scrollView1);
 		
-		
+		featureScrollView.setScrollbarFadingEnabled(false);
 		
 		MainActivity m = (MainActivity) getActivity();
 	

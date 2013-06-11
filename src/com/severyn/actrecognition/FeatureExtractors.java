@@ -46,8 +46,7 @@ public final class FeatureExtractors {
 
 	}
 
-	public static double[] fftest(List<Double> v) {
-		// ArrayList<Double> result = new ArrayList<>();
+	public static double[] calculateFFT(List<Double> v) {
 		DoubleFFT_1D fftDo = new DoubleFFT_1D(v.size());
 
 		double[] fft = new double[v.size() * 2];
@@ -62,18 +61,12 @@ public final class FeatureExtractors {
 		double max = 0;
 
 		for (int i = 1; i < v.size(); i++) {
-			// System.out.println(Math.sqrt(fft[i]*fft[i]+fft[i+v.size()-1]*fft[i+v.size()-1]));
 			result[i - 1] = Math.sqrt(fft[i] * fft[i] + fft[i + v.size() - 1]
 					* fft[i + v.size() - 1]);
 			if (result[i - 1] > max)
 				max = result[i - 1];
 		}
-		// System.out.println(max);
 		return result;
-		// for (double d : fft) {
-		// result.add(d);
-		// }
-		// return result;
 	}
 
 	public static int[] calculateHistogram(List<Double> data, double min,
@@ -124,7 +117,7 @@ public final class FeatureExtractors {
 		return result;
 	}
 
-	public static int relativeZeroCrossingCount(List<Double> data) {
+	public static int calculateRelativeZeroCrossingCount(List<Double> data) {
 		DescriptiveStatistics stats = new DescriptiveStatistics();
 
 		// Add the data from the array
@@ -456,7 +449,7 @@ public final class FeatureExtractors {
 	public static AccFeat buildFeatureObject(AccData a) {
 		AccFeat temp = new AccFeat();
 
-//		temp.setType(a.getType());
+		temp.setType(a.getType());
 		List<Double> xData = a.getxData();
 		List<Double> yData = a.getyData();
 		List<Double> zData = a.getzData();
@@ -473,9 +466,9 @@ public final class FeatureExtractors {
 		temp.setSd(1, FeatureExtractors.calculateStandardDeviation(yData));
 		temp.setSd(2, FeatureExtractors.calculateStandardDeviation(zData));
 
-		temp.setEnergy(0, FeatureExtractors.calculateEnergy(FeatureExtractors.fftest(xData)));
-		temp.setEnergy(1, FeatureExtractors.calculateEnergy(FeatureExtractors.fftest(yData)));
-		temp.setEnergy(2, FeatureExtractors.calculateEnergy(FeatureExtractors.fftest(zData)));
+		temp.setEnergy(0, FeatureExtractors.calculateEnergy(FeatureExtractors.calculateFFT(xData)));
+		temp.setEnergy(1, FeatureExtractors.calculateEnergy(FeatureExtractors.calculateFFT(yData)));
+		temp.setEnergy(2, FeatureExtractors.calculateEnergy(FeatureExtractors.calculateFFT(zData)));
 		
 		temp.setCorrelation(0, FeatureExtractors.calculateCorrelation(xData, yData));
 		temp.setCorrelation(1, FeatureExtractors.calculateCorrelation(yData, zData));
@@ -493,11 +486,11 @@ public final class FeatureExtractors {
 				xData, yData, zData));
 
 		temp.setFftHistogram(0, FeatureExtractors.calculateHistogram(
-				FeatureExtractors.fftest(xData), 0, 40, 10));
+				FeatureExtractors.calculateFFT(xData), 0, 40, 10));
 		temp.setFftHistogram(1, FeatureExtractors.calculateHistogram(
-				FeatureExtractors.fftest(yData), 0, 40, 10));
+				FeatureExtractors.calculateFFT(yData), 0, 40, 10));
 		temp.setFftHistogram(2, FeatureExtractors.calculateHistogram(
-				FeatureExtractors.fftest(zData), 0, 40, 10));
+				FeatureExtractors.calculateFFT(zData), 0, 40, 10));
 
 		
 		temp.setAR(0, calculateARCoefficients(xData));
@@ -505,43 +498,17 @@ public final class FeatureExtractors {
 		temp.setAR(2, calculateARCoefficients(zData));
 		
 		temp.setSMA(calculateSignalMagnitudeArea(xData, yData, zData));
-		
-		// temp.setHistogram(0,
-		// FeatureExtractors2.calcHistogram(xData, -15, 15, 10));
-		// temp.setHistogram(1,
-		// FeatureExtractors2.calcHistogram(yData, -15, 15, 10));
-		// temp.setHistogram(2,
-		// FeatureExtractors2.calcHistogram(zData, -15, 15, 10));
 
 		temp.setHistogram(0, FeatureExtractors.calculateHistogram(xData, -5, 5, 10));
 		temp.setHistogram(1, FeatureExtractors.calculateHistogram(yData, 5, 15, 10));
-		temp.setHistogram(2, FeatureExtractors.calculateHistogram(zData, -8, 2, 10));
-
-		
-		
-		// temp.setHistogram(0,
-		// FeatureExtractors.calcHistogram(xData, -7, 7, 10));
-		// temp.setHistogram(1,
-		// FeatureExtractors.calcHistogram(yData, 1, 16, 10));
-		// temp.setHistogram(2,
-		// FeatureExtractors.calcHistogram(zData, -14, 4, 10));
-
-		// temp.setCrossingCount(0, FeatureExtractors
-		// .zeroCrossingCount(FeatureExtractors.highPassFilter(lpfxData)));
-//		temp.setCrossingCount(0, 0);
-		// temp.setCrossingCount(1, FeatureExtractors
-		// .zeroCrossingCount(FeatureExtractors.highPassFilter(lpfyData)));
-		// temp.setCrossingCount(2, FeatureExtractors
-		// .zeroCrossingCount(FeatureExtractors.highPassFilter(lpfzData)));
-		//
-		
+		temp.setHistogram(2, FeatureExtractors.calculateHistogram(zData, -8, 2, 10));		
 		
 		 temp.setCrossingCount(0, FeatureExtractors
-		 .relativeZeroCrossingCount(lpfxData));
+		 .calculateRelativeZeroCrossingCount(lpfxData));
 		temp.setCrossingCount(1,
-				FeatureExtractors.relativeZeroCrossingCount(lpfyData));
+				FeatureExtractors.calculateRelativeZeroCrossingCount(lpfyData));
 		temp.setCrossingCount(2,
-				FeatureExtractors.relativeZeroCrossingCount(lpfzData));
+				FeatureExtractors.calculateRelativeZeroCrossingCount(lpfzData));
 
 		temp.setMaxDisplacementValue(0,
 				Collections.max(xData) - Collections.min(xData));
@@ -582,3 +549,4 @@ public final class FeatureExtractors {
 	}
 
 }
+

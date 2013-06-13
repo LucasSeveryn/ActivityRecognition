@@ -654,11 +654,21 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 
+	
+	
 	public void send(View view) {
 		// String apiURI =
 		// "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data?apiKey=Ix7evhXTw3uwk1gDHCvzz-uMNEhOy8ZN";
 		String apiURI = "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data_new?apiKey="
 				+ apiKey;
+		Boolean sendAsTestSample = recordingTab.getSendAsTestSampleValue();
+		if(sendAsTestSample){
+			apiURI = "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data_test_samples?apiKey="
+					+ apiKey;
+		}else{
+			apiURI = "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data_new?apiKey="
+					+ apiKey;
+		}
 		try {
 
 			// make web service connection
@@ -991,6 +1001,8 @@ public class MainActivity extends FragmentActivity implements
 								+ FeatureExtractors.getType(tempGNBC
 										.GetMaxIndex()), true);
 				recognitionTab.drawData(classification.first);
+				tts.speak(FeatureExtractors.getTypeNoNumber(tempGNBC
+						.GetMaxIndex()), TextToSpeech.QUEUE_FLUSH, null);
 				previousGNBC=tempGNBC;
 			}else{
 				if(previousGNBC!=null) tempGNBC=previousGNBC;
@@ -1007,8 +1019,7 @@ public class MainActivity extends FragmentActivity implements
 										.getTypeNoNumber(tempGNBC.getResult()), true);
 			}
 
-			tts.speak(FeatureExtractors.getTypeNoNumber(tempGNBC
-					.GetMaxIndex()), TextToSpeech.QUEUE_FLUSH, null);
+
 
 		}
 

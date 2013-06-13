@@ -92,7 +92,7 @@
         android:id="@+id/scrollView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/idButton"
+        android:layout_above="@+id/halfSizeCheckbox"
         android:layout_alignLeft="@+id/recordingToggle"
         android:layout_alignRight="@+id/typeSpinner"
         android:layout_below="@+id/recordingToggle"
@@ -180,7 +180,6 @@
         android:id="@+id/nextAccActivityButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
         android:layout_alignParentBottom="true"
         android:layout_alignRight="@+id/purge"
         android:onClick="nextAccActivity"
@@ -217,46 +216,6 @@
         android:text="Send"
         android:textSize="15sp" />
 
-    <CheckBox
-        android:layout_marginTop = "-5dp"
-		android:layout_marginRight = "-5dp"
-        android:id="@+id/halfSizeCheckbox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/scrollView1"
-        android:layout_below="@+id/scrollView1"
-        android:checked="false"
-        android:text="Twice-the-size (512) samples"
-        android:textSize="11dp" />
-
-    <CheckBox
-        android:id="@+id/constantIdentyfyingCheckbox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/autoTagCheckbox"
-        android:layout_below="@+id/halfSizeCheckbox"
-        android:text="Identify when constantly recording"
-        android:textSize="11dp" />
-
-    <CheckBox
-        android:id="@+id/autoTagCheckbox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/previousAccActivityButton"
-        android:layout_below="@+id/constantIdentyfyingCheckbox"
-        android:text="Inherit type when constantly recording"
-        android:textSize="11dp" />
-
-    <CheckBox
-        android:id="@+id/constantRecordingSaveCheckbox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/indexTextView"
-        android:layout_alignLeft="@+id/previousAccActivityButton"
-        android:layout_below="@+id/autoTagCheckbox"
-        android:text="Add to library when constantly recording"
-        android:textSize="11dp" />
-
     <TextView
         android:id="@+id/indexTextView"
         android:layout_width="wrap_content"
@@ -265,6 +224,52 @@
         android:layout_below="@+id/purge"
         android:text="0/0"
         android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textSize="11dp" />
+
+    <CheckBox
+        android:id="@+id/autoTagCheckbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/constantRecordingSaveCheckbox"
+        android:layout_alignLeft="@+id/halfSizeCheckbox"
+        android:text="Inherit type when constantly recording"
+        android:textSize="11dp" />
+
+    <CheckBox
+        android:id="@+id/constantIdentyfyingCheckbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/autoTagCheckbox"
+        android:layout_alignLeft="@+id/halfSizeCheckbox"
+        android:text="Identify when constantly recording"
+        android:textSize="11dp" />
+
+    <CheckBox
+        android:id="@+id/halfSizeCheckbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/constantIdentyfyingCheckbox"
+        android:layout_alignLeft="@+id/scrollView1"
+        android:checked="false"
+        android:text="Twice-the-size (512) samples"
+        android:textSize="11dp" />
+
+    <CheckBox
+        android:id="@+id/sendAsTestSample"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/indexTextView"
+        android:layout_alignLeft="@+id/constantRecordingSaveCheckbox"
+        android:text="Send as test sample"
+        android:textSize="11dp" />
+
+    <CheckBox
+        android:id="@+id/constantRecordingSaveCheckbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/sendAsTestSample"
+        android:layout_alignLeft="@+id/autoTagCheckbox"
+        android:text="Add to library when constantly recording"
         android:textSize="11dp" />
 
 </RelativeLayout>

@@ -77,7 +77,7 @@
         android:id="@+id/statusText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/seekBar1"
+        android:layout_above="@+id/cutoffSeekBar"
         android:layout_alignLeft="@+id/TextView01"
         android:layout_alignTop="@+id/scrollView1"
         android:layout_toLeftOf="@+id/scrollView1"
@@ -164,8 +164,9 @@
         android:layout_above="@+id/sendToServerCheckbox"
         android:layout_alignParentLeft="true"
         android:layout_alignRight="@+id/textView2"
+        android:layout_alignTop="@+id/cutoffSeekBar"
         android:text="Cutoff"
-        android:textSize="18dp" />
+        android:textSize="14sp" />
 
     <SeekBar
         android:id="@+id/cutoffSeekBar"

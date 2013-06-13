@@ -64,10 +64,10 @@ public class ActRecordingFragment extends Fragment {
 				.findViewById(R.id.displaySpinner);
 		displaySpinner.setOnItemSelectedListener((MainActivity) getActivity());
 		
-		ScrollView featureScrollView = (ScrollView) rootView
-				.findViewById(R.id.scrollView1);
-		
-		featureScrollView.setScrollbarFadingEnabled(false);
+//		ScrollView featureScrollView = (ScrollView) rootView
+//				.findViewById(R.id.scrollView1);
+//		
+//		featureScrollView.setScrollbarFadingEnabled(false);
 		
 		MainActivity m = (MainActivity) getActivity();
 	
@@ -86,6 +86,12 @@ public class ActRecordingFragment extends Fragment {
 		return rootView;
 	}
 
+	public boolean getSendAsTestSampleValue() {
+		CheckBox sendAsTestSample = (CheckBox) this.getView()
+				.findViewById(R.id.sendAsTestSample);
+		return sendAsTestSample.isChecked();
+	}
+	
 	public void setIndexTextView(int index,int size){
 		TextView indexTextView = (TextView) rootView.findViewById(R.id.indexTextView);
 		indexTextView.setText(index +"/"+size);

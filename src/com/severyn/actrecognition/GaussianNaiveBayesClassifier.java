@@ -211,17 +211,17 @@ public class GaussianNaiveBayesClassifier {
 
 		}
 
-		for (int i = 0; i < results.length; i++) {
-			if (i != maxindex) {
-				String value = String.format("%.2f", results[i] / results[maxindex]);
-				if(value.equals("Infinity")) value = "inf.";
-				txt += ("\n   Type #" + i + " : "
-						+ value + " times less likely.");
-			}
-		}
-		txt += ("\n");
+//		for (int i = 0; i < results.length; i++) {
+//			if (i != maxindex) {
+//				String value = String.format("%.2f", results[i] / results[maxindex]);
+//				if(value.equals("Infinity")) value = "inf.";
+//				txt += ("\n   Type #" + i + " : "
+//						+ value + " times less likely.");
+//			}
+//		}
+//		txt += ("\n");
 
-		txt += ("\n- This is an activity of type #" + maxindex);
+		txt += ("\n- Result: type #" + maxindex);
 
 		ArrayList<Double> resultsArrayList = new ArrayList<Double>();
 		for (Double d : results) {

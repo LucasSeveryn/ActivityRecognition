@@ -676,16 +676,9 @@ public class MainActivity extends FragmentActivity implements
 			request.setHeader("Accept", "application/json");
 			request.setHeader("Content-type", "application/json");
 
-			// Build JSON string
-			// JSONStringer TestApp = new
-			// JSONStringer().object().key("id").value("1").endObject();
-			// StringEntity entity = new StringEntity(TestApp.toString());
 			Gson gson = new Gson();
 			Gson gson2 = new Gson();
-			// JsonElement gyroReadings = gson.toJsonTree(tempData
-			// .getGyroData());
 			JsonElement jsonElement = gson.toJsonTree(tempData);
-			// jsonElement.getAsJsonObject().add("gyro", gyroReadings);
 			jsonElement.getAsJsonObject().addProperty("type",
 					tempData.getType());
 

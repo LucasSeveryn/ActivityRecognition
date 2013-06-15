@@ -34,9 +34,9 @@ public final class FeatureExtractors {
 		case 6:
 			return "Jumping (6)";
 		case 7:
-			return "Test: Wave Sideways (7)";
+			return "Running (7)";
 		case 8:
-			return "Test: Wave Forward (8)";
+			return "Cycling (8)";
 		case 9:
 			return "Test: Unidentified (9)";
 		default:
@@ -317,14 +317,14 @@ public final class FeatureExtractors {
 		List<Integer> distances = new ArrayList<Integer>();
 
 		// /peak detection methodology
-		List<Integer> maxtab = peakdet(v);
+		List<Integer> maxtab = peakdetN(v);
 
 		for (int i = 1; i < maxtab.size(); i++) {
 			distances.add(maxtab.get(i) - maxtab.get(i - 1));
 		}
 
-		return 0;
-		// return calculateMeanInt(distances);
+//		return 0;
+		 return calculateMeanInt(distances);
 
 	}
 

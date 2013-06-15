@@ -96,7 +96,8 @@ public class ActRecognitionFragment extends Fragment {
 		ArrayList<Double> probabilityData = new ArrayList<Double>();
 		
 		for(int i=0;i<results.size();i++){
-			if (!Double.isInfinite(results.get(i))  &&  i != 6 && i != 7 && i != 8) { //debug
+			if (!Double.isInfinite(results.get(i))) { //debug
+				if(i==6) probabilityData.add(0.0);			
 				probabilityData.add(results.get(i));			
 				//probabilityData.add(Math.exp(results.get(i)));
 			}
@@ -144,7 +145,11 @@ public class ActRecognitionFragment extends Fragment {
 	}
 	
 	
-	
+	public boolean getSpeakOutCheckboxValue() {
+		CheckBox speakOutCheckbox = (CheckBox) this.getView()
+				.findViewById(R.id.checkBox1);
+		return speakOutCheckbox.isChecked();
+	}
 	
 	public void updateStatusText2(String text, boolean append) {
 		TextView statusText = (TextView) this.getView().findViewById(

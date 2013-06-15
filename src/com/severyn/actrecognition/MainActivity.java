@@ -76,7 +76,8 @@ import com.google.gson.JsonElement;
 
 public class MainActivity extends FragmentActivity implements
 		ActionBar.TabListener, CompoundButton.OnCheckedChangeListener,
-		TextWatcher, OnItemSelectedListener, OnInitListener, LocationListener, OnSeekBarChangeListener {
+		TextWatcher, OnItemSelectedListener, OnInitListener, LocationListener,
+		OnSeekBarChangeListener {
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
 	private GaussianNaiveBayesClassifier ng;
@@ -186,7 +187,7 @@ public class MainActivity extends FragmentActivity implements
 
 						if (constantSavingEnabled) {
 							burstCounter++;
-							if (burstCounter % 2 == 0 & burstCounter < 100) {
+							if (burstCounter % 1 == 0 & burstCounter < 200) {
 								AccData tempBurstActivityForAdd = new AccData(
 										new ArrayList<Double>(
 												recordedData.getxData()),
@@ -385,13 +386,13 @@ public class MainActivity extends FragmentActivity implements
 				accDataLibrary = (ArrayList<AccData>) obj;
 				Toast.makeText(this, "Size: " + accDataLibrary.size(),
 						Toast.LENGTH_SHORT).show();
-				if(accDataLibrary.size()>0){
+				if (accDataLibrary.size() > 0) {
 					tempData = accDataLibrary.get(accDataLibrary.size() - 1);
 					// recordingTab.setTypeCombobox(tempData.type);
 					tempFeat = FeatureExtractors.buildFeatureObject(tempData);
 					index = accDataLibrary.size() - 1;
-				}
-				else index=0;
+				} else
+					index = 0;
 			}
 		}
 
@@ -584,6 +585,7 @@ public class MainActivity extends FragmentActivity implements
 		} else {
 			cc = 1;
 			burstCounter = 0;
+			missclassifiedCounter = 0;
 			recordedData = new AccData();
 			recordedGData = new AccData();
 			constantRecordingEnabled = true;
@@ -654,18 +656,16 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 
-	
-	
 	public void send(View view) {
 		// String apiURI =
 		// "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data?apiKey=Ix7evhXTw3uwk1gDHCvzz-uMNEhOy8ZN";
 		String apiURI = "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data_new?apiKey="
 				+ apiKey;
 		Boolean sendAsTestSample = recordingTab.getSendAsTestSampleValue();
-		if(sendAsTestSample){
+		if (sendAsTestSample) {
 			apiURI = "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data_test_samples?apiKey="
 					+ apiKey;
-		}else{
+		} else {
 			apiURI = "https://api.mongolab.com/api/1/databases/activity_recognition/collections/accelerometer_data_new?apiKey="
 					+ apiKey;
 		}
@@ -734,7 +734,7 @@ public class MainActivity extends FragmentActivity implements
 
 			Gson gson = new Gson();
 			Gson gson2 = new Gson();
-			
+
 			SimpleDateFormat dateformat = new SimpleDateFormat("MMM d, yyyy");
 			String justDate = dateformat.format(result.getDate());
 
@@ -957,9 +957,11 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	ArrayList<ClassificationResult> classificationBin = new ArrayList<ClassificationResult>();
-	private boolean heuristicsOn=true;
-	private int cutoff=-220;
-	private int stairConfidenceModifier=-50;
+	private boolean heuristicsOn = true;
+	private boolean speakOutResults = true;
+	private int cutoff = -220;
+	private int missclassifiedCounter = 0;
+	private int stairConfidenceModifier = -50;
 	private ClassificationResult previousGNBC;
 
 	private void classify(AccData activity) {
@@ -972,19 +974,20 @@ public class MainActivity extends FragmentActivity implements
 			ArrayList<Double> results = classification.first;
 			Date date = new Date();
 			tempGNBC = new ClassificationResult(results, date);
-			double pValue =tempGNBC.getMaxProbabilityValue();
+			double pValue = tempGNBC.getMaxProbabilityValue();
 			SimpleDateFormat sdf = new SimpleDateFormat();
+			speakOutResults=recognitionTab.getSpeakOutCheckboxValue();
 
-			if (!heuristicsOn || pValue> (cutoff) || (tempGNBC.getResult()!=3&&tempGNBC.getResult()!=2&&pValue>(cutoff+stairConfidenceModifier))) { //HEURISTIC TIME!
-
-				
+			if (!heuristicsOn
+					|| pValue > (cutoff)
+					|| (tempGNBC.getResult() != 3 && tempGNBC.getResult() != 2 && pValue > (cutoff + stairConfidenceModifier))) { // HEURISTIC
+																																	// TIME!
 				gnbcIndex = gnbcLibrary.size();
 				gnbcLibrary.add(tempGNBC);
 				// toast("GNBC result saved. Library size:" +
 				// gnbcLibrary.size());
 				gnbcIndex = gnbcLibrary.size() - 1;
 
-				
 				String currentDateandTime = sdf.format(new Date());
 				recognitionTab.updateStatusText2(
 						currentDateandTime
@@ -992,27 +995,40 @@ public class MainActivity extends FragmentActivity implements
 								+ gnbcIndex
 								+ "] "
 								+ FeatureExtractors.getType(tempGNBC
-										.GetMaxIndex()), true);
+										.getResult()), true);
 				recognitionTab.drawData(classification.first);
+				if(speakOutResults)
 				tts.speak(FeatureExtractors.getTypeNoNumber(tempGNBC
-						.GetMaxIndex()), TextToSpeech.QUEUE_FLUSH, null);
-				previousGNBC=tempGNBC;
-			}else{
-				if(previousGNBC!=null) tempGNBC=previousGNBC;
+						.getResult()), TextToSpeech.QUEUE_FLUSH, null);
+				missclassifiedCounter=0;
+				previousGNBC = tempGNBC;
+			} else {
+				missclassifiedCounter++;
+				String currentDateandTime = sdf.format(new Date());
+				recognitionTab.updateStatusText2(
+						currentDateandTime
+								+ " ["
+								+ gnbcIndex
+								+ "] "
+								+ "unknown count: " + missclassifiedCounter, true);
+				if (previousGNBC != null)
+					tempGNBC = previousGNBC;
 			}
 			SimpleDateFormat sdfms = new SimpleDateFormat("dd-MM hh:mm:ss.SSS");
 
 			if (recognitionTab.getSendToServerCheckboxValue()) {
-				String currentDateandTimeMs = sdfms.format(new Date());
-				sendClassificationResult(tempGNBC);
-				recognitionTab.updateStatusText2(
-						currentDateandTimeMs
-								+ " [!] "
-								+ FeatureExtractors
-										.getTypeNoNumber(tempGNBC.getResult()), true);
+				if (missclassifiedCounter < 5) {
+					String currentDateandTimeMs = sdfms.format(new Date());
+					sendClassificationResult(tempGNBC);
+					recognitionTab.updateStatusText2(
+							currentDateandTimeMs
+									+ " [!] "
+									+ FeatureExtractors
+											.getTypeNoNumber(tempGNBC
+													.getResult()), true);
+				}
+
 			}
-
-
 
 		}
 
@@ -1212,10 +1228,10 @@ public class MainActivity extends FragmentActivity implements
 
 	@Override
 	public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-		 if (arg0.length() > 0) {
-		 userid=(Integer.parseInt(arg0.toString()));
-		 toast("Userid changed to:" + userid);
-		 }
+		if (arg0.length() > 0) {
+			userid = (Integer.parseInt(arg0.toString()));
+			toast("Userid changed to:" + userid);
+		}
 
 	}
 
@@ -1422,21 +1438,21 @@ public class MainActivity extends FragmentActivity implements
 	public void onProgressChanged(SeekBar seekBar, int progress,
 			boolean fromUser) {
 		recognitionTab.setCutoffText("Cutoff: -" + progress);
-		
+
 	}
 
 	@Override
 	public void onStartTrackingTouch(SeekBar seekBar) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onStopTrackingTouch(SeekBar seekBar) {
 		// TODO Auto-generated method stub
-		this.cutoff=-seekBar.getProgress();
+		this.cutoff = -seekBar.getProgress();
 		toast("Probability cutoff changed to: " + cutoff);
-		
+
 	}
 
 }

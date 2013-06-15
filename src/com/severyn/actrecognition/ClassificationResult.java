@@ -1,5 +1,6 @@
 package com.severyn.actrecognition;
 
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -8,6 +9,7 @@ public class ClassificationResult {
 	List<Double> p;
 	Date date;
 	Integer result;
+	int[] types = {0,1,2,3,4,5,7};
 	
 	
 	public ClassificationResult() {
@@ -17,22 +19,24 @@ public class ClassificationResult {
 	public ClassificationResult(List<Double> v, Date d){
 		this.p=v;
 		this.date=d;
-		this.result=GetMaxIndex();
+		this.result=types[GetMaxIndex()];
 	}
 	
 	public ClassificationResult(ClassificationResult c){
 		this.p=c.getVforJSON();
 		this.date=c.getDate();
-		this.result=c.GetMaxIndex();
+		this.result=types[c.GetMaxIndex()];
 	}
 	
-	
+	public int getResultType(){
+		return types[GetMaxIndex()];
+	}
 	
 	public int GetMaxIndex(){
 		int maxindex = 0;
 		double maxvalue = p.get(0);
 
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < p.size(); i++) {
 			if (!Double.isNaN(p.get(i))) {
 				maxvalue = p.get(i);
 				maxindex = i;
@@ -40,7 +44,7 @@ public class ClassificationResult {
 			}
 		}
 
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < p.size(); i++) {
 			if (!Double.isNaN(p.get(i))) {
 				if (p.get(i) > p.get(maxindex)) {
 					maxvalue = p.get(i);
@@ -56,7 +60,7 @@ public class ClassificationResult {
 		int maxindex = 0;
 		double maxvalue = p.get(0);
 
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < p.size(); i++) {
 			if (!Double.isNaN(p.get(i))) {
 				maxvalue = p.get(i);
 				maxindex = i;
@@ -64,7 +68,7 @@ public class ClassificationResult {
 			}
 		}
 
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < p.size(); i++) {
 			if (!Double.isNaN(p.get(i))) {
 				if (p.get(i) > p.get(maxindex)) {
 					maxvalue = p.get(i);
@@ -78,7 +82,7 @@ public class ClassificationResult {
 		maxindex = 0;
 		maxvalue = v.get(0);
 
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < p.size(); i++) {
 			if (!Double.isNaN(v.get(i))) {
 				maxvalue = v.get(i);
 				maxindex = i;
@@ -86,7 +90,7 @@ public class ClassificationResult {
 			}
 		}
 
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < p.size(); i++) {
 			if (!Double.isNaN(v.get(i))) {
 				if (v.get(i) > v.get(maxindex)) {
 					maxvalue = v.get(i);
@@ -149,3 +153,4 @@ public class ClassificationResult {
 
 
 }
+

@@ -77,7 +77,7 @@
         android:id="@+id/statusText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/cutoffSeekBar"
+        android:layout_alignBottom="@+id/scrollView1"
         android:layout_alignLeft="@+id/TextView01"
         android:layout_alignTop="@+id/scrollView1"
         android:layout_toLeftOf="@+id/scrollView1"
@@ -92,7 +92,7 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/statusText"
         android:layout_alignParentLeft="true"
-        android:text="Classification result:"
+        android:text="Classification output:"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@android:color/black"
         android:textSize="12sp" />
@@ -105,7 +105,7 @@
         android:layout_alignParentBottom="true"
         android:layout_toLeftOf="@+id/nextButton"
         android:onClick="clearClassificationResults"
-        android:text="Clear" />
+        android:text="Purge" />
 
     <Button
         android:id="@+id/button1"
@@ -161,20 +161,30 @@
         android:id="@+id/cutoffText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/sendToServerCheckbox"
+        android:layout_alignBottom="@+id/checkBox1"
         android:layout_alignParentLeft="true"
-        android:layout_alignRight="@+id/textView2"
-        android:layout_alignTop="@+id/cutoffSeekBar"
-        android:text="Cutoff"
-        android:textSize="14sp" />
+        android:layout_alignRight="@+id/useridEdit"
+        android:layout_alignTop="@+id/checkBox1"
+        android:text="Cutoff: -220"
+        android:textSize="18sp" />
 
     <SeekBar
         android:id="@+id/cutoffSeekBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/sendToServerCheckbox"
-        android:layout_toRightOf="@+id/TextView01"
+        android:layout_above="@+id/checkBox1"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
         android:max="500"
         android:progress="220" />
+
+    <CheckBox
+        android:id="@+id/checkBox1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/useridEdit"
+        android:layout_alignLeft="@+id/sendToServerCheckbox"
+        android:layout_alignRight="@+id/sendToServerCheckbox"
+        android:text="Speak out results" />
 
 </RelativeLayout>

@@ -80,9 +80,11 @@ public class MainActivity extends FragmentActivity implements
 		OnSeekBarChangeListener {
 	private SensorManager mSensorManager;
 	private Sensor mAccelerometer;
-	private GaussianNaiveBayesClassifier ng;
+	private NaiveGaussianBayesClassifier ngc;
+	private MultivariateNormalBayesClassifier mvc;
+
 	private String apiKey = "Ix7evhXTw3uwk1gDHCvzz-uMNEhOy8ZN";
-	private boolean entropyDataLoaded = false;
+	private boolean meanVarVectorsLoaded = false;
 	private TextToSpeech tts;
 	private double samplingRate = 40; // Hz
 	int sensorDelayMicroseconds = (int) (Math
@@ -947,11 +949,11 @@ public class MainActivity extends FragmentActivity implements
 	}
 
 	public void idButtonClick(View view) {
-		if (entropyDataLoaded) {
+		if (meanVarVectorsLoaded) {
 			classify(tempData);
 		} else {
-			toast("entropy data not loaded - loading data");
-			loadEntropyFromCloud();
+			toast("mean/variance vectors not loaded - loading data");
+			loadMeanVarVectors();
 		}
 
 	}
@@ -963,20 +965,31 @@ public class MainActivity extends FragmentActivity implements
 	private int missclassifiedCounter = 0;
 	private int stairConfidenceModifier = -50;
 	private ClassificationResult previousGNBC;
+	private int classifierSelection = 0;
+	private ArrayList<ArrayList<Double>> mvcMeanVector;
+	private ArrayList<ArrayList<Double>> mvcVarVector;
 
 	private void classify(AccData activity) {
+		classifierSelection = recognitionTab.getClassifierSpinnerValue();
 		// finishRecording();
-		if (entropyDataLoaded) {
+		if (meanVarVectorsLoaded) {
 			// toast("identifying...");
-			Pair<ArrayList<Double>, String> classification = ng
-					.classify(FeatureExtractors.buildFeatureObject(activity));
+			Pair<ArrayList<Double>, String> classification = null;
+			if (classifierSelection == 0) {
+				classification = ngc.classify(FeatureExtractors
+						.buildFeatureObject(activity));
+			} else if (classifierSelection == 1) {
+				classification = mvc.classify(FeatureExtractors
+						.buildFeatureObject(activity));
+				
+			}
 			recognitionTab.updateStatusText(classification.second, false);
 			ArrayList<Double> results = classification.first;
 			Date date = new Date();
 			tempGNBC = new ClassificationResult(results, date);
 			double pValue = tempGNBC.getMaxProbabilityValue();
 			SimpleDateFormat sdf = new SimpleDateFormat();
-			speakOutResults=recognitionTab.getSpeakOutCheckboxValue();
+			speakOutResults = recognitionTab.getSpeakOutCheckboxValue();
 
 			if (!heuristicsOn
 					|| pValue > (cutoff)
@@ -997,20 +1010,17 @@ public class MainActivity extends FragmentActivity implements
 								+ FeatureExtractors.getType(tempGNBC
 										.getResult()), true);
 				recognitionTab.drawData(classification.first);
-				if(speakOutResults)
-				tts.speak(FeatureExtractors.getTypeNoNumber(tempGNBC
-						.getResult()), TextToSpeech.QUEUE_FLUSH, null);
-				missclassifiedCounter=0;
+				if (speakOutResults)
+					tts.speak(FeatureExtractors.getTypeNoNumber(tempGNBC
+							.getResult()), TextToSpeech.QUEUE_FLUSH, null);
+				missclassifiedCounter = 0;
 				previousGNBC = tempGNBC;
 			} else {
 				missclassifiedCounter++;
 				String currentDateandTime = sdf.format(new Date());
-				recognitionTab.updateStatusText2(
-						currentDateandTime
-								+ " ["
-								+ gnbcIndex
-								+ "] "
-								+ "unknown count: " + missclassifiedCounter, true);
+				recognitionTab.updateStatusText2(currentDateandTime + " ["
+						+ gnbcIndex + "] " + "unknown count: "
+						+ missclassifiedCounter, true);
 				if (previousGNBC != null)
 					tempGNBC = previousGNBC;
 			}
@@ -1036,9 +1046,9 @@ public class MainActivity extends FragmentActivity implements
 
 	private void classify2(AccData activity) {
 		// finishRecording();
-		if (entropyDataLoaded) {
+		if (meanVarVectorsLoaded) {
 			// toast("identifying...");
-			Pair<ArrayList<Double>, String> classification = ng
+			Pair<ArrayList<Double>, String> classification = ngc
 					.classify(FeatureExtractors.buildFeatureObject(activity));
 			recognitionTab.updateStatusText(classification.second, false);
 			ArrayList<Double> results = classification.first;
@@ -1247,6 +1257,8 @@ public class MainActivity extends FragmentActivity implements
 				recordingTab.updateActivityDetailText(tempData, tempFeat);
 				int prevDisplayType = displayType;
 				displayType = recordingTab.getdisplaySpinnerValue();
+				classifierSelection = recognitionTab
+						.getClassifierSpinnerValue();
 				if (displayType != prevDisplayType)
 					drawRecordingGraph();
 			}
@@ -1260,10 +1272,10 @@ public class MainActivity extends FragmentActivity implements
 
 	}
 
-	public void loadEntropyFromCloud() {
+	public void loadMeanVarVectors() {
 		String apiURI = null;
 		// try {
-		apiURI = "https://api.mongolab.com/api/1/databases/activity_recognition/collections/entropy_data"
+		apiURI = "https://api.mongolab.com/api/1/databases/activity_recognition/collections/m_v_vectors"
 				// + "?f="
 				// + URLEncoder.encode("{\"" + arrayName + "\": 1}", "UTF-8")
 				// + "&l=1"
@@ -1290,7 +1302,8 @@ public class MainActivity extends FragmentActivity implements
 				@Override
 				protected void onPostExecute(String result) {
 					super.onPostExecute(result);
-					writeEntropyData(result);
+					parseMeanVarVectors(result);
+					loadMvcMeanVarVectors();
 				}
 
 				@Override
@@ -1331,19 +1344,208 @@ public class MainActivity extends FragmentActivity implements
 		}
 	}
 
-	protected void writeEntropyData(String result) {
+	
+	public void loadMvcMeanVarVectors() {
+		String apiURI = null;
+		// try {
+		apiURI = "https://api.mongolab.com/api/1/databases/activity_recognition/collections/mvc_m_v_vectors"
+				// + "?f="
+				// + URLEncoder.encode("{\"" + arrayName + "\": 1}", "UTF-8")
+				// + "&l=1"
+				+ "?apiKey=" + apiKey;
+		// } catch (UnsupportedEncodingException e1) {
+		// TODO Auto-generated catch block
+		// e1.printStackTrace();
+		// }
+
+		Log.d("****Status Line***", "" + apiURI);
+
+		try {
+
+			// make web service connection
+			final StringBuilder builder = new StringBuilder();
+
+			final HttpGet request = new HttpGet(apiURI);
+			request.setHeader("Accept", "application/json");
+			request.setHeader("Content-type", "application/json");
+			final DefaultHttpClient httpClient = new DefaultHttpClient();
+
+			new AsyncTask<Void, Void, String>() {
+
+				@Override
+				protected void onPostExecute(String result) {
+					super.onPostExecute(result);
+					parseMvcMeanVarVectors(result);
+					loadCovarianceMatrices();
+				}
+
+				@Override
+				public String doInBackground(Void... arg) {
+					try {
+						HttpResponse response = httpClient.execute(request);
+						StatusLine statusLine = response.getStatusLine();
+						int statusCode = statusLine.getStatusCode();
+						if (statusCode == 200) {
+
+							HttpEntity entity = response.getEntity();
+							InputStream content = entity.getContent();
+
+							BufferedReader reader = new BufferedReader(
+									new InputStreamReader(content));
+							String line;
+							while ((line = reader.readLine()) != null) {
+								builder.append(line);
+							}
+							Log.d("****Status Line***", "Success");
+
+							return builder.toString();
+
+						} else {
+							Log.d("****Status Line***",
+									"Failed to download file");
+						}
+
+					} catch (Exception e) {
+						Log.e("SendMail", e.getMessage(), e);
+					}
+					return null;
+				}
+			}.execute();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void loadCovarianceMatrices() {
+		String apiURI = null;
+		apiURI = "https://api.mongolab.com/api/1/databases/activity_recognition/collections/mvc_matrices"
+				+ "?apiKey=" + apiKey;
+
+		Log.d("****Status Line***", "" + apiURI);
+
+		try {
+
+			// make web service connection
+			final StringBuilder builder = new StringBuilder();
+
+			final HttpGet request = new HttpGet(apiURI);
+			request.setHeader("Accept", "application/json");
+			request.setHeader("Content-type", "application/json");
+			final DefaultHttpClient httpClient = new DefaultHttpClient();
+
+			new AsyncTask<Void, Void, String>() {
+
+				@Override
+				protected void onPostExecute(String result) {
+					super.onPostExecute(result);
+					parseCovarianceMatricesResult(result);
+					
+				}
+
+				@Override
+				public String doInBackground(Void... arg) {
+					try {
+						HttpResponse response = httpClient.execute(request);
+						StatusLine statusLine = response.getStatusLine();
+						int statusCode = statusLine.getStatusCode();
+						if (statusCode == 200) {
+
+							HttpEntity entity = response.getEntity();
+							InputStream content = entity.getContent();
+
+							BufferedReader reader = new BufferedReader(
+									new InputStreamReader(content));
+							String line;
+							while ((line = reader.readLine()) != null) {
+								builder.append(line);
+							}
+							Log.d("****Status Line***", "Success");
+
+							return builder.toString();
+
+						} else {
+							Log.d("****Status Line***",
+									"Failed to download file");
+						}
+
+					} catch (Exception e) {
+						Log.e("SendMail", e.getMessage(), e);
+					}
+					return null;
+				}
+			}.execute();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	protected void parseCovarianceMatricesResult(String result) {
+		int n = 6;
+		JSONArray jsonArray;
+		try {
+			jsonArray = new JSONArray(result);
+
+			List<double[][]> covM = new ArrayList<double[][]>();
+			for (int i = 0; i < 8; i++) {
+				covM.add(new double[n][n]);
+			}
+
+			for (int i = 0; i < jsonArray.length(); i++) {
+				JSONObject obj = (JSONObject) jsonArray.get(i);
+				Iterator<?> keys = obj.keys();
+				while (keys.hasNext()) {
+					String key = (String) keys.next();
+					if (key.startsWith("matrix")) {
+						ArrayList<Double> tempArray = new ArrayList<Double>();
+						double[][] tempMatrix = new double[n][n];
+						
+						JSONArray matrixEntry = obj.getJSONArray(key);
+						
+						
+						for (int j = 0; j < matrixEntry.length(); j++) {
+							JSONArray rowArray = (JSONArray) matrixEntry.get(j);
+							for (int k = 0; k < rowArray.length(); k++) {
+								double value = (Double) rowArray.get(k);
+								tempMatrix[j][k] = value;
+							}
+						}
+						covM.set(
+								(Integer.valueOf(key.substring(key.length() - 1))),
+								tempMatrix);
+					}
+
+				}
+
+			}
+			toast("mvcMeanVector" + mvcMeanVector.size() + " var: " + mvcVarVector.size());
+			mvc = new MultivariateNormalBayesClassifier(mvcMeanVector,
+					mvcVarVector, covM);
+
+			toast("MVC matrices loaded succesfully.");
+			meanVarVectorsLoaded = true;
+
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	protected void parseMeanVarVectors(String result) {
 
 		JSONArray jsonArray;
 		try {
 			jsonArray = new JSONArray(result);
 
-			ArrayList<ArrayList<Double>> entropyMean = new ArrayList<ArrayList<Double>>();
-			ArrayList<ArrayList<Double>> entropyVar = new ArrayList<ArrayList<Double>>();
+			ArrayList<ArrayList<Double>> meanVectors = new ArrayList<ArrayList<Double>>();
+			ArrayList<ArrayList<Double>> varianceVectors = new ArrayList<ArrayList<Double>>();
 			ArrayList<Double> filler = new ArrayList<Double>();
 
 			for (int i = 0; i < 9; i++) {
-				entropyMean.add(filler);
-				entropyVar.add(filler);
+				meanVectors.add(filler);
+				varianceVectors.add(filler);
 			}
 
 			for (int i = 0; i < jsonArray.length(); i++) {
@@ -1360,7 +1562,7 @@ public class MainActivity extends FragmentActivity implements
 							tempArray.add(arrayEntry.getDouble(Integer
 									.toString(j)));
 						}
-						entropyMean.set((Integer.valueOf(key.substring(key
+						meanVectors.set((Integer.valueOf(key.substring(key
 								.length() - 1))), tempArray);
 					} else if (key.startsWith("var")) {
 						ArrayList<Double> tempArray = new ArrayList<Double>();
@@ -1372,21 +1574,21 @@ public class MainActivity extends FragmentActivity implements
 							tempArray.add(arrayEntry.getDouble(Integer
 									.toString(j)));
 						}
-						entropyVar.set((Integer.valueOf(key.substring(key
+						varianceVectors.set((Integer.valueOf(key.substring(key
 								.length() - 1))), tempArray);
 					}
 
 				}
 
 			}
-			ng = new GaussianNaiveBayesClassifier(entropyMean, entropyVar);
+			ngc = new NaiveGaussianBayesClassifier(meanVectors, varianceVectors);
 			recognitionTab.updateStatusText(
 					"Entropy data loaded succefully.\nFirst 128 characters:"
 							+ result.substring(0,
 									Math.min(result.length(), 128)) + "...",
 					false);
 			toast("Entropy data loaded succesfully.");
-			entropyDataLoaded = true;
+			meanVarVectorsLoaded = true;
 
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -1395,8 +1597,75 @@ public class MainActivity extends FragmentActivity implements
 
 	}
 
+	
+	protected void parseMvcMeanVarVectors(String result) {
+
+		JSONArray jsonArray;
+		try {
+			jsonArray = new JSONArray(result);
+
+			ArrayList<ArrayList<Double>> meanVectors = new ArrayList<ArrayList<Double>>();
+			ArrayList<ArrayList<Double>> varianceVectors = new ArrayList<ArrayList<Double>>();
+			ArrayList<Double> filler = new ArrayList<Double>();
+
+			for (int i = 0; i < 9; i++) {
+				meanVectors.add(filler);
+				varianceVectors.add(filler);
+			}
+
+			for (int i = 0; i < jsonArray.length(); i++) {
+				JSONObject obj = (JSONObject) jsonArray.get(i);
+				Iterator<?> keys = obj.keys();
+				while (keys.hasNext()) {
+					String key = (String) keys.next();
+					if (key.startsWith("mean")) {
+						ArrayList<Double> tempArray = new ArrayList<Double>();
+						JSONArray dataArray = obj.getJSONArray(key);
+						for (int j = 0; j < dataArray.length(); j++) {
+							JSONObject arrayEntry = (JSONObject) dataArray
+									.get(j);
+							tempArray.add(arrayEntry.getDouble(Integer
+									.toString(j)));
+						}
+						meanVectors.set((Integer.valueOf(key.substring(key
+								.length() - 1))), tempArray);
+					} else if (key.startsWith("var")) {
+						ArrayList<Double> tempArray = new ArrayList<Double>();
+
+						JSONArray dataArray = obj.getJSONArray(key);
+						for (int j = 0; j < dataArray.length(); j++) {
+							JSONObject arrayEntry = (JSONObject) dataArray
+									.get(j);
+							tempArray.add(arrayEntry.getDouble(Integer
+									.toString(j)));
+						}
+						varianceVectors.set((Integer.valueOf(key.substring(key
+								.length() - 1))), tempArray);
+					}
+
+				}
+
+			}
+			mvcMeanVector=meanVectors;
+			mvcVarVector=varianceVectors;
+			recognitionTab.updateStatusText(
+					"Entropy data loaded succefully.\nFirst 128 characters:"
+							+ result.substring(0,
+									Math.min(result.length(), 128)) + "...",
+					false);
+			toast("Entropy data loaded succesfully.");
+			meanVarVectorsLoaded = true;
+
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	
 	public void getEntropyData(View view) {
-		loadEntropyFromCloud();
+		loadMeanVarVectors();
 	}
 
 	public AccData getTempData() {

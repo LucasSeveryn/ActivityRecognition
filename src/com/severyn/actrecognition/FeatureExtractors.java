@@ -32,11 +32,11 @@ public final class FeatureExtractors {
 		case 5:
 			return "Standing up (5)";
 		case 6:
-			return "Jumping (6)";
+			return "Cycling (6)";
 		case 7:
 			return "Running (7)";
 		case 8:
-			return "Cycling (8)";
+			return "Test: Test (8)";
 		case 9:
 			return "Test: Unidentified (9)";
 		default:

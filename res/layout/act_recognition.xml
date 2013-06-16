@@ -4,16 +4,11 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
- 
-
     <com.androidplot.xy.XYPlot
         android:id="@+id/pPlot"
         android:layout_width="fill_parent"
-        android:layout_height="240dp"
-   
-        />
-    
-    
+        android:layout_height="200dp"
+        android:layout_below="@+id/classifierSpinner" />
 
     <Button
         android:id="@+id/prevButton"
@@ -77,7 +72,7 @@
         android:id="@+id/statusText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/scrollView1"
+        android:layout_above="@+id/cutoffSeekBar"
         android:layout_alignLeft="@+id/TextView01"
         android:layout_alignTop="@+id/scrollView1"
         android:layout_toLeftOf="@+id/scrollView1"
@@ -186,5 +181,24 @@
         android:layout_alignLeft="@+id/sendToServerCheckbox"
         android:layout_alignRight="@+id/sendToServerCheckbox"
         android:text="Speak out results" />
+
+    <Spinner
+        android:id="@+id/classifierSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/button1"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:entries="@array/classifiers"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/TextView03"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="Classifier:"
+        android:textSize="18dp" />
 
 </RelativeLayout>

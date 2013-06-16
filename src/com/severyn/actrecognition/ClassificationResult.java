@@ -9,7 +9,7 @@ public class ClassificationResult {
 	List<Double> p;
 	Date date;
 	Integer result;
-	int[] types = {0,1,2,3,4,5,7};
+	int[] types = {0,1,2,3,4,5,6,7};
 	
 	
 	public ClassificationResult() {

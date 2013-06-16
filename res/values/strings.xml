@@ -7,6 +7,11 @@
     <string name="title_section2">Activity Recording</string>
     <string name="title_section3">Activity Recognition</string>
 
+    
+    <string-array name="classifiers">
+        <item>Naïve Gaussian Bayes Classifier</item>
+        <item>Multivariate Gausian Bayes Classifier</item>
+    </string-array>
     <string-array name="displayType">
         <item>Raw Data</item>
         <item>LPF Data</item>
@@ -21,9 +26,9 @@
         <item>Walking down the stairs (3)</item>
         <item>Sitting (4)</item>
         <item>Standing up (5)</item>
-        <item>Jumping (6)</item>
+        <item>Cycling (6)</item>
         <item>Running (7)</item>
-        <item>Cycling (8)</item>
+        <item>Test (8)</item>
         <item>Test: Unknown (9)</item>
         
         

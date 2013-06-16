@@ -74,6 +74,10 @@ public class ActRecognitionFragment extends Fragment {
 				.findViewById(R.id.cutoffSeekBar);
 		cutoffSeekBar.setOnSeekBarChangeListener((MainActivity) getActivity());
 		
+		Spinner classifierSpinner = (Spinner) rootView.findViewById(R.id.classifierSpinner);
+		classifierSpinner.setOnItemSelectedListener((MainActivity) getActivity());
+		
+		
 		
 	     BarRenderer barRenderer = (BarRenderer) pPlot.getRenderer(BarRenderer.class);
 	       if(barRenderer != null) {
@@ -84,6 +88,11 @@ public class ActRecognitionFragment extends Fragment {
 		pPlot.redraw();
 		
 		return rootView;
+	}
+	
+	public int getClassifierSpinnerValue() {
+		return ((Spinner) getView().findViewById(R.id.classifierSpinner))
+				.getSelectedItemPosition();
 	}
 	
 	public boolean getSendToServerCheckboxValue(){
@@ -97,7 +106,7 @@ public class ActRecognitionFragment extends Fragment {
 		
 		for(int i=0;i<results.size();i++){
 			if (!Double.isInfinite(results.get(i))) { //debug
-				if(i==6) probabilityData.add(0.0);			
+//				if(i==6) probabilityData.add(0.0);			
 				probabilityData.add(results.get(i));			
 				//probabilityData.add(Math.exp(results.get(i)));
 			}
